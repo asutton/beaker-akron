@@ -98,10 +98,16 @@ struct language
   ~language();
 
   static language& get_instance();
-  static feature& get_feature(int);
 
   template<typename T>
   void add_feature();
+
+  static feature& get_feature(int);
+  static feature& get_feature(const name&);
+  static feature& get_feature(const type&);
+  static feature& get_feature(const expr&);
+  static feature& get_feature(const decl&);
+  static feature& get_feature(const stmt&);
 
   feature_set feat_;
 };

@@ -198,40 +198,22 @@ generate(generator& gen, const module& m)
   gen.leave_source_module();
 }
 
-// Generate a symbol name from n.
-//
-// TODO: The formation of the name is determined by the ABI. In order to be
-// C++ compliant, for example, we would need to mangle as per the Itanium
-// ABI specification (among many other things).
-//
-// TODO: Support names in other language packs.
+/// Generate a symbol name from n.
+///
+/// TODO: The formation of the name is determined by the ABI. In order to be
+/// C++ compliant, for example, we would need to mangle as per the Itanium
+/// ABI specification (among many other things).
 std::string
 generate(generator& gen, const name& n)
 {
-  switch (n.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::generate_name(gen, n);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "name not supported");
+  return language::get_feature(n).gen(gen, n);
 }
 
 // Generate an LLVM type from t.
 static cg::type
 do_generate_type(generator& gen, const type& t)
 {
-  switch (t.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::generate_type(gen, t);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "type not supported");
+  return language::get_feature(t).gen(gen, t);
 }
 
 /// Generate the LLVM representation of t.
@@ -249,50 +231,25 @@ generate(generator& gen, const type& t)
   return ret;
 }
 
-
 /// Generate a sequence of LLVM instructions for e.
 cg::value
 generate(generator& gen, const expr& e)
 {
-  switch (e.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::generate_expr(gen, e);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "expression not supported");
+  return language::get_feature(e).gen(gen, e);
 }
 
 /// Generate an LLVM declaration for d.
 cg::value
 generate(generator& gen, const decl& d)
 {
-  switch (d.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::generate_decl(gen, d);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "declaration not supported");
+  return language::get_feature(d).gen(gen, d);
 }
 
-// Generate a sequence of blocks and instructions for s.
+/// Generate a sequence of blocks and instructions for s.
 void
 generate(generator& gen, const stmt& s)
 {
-  switch (s.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::generate_stmt(gen, s);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "statement not supported");
+  return language::get_feature(s).gen(gen, s);
 }
 
 } // namespace beaker

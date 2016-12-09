@@ -9,58 +9,25 @@
 
 namespace beaker {
 
-#define def_lang(l) \
-namespace l { \
-  extern void hash_name(hasher&, const name&); \
-  extern void hash_type(hasher&, const type&); \
-  extern void hash_expr(hasher&, const expr&); \
-}
-#include "../lang.def"
-
 void
-hash(hasher& h, const name& n)
+hash(hasher& h, const name& n) 
 {
   hash(h, typeid(n));
-  switch (n.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::hash_name(h, n);
-#include "../lang.def"
-    default:
-    break;
-  }
-  assert(false && "name not supported");
+  return language::get_feature(n).hash(h, n);
 }
 
 void
-hash(hasher& h, const type& t)
+hash(hasher& h, const type& t) 
 {
   hash(h, typeid(t));
-  switch (t.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::hash_type(h, t);
-#include "../lang.def"
-    default:
-    break;
-  }
-  assert(false && "type not supported");
+  return language::get_feature(t).hash(h, t);
 }
 
-
 void
-hash(hasher& h, const expr& e)
+hash(hasher& h, const expr& e) 
 {
   hash(h, typeid(e));
-  switch (e.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::hash_expr(h, e);
-#include "../lang.def"
-    default:
-    break;
-  }
-  assert(false && "expression not supported");
+  return language::get_feature(e).hash(h, e);
 }
 
 /// Hash a unary expression e into h.

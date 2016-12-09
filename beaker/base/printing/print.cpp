@@ -49,86 +49,39 @@ print(const stmt& s)
   std::cout << '\n';
 }
 
-#define def_lang(l) \
-namespace l { \
-  extern void print_name(std::ostream&, const name&); \
-  extern void print_type(std::ostream&, const type&); \
-  extern void print_expr(std::ostream&, const expr&); \
-  extern void print_decl(std::ostream&, const decl&); \
-  extern void print_stmt(std::ostream&, const stmt&); \
-}
-#include "../lang.def"
-
-// Pretty print the name n.
+/// Pretty print the name n.
 void
 print(std::ostream& os, const name& n)
 {
-  switch (n.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::print_name(os, n);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "unsupported feature");
+  language::get_feature(n).print(os, n);
 }
 
-// Pretty print the type t.
+/// Pretty print the type t.
 void
 print(std::ostream& os, const type& t)
 {
-  switch (t.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::print_type(os, t);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "unsupported feature");
+  language::get_feature(t).print(os, t);
 }
 
+/// Pretty print the expression e.
 void
 print(std::ostream& os, const expr& e)
 {
-  switch (e.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::print_expr(os, e);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "unsupported feature");
+  language::get_feature(e).print(os, e);
 }
 
+/// Pretty print the declaration d.
 void
 print(std::ostream& os, const decl& d)
 {
-  switch (d.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::print_decl(os, d);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "unsupported feature");
+  language::get_feature(d).print(os, d);
 }
 
+/// Pretty print the statement s.
 void
 print(std::ostream& os, const stmt& s)
 {
-  switch (s.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::print_stmt(os, s);
-#include "../lang.def"
-    default:
-      break;
-  }
-  assert(false && "unsupported feature");
+  language::get_feature(s).print(os, s);
 }
 
 // Print an expression with explicit grouping.
