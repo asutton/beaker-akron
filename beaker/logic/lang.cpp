@@ -7,6 +7,7 @@
 
 
 namespace beaker {
+namespace logic {
 
 extern bool eq_type(const type&, const type&);
 extern bool eq_expr(const expr&, const expr&);
@@ -54,19 +55,20 @@ feature::print(std::ostream& os, const expr& e)
   print_expr(os, e);
 }
 
-extern cg::type gen_type(generator& gen, const type&);
-extern cg::value gen_expr(generator& gen, const expr&);
+extern cg::type generate_type(generator& gen, const type&);
+extern cg::value generate_expr(generator& gen, const expr&);
 
 cg::type
 feature::gen(generator& gen, const type& t)
 {
-  return gen_type(gen, t);
+  return generate_type(gen, t);
 }
 
 cg::value
 feature::gen(generator& gen, const expr& e)
 {
-  return gen_expr(gen, e);
+  return generate_expr(gen, e);
 }
 
+} // namespace logic
 } // namespace beaker

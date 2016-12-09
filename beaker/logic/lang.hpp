@@ -19,25 +19,17 @@ namespace logic {
 /// algorithms and facilities needed to operate on those terms.
 struct feature : basic_feature<logic_lang>
 {
-  bool eq(const name&, const name&) override;
   bool eq(const type&, const type&) override;
   bool eq(const expr&, const expr&) override;
 
-  void hash(hasher&, const name&) override;
   void hash(hasher&, const type&) override;
   void hash(hasher&, const expr&) override;
 
-  void print(std::ostream&, const name&) override;
   void print(std::ostream&, const type&) override;
   void print(std::ostream&, const expr&) override;
-  void print(std::ostream&, const decl&) override;
-  void print(std::ostream&, const stmt&) override;
 
-  std::string gen(generator&, const name&) override;
   cg::type gen(generator&, const type&) override;
   cg::value gen(generator&, const expr&) override;
-  cg::value gen(generator&, const decl&) override;
-  void gen(generator&, const stmt&) override;
 };
 
 } // namespace logic

@@ -4,9 +4,11 @@
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
 
+#include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
 #include <beaker/base/printing/print.hpp>
 
+#include <beaker/logic/lang.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
 #include <beaker/logic/construction/builder.hpp>
@@ -19,6 +21,9 @@ using namespace beaker;
 int
 main(int argc, char* argv[])
 {
+  language lang;
+  lang.add_feature<logic::feature>();
+
   sequential_allocator<> alloc;
   symbol_table syms;
   module mod(alloc, syms);
