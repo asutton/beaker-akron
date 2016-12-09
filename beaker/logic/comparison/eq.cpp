@@ -9,34 +9,28 @@
 namespace beaker {
 namespace logic {
 
-bool
-equivalent_name(const name& a, const name& b)
-{
-  assert(false && "invalid name");
-}
-
 // All bool types are equivalent.
 bool 
-equivalent_type(const type& a, const type& b)
+eq_type(const type& a, const type& b)
 {
   assert(a.get_kind() == bool_type_kind);
   return true;
 }
 
 static inline bool
-equivalent_bool_expr(const bool_expr& a, const bool_expr& b)
+eq_bool_expr(const bool_expr& a, const bool_expr& b)
 {
   return a.get_boolean() == b.get_boolean();
 }
 
 // Returns true when a and b are equivalent logical expressions.
 bool 
-equivalent_expr(const expr& a, const expr& b)
+eq_expr(const expr& a, const expr& b)
 {
   assert(a.get_kind() == b.get_kind());
   switch (a.get_kind()) {
     case bool_expr_kind:
-      return equivalent_bool_expr(cast<bool_expr>(a), cast<bool_expr>(b));
+      return eq_bool_expr(cast<bool_expr>(a), cast<bool_expr>(b));
     
     case and_expr_kind:
     case or_expr_kind:

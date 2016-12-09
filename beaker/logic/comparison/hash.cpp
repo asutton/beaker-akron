@@ -9,12 +9,6 @@
 namespace beaker {
 namespace logic {
 
-void
-hash_name(hasher& h, const name& n)
-{
-  assert(false && "invalid name");
-}
-
 // Nothing else to hash.
 void
 hash_type(hasher& h, const type& t)

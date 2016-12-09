@@ -2,6 +2,7 @@
 # All rights reserved
 
 add_beaker_module(
+  lang.cpp
   type.cpp
   expr.cpp
   comparison/eq.cpp

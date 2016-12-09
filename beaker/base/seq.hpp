@@ -202,10 +202,12 @@ struct seq
 template<typename T>
 bool
 equivalent(const seq<T>& a, const seq<T>& b) {
+  if (a.size() != b.size())
+    return false;
   auto cmp = [](const T& a, const T& b) {
     return equivalent(a, b);
   };
-  return std::equal(a.begin(), a.end(), b.begin(), b.end(), cmp);
+  return std::equal(a.begin(), a.end(), b.begin(), cmp);
 }
 
 

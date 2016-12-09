@@ -22,17 +22,11 @@ equivalent(const name& a, const name& b)
 {
   if (a.get_kind() != b.get_kind())
     return false;
-  switch (a.get_feature()) {
-#define def_lang(l) \
-    case l ## _lang: \
-      return l::equivalent_name(a, b);
-#include "../lang.def"
-    default:
-    break;
-  }
-  assert(false && "name not supported");
+  feature& feat = language::get_feature(a.get_feature());
+  return feat.eq(a, b);
 }
 
+#if 0
 bool
 equivalent(const type& a, const type& b) 
 {
@@ -66,18 +60,19 @@ equivalent(const expr& a, const expr& b)
 }
 
 bool
-equivalent_unary_expr(const unary_expr& a, const unary_expr& b)
+eq_unary_expr(const unary_expr& a, const unary_expr& b)
 {
   assert(a.get_kind() == b.get_kind());
   return equivalent(a.get_operand(), b.get_operand());
 }
 
 bool
-equivalent_binary_expr(const binary_expr& a, const binary_expr& b)
+eq_binary_expr(const binary_expr& a, const binary_expr& b)
 {
   assert(a.get_kind() == b.get_kind());
   return equivalent(a.get_lhs(), b.get_lhs()) 
       && equivalent(a.get_rhs(), b.get_rhs());
 }
+#endif
 
 } // namespace

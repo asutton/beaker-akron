@@ -11,7 +11,7 @@ set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} $ENV{HOME}/local/include)
 project(beaker VERSION 0.0 LANGUAGES CXX)
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++14")
+set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 
 # Determine architecture.
 math(EXPR bits "8 * ${CMAKE_SIZEOF_VOID_P}")
