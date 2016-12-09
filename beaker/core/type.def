@@ -1,0 +1,8 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+def_type(void)
+def_type(ref)
+def_type(fn)
+
+#undef def_type

@@ -1,0 +1,17 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+def_expr(nop)
+def_expr(void)
+def_expr(ref)
+def_expr(temp)
+def_expr(copy)
+def_expr(call)
+def_expr(deref)
+
+def_init(zero)
+def_init(copy)
+def_init(call)
+
+#undef def_expr
+#undef def_init

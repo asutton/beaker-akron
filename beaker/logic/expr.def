@@ -1,0 +1,11 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+def_expr(bool)
+def_expr(and)
+def_expr(or)
+def_expr(not)
+def_expr(imp)
+def_expr(eq)
+
+#undef def_expr

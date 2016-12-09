@@ -1,0 +1,6 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+def_type(sample)
+
+#undef def_type

@@ -1,0 +1,17 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+// This file defines the set of language features that can be used
+// by the language. In order to introduce a new language feature,
+// create a new def_lang() macro with a unique name. That name must
+// match the namespace in which the feature is defined.
+
+def_lang(core)
+def_lang(logic)
+def_lang(numeric)
+def_lang(variadic)
+
+def_lang(procedural)
+def_lang(sample)
+
+#undef def_lang

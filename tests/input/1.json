@@ -1,0 +1,26 @@
+{
+  "types" : [
+    {"kind":"ref", "id":0, "referent-type":"int32"},
+    {"kind":"ref", "id":1, "referent-type":"bool"}
+  ],
+  "functions" : [
+    {
+      "kind" : "fn",
+      "id": 0,
+      "name" : "main",
+      "parameters" : [
+        {"kind":"parm", "id":1, "name":"a", "type":"int32"},
+        {"kind":"parm", "id":2, "name":"b", "type":"bool"}
+      ],
+      "return": {"kind":"parm", "id":3, "name":"", "type":"int32"},
+      "definition": {
+        "kind":"and", 
+        "type":"bool", 
+        "operands": [
+          true,
+          {"kind":"bool", "value":false}
+        ]
+      }
+    }
+  ]
+}

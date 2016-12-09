@@ -1,0 +1,44 @@
+// Copyright (c) 2015-2016 Andrew Sutton
+// All rights reserved
+
+#ifndef BEAKER_BASE_GENERATION_VALUE_HPP
+#define BEAKER_BASE_GENERATION_VALUE_HPP
+
+#include <beaker/base/generation/note.hpp>
+
+
+namespace llvm {
+
+class Value;
+
+} // namespace llvm
+
+
+namespace beaker {
+namespace cg {
+
+/// A wrapper around llvm::Value that provides additional information.
+struct value : annotated
+{
+  value(llvm::Value*);
+  
+  operator llvm::Value*() const;
+  llvm::Value* operator->() const;
+
+  llvm::Value* val_;
+};
+
+/// Initialize this as a direct type.
+inline value::value(llvm::Value* t) : val_(t) { }
+
+/// Converts to an LLVM type.
+inline value::operator llvm::Value*() const { return val_; }
+
+/// Returns a pointer to the underlying LLVM value.
+inline llvm::Value* value::operator->() const { return val_; }
+
+} // namespace cg
+} // namespace beaker
+
+
+#endif
