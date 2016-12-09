@@ -1,13 +1,26 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include "expression.hpp"
+#include <beaker/data/expr.hpp>
+#include <beaker/base/printing/print.hpp>
 
 #include <iostream>
 
 
 namespace beaker {
 namespace data {
+
+void
+print_name(std::ostream& os, const name&)
+{
+  assert(false && "not defined");
+}
+
+void
+print_type(std::ostream& os, const type&)
+{
+  assert(false && "not implemented");
+}
 
 // Pretty print the tuple expression e.
 void 
@@ -75,6 +88,18 @@ print_expr(std::ostream& os, const expr& e)
   assert(false && "not a data expression");
 }
 
+
+void
+print_decl(std::ostream& os, const decl& d)
+{
+  assert(false && "not defined");
+}
+
+void
+print_stmt(std::ostream& os, const stmt& s)
+{
+  assert(false && "not defined");
+}
 
 } // namespace data
 } // namespace beaker

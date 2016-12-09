@@ -1,14 +1,17 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_TERM_DATA_CONSTRUCTION_HPP
-#define BEAKER_TERM_DATA_CONSTRUCTION_HPP
+#ifndef BEAKER_DATA_CONSTRUCTION_BUILDER_HPP
+#define BEAKER_DATA_CONSTRUCTION_BUILDER_HPP
 
-#include <beaker/terms/data/type.hpp>
-#include <beaker/common/construction.hpp>
+#include <beaker/base/construction/builder.hpp>
 
 namespace beaker {
 namespace data {
+
+struct tuple_type;
+struct array_type;
+struct seq_type;
 
 struct tuple_expr;
 struct array_expr;
@@ -20,9 +23,9 @@ struct index_expr;
 // evaluate data terms.
 //
 // TODO: This should use an allocator.
-struct builder
+struct builder : builder_base
 {
-  builder(allocator&);
+  builder(module&);
 
   // Canonical types
   tuple_type& get_tuple_type(const type_seq&);
@@ -43,6 +46,10 @@ struct builder
   canonical_set<array_type> arrays_;
   canonical_set<seq_type> seqs_;
 };
+
+inline builder::builder(module& m) : builder_base(m) { }
+
+
 
 } // namespace data
 } // namespace beaker

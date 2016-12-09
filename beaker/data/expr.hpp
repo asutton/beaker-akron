@@ -1,10 +1,10 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_TERM_DATA_EXPRESSION_HPP
-#define BEAKER_TERM_DATA_EXPRESSION_HPP
+#ifndef BEAKER_DATA_EXPR_HPP
+#define BEAKER_DATA_EXPR_HPP
 
-#include <beaker/common/expression.hpp>
+#include <beaker/base/expr.hpp>
 
 
 namespace beaker {
@@ -14,10 +14,9 @@ namespace data {
 enum 
 {
   first_expr_kind = data_lang,
-  tuple_expr_kind,
-  elem_expr_kind,
-  array_expr_kind,
-  index_expr_kind,
+#define def_expr(e) e ## _expr_kind,
+#include "expr.def"
+  last_expr_kind = data_lang,
 };
 
 
@@ -144,9 +143,9 @@ inline int elem_expr::get_index() const { return elem_; }
 // be an integer expression. If the value of `e2` exceeds the bounds of
 // the array, behavior is undefined. The result of the expression is a
 // reference to the element in `e1` denoted by the index `e2`.
-struct index_expr : binary_expr<index_expr_kind>
+struct index_expr : generic_binary_expr<index_expr_kind>
 {
-  using binary_expr<index_expr_kind>::binary_expr;
+  using generic_binary_expr<index_expr_kind>::generic_binary_expr;
 
   const expr& get_array() const;
   expr& get_array();
@@ -156,21 +155,17 @@ struct index_expr : binary_expr<index_expr_kind>
 };
 
 // Returns the array being indexed.
-inline const expr& index_expr::get_array() const { return get_left(); }
+inline const expr& index_expr::get_array() const { return get_lhs(); }
 
 // Returns the array being indexed.
-inline expr& index_expr::get_array() { return get_left(); }
+inline expr& index_expr::get_array() { return get_lhs(); }
 
 // Returns the index of the array element.
-inline const expr& index_expr::get_index() const { return get_right(); }
+inline const expr& index_expr::get_index() const { return get_rhs(); }
 
 // Returns the index of the array element.
-inline expr& index_expr::get_index() { return get_right(); }
+inline expr& index_expr::get_index() { return get_rhs(); }
 
-
-// Operations
-
-void print_expr(std::ostream&, const expr&);
 
 } // namespace data
 } // namespace beaker

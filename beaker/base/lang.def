@@ -10,8 +10,8 @@ def_lang(core)
 def_lang(logic)
 def_lang(numeric)
 def_lang(variadic)
-
 def_lang(procedural)
+def_lang(data)
 def_lang(sample)
 
 #undef def_lang

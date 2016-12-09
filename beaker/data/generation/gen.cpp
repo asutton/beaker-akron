@@ -1,48 +1,57 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include "generation.hpp"
-#include "type.hpp"
-#include "expression.hpp"
-
-#include <llvm/IR/IRBuilder.h>
-
-#include <iostream>
+#include <beaker/data/type.hpp>
+#include <beaker/data/expr.hpp>
+#include <beaker/core/type.hpp>
+#include <beaker/base/generation/generation.hpp>
 
 
 namespace beaker {
 namespace data {
 
+std::string
+generate_name(generator& gen, const name& n)
+{
+  assert(false && "not defined");
+}
+
 // Generates a literal record type from t.
+//
+// FIXME: Currently all tuples are emitted as indirect types. This should
+// really depend on its size.
 //
 // TODO: It might be worthwhile to cache the type mapping so we don't have 
 // to recompute it each time.
-static llvm::Type*
+static cg::type
 generate_tuple_type(generator& gen, const tuple_type& t)
 {
   std::vector<llvm::Type*> types;
   for (const type& t1 : t.get_element_types())
     types.push_back(generate(gen, t1));
-  return llvm::StructType::get(gen.get_context(), types);
+  return {llvm::StructType::get(gen.get_context(), types), false};
 }
 
 // Generates an array type from t.
-llvm::Type*
+//
+// FIXME: All arrays are currently emitted as indirect types. This should 
+// really depend on its size.
+cg::type
 generate_array_type(generator& gen, const array_type& t)
 {
-  llvm::Type* type = generate(gen, t.get_element_type());
-  return llvm::ArrayType::get(type, t.get_extent());
+  cg::type type = generate(gen, t.get_element_type());
+  return {llvm::ArrayType::get(type, t.get_extent()), false};
 }
 
 // Generates a pointer type from t.
-static llvm::Type*
+static cg::type
 generate_seq_type(generator& gen, const seq_type& t)
 {
-  llvm::Type* type = generate(gen, t.get_element_type());
+  cg::type type = generate(gen, t.get_element_type());
   return llvm::PointerType::getUnqual(type);
 }
 
-llvm::Type*
+cg::type
 generate_type(generator& gen, const type& t)
 {
   switch (t.get_kind()) {
@@ -61,17 +70,17 @@ generate_type(generator& gen, const type& t)
 
 // Generate a tuple or array register.
 template<typename T>
-static llvm::Value*
+static cg::value
 generate_aggregate(generator& gen, const T& e)
 {
-  llvm::Type* type = generate(gen, e.get_type());
-  llvm::Value* agg = llvm::UndefValue::get(type);
+  cg::type type = generate(gen, e.get_type());
+  cg::value agg = llvm::UndefValue::get(type);
 
   // Iteratively construct the aggregate value.
   llvm::IRBuilder<> ir(gen.get_current_block());
   int n = 0;
   for (const expr& e1 : e.get_elements()) {
-    llvm::Value* elem = generate(gen, e1);
+    cg::value elem = generate(gen, e1);
     agg = ir.CreateInsertValue(agg, elem, n++);
   }
   return agg; 
@@ -80,7 +89,7 @@ generate_aggregate(generator& gen, const T& e)
 // Generate a tuple object from e.
 //
 // TODO: If e is a tuple literal, then we can generate a struct constant.
-llvm::Value*
+cg::value
 generate_tuple_expr(generator& gen, const tuple_expr& e)
 {
   return generate_aggregate(gen, e);
@@ -89,7 +98,7 @@ generate_tuple_expr(generator& gen, const tuple_expr& e)
 // Generate an array object from e.
 //
 // TODO: If e is an array literal, then we can generate an array constant.
-llvm::Value*
+cg::value
 generate_array_expr(generator& gen, const array_expr& e)
 {
   return generate_aggregate(gen, e);
@@ -99,20 +108,20 @@ generate_array_expr(generator& gen, const array_expr& e)
 //
 // Because the expression is a reference, the sub-object is accessed by 
 // it's address.
-llvm::Value*
+cg::value
 generate_elem_ref(generator& gen, const elem_expr& e)
 {
-  assert(is<ref_type>(e.get_type()));
-  llvm::Value* tuple = generate(gen, e.get_tuple());
+  assert(is<core::ref_type>(e.get_type()));
+  cg::value tuple = generate(gen, e.get_tuple());
   llvm::IRBuilder<> ir(gen.get_current_block());
   return ir.CreateConstGEP1_32(tuple, e.get_index());
 }
 
 // Generate an element access to a tuple or array object.
-llvm::Value*
+cg::value
 generate_elem_obj(generator& gen, const elem_expr& e)
 {
-  llvm::Value* tuple = generate(gen, e.get_tuple());
+  cg::value tuple = generate(gen, e.get_tuple());
   llvm::IRBuilder<> ir(gen.get_current_block());
   return ir.CreateExtractValue(tuple, e.get_index());
 }
@@ -121,30 +130,30 @@ generate_elem_obj(generator& gen, const elem_expr& e)
 //
 // The behavior of this operation depends on whether the aggregate is 
 // stored (i.e., accessed by reference) or not.
-llvm::Value*
+cg::value
 generate_elem_expr(generator& gen, const elem_expr& e)
 {
   const type& t = e.get_type();
-  if (is<ref_type>(t))
+  if (is<core::ref_type>(t))
     return generate_elem_ref(gen, e);
   else
     return generate_elem_obj(gen, e);
 }
 
 // Generate an element access to an array or sequence reference.
-llvm::Value*
+cg::value
 generate_index_expr(generator& gen, const index_expr& e)
 {
   const type& t = e.get_type();
-  assert(is<ref_type>(t) && "not implemented");
-  llvm::Value* array = generate(gen, e.get_array());
-  llvm::Value* index = generate(gen, e.get_index());
+  assert(is<core::ref_type>(t) && "not implemented");
+  cg::value array = generate(gen, e.get_array());
+  cg::value index = generate(gen, e.get_index());
   llvm::IRBuilder<> ir(gen.get_current_block());
   return ir.CreateGEP(array, index);
 }
 
 // Generate an expression from e.
-llvm::Value*
+cg::value
 generate_expr(generator& gen, const expr& e)
 {
   switch (e.get_kind()) {
@@ -161,6 +170,19 @@ generate_expr(generator& gen, const expr& e)
   }
   assert(false && "not a data expression");
 }
+
+cg::value
+generate_decl(generator& gen, const decl& s)
+{
+  assert(false && "not defined");
+}
+
+void
+generate_stmt(generator& gen, const stmt& s)
+{
+  assert(false && "not defined");
+}
+
 
 } // namespace data
 } // namespace beaker
