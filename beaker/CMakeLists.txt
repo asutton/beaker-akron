@@ -31,3 +31,15 @@ include(sample/CMakeLists.txt)
 # Define the core library.
 add_library(beaker STATIC ${beaker_src})
 target_link_libraries(beaker ${LLVM_LIBRARIES})
+
+# Installation
+install(TARGETS beaker DESTINATION lib)
+
+# Add install targets.
+install(
+  DIRECTORY ${PROJECT_SOURCE_DIR}/beaker
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+  FILES_MATCHING
+  PATTERN "*.hpp"
+  PATTERN "CMakeFiles" EXCLUDE
+)
