@@ -19,12 +19,8 @@ add_beaker_module(
   generation/type.cpp
   generation/value.cpp
   generation/note.cpp
-  serialization/json.cpp
-  serialization/json_reader.cpp
-  serialization/json_writer.cpp
+
+  # serialization/json.cpp
+  # serialization/json_reader.cpp
+  # serialization/json_writer.cpp
 )
-
-# add_beaker_test(test-common-visit test/visit.cpp)
-# add_beaker_test(test-common-function test/function.cpp)
-# add_beaker_test(test-common-json test/json.cpp)
-

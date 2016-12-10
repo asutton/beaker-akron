@@ -1,20 +1,14 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/numeric/generation/gen.hpp>
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
-#include <beaker/base/generation/generation.hpp>
 
-#include <iostream>
 
 namespace beaker {
 namespace numeric {
 
-std::string
-generate_name(generator& gen, const name& n)
-{
-  assert(false && "not defined");
-}
 
 /// Generate an integer type. If the precision is greater than 128, the type
 /// will be indirect.
@@ -43,7 +37,7 @@ generate_fp_type(generator& g, const type& t)
 
 // Generate a numeric type.
 cg::type
-generate_type(generator& gen, const type& t)
+gen_algo::operator()(generator& gen, const type& t) const
 {
   switch (t.get_kind()) {
     case char_type_kind:
@@ -84,60 +78,18 @@ extern cg::value generate_rec_expr(generator&, const rec_expr&);
 //
 // Code generation semantics are determined by the type of e.
 cg::value
-generate_expr(generator& gen, const expr& e)
+gen_algo::operator()(generator& gen, const expr& e) const
 {
   switch (e.get_kind()) {
-    case int_expr_kind:
-      return generate_int_expr(gen, cast<int_expr>(e));
-    case float_expr_kind:
-      return generate_float_expr(gen, cast<float_expr>(e));
-
-    case eq_expr_kind: 
-      return generate_eq_expr(gen, cast<eq_expr>(e));
-    case ne_expr_kind:
-      return generate_ne_expr(gen, cast<ne_expr>(e));
-    case lt_expr_kind:
-      return generate_lt_expr(gen, cast<lt_expr>(e));
-    case gt_expr_kind:
-      return generate_gt_expr(gen, cast<gt_expr>(e));
-    case le_expr_kind:
-      return generate_le_expr(gen, cast<le_expr>(e));
-    case ge_expr_kind:
-      return generate_ge_expr(gen, cast<ge_expr>(e));
-
-    case add_expr_kind:
-      return generate_add_expr(gen, cast<add_expr>(e));
-    case sub_expr_kind:
-      return generate_sub_expr(gen, cast<sub_expr>(e));
-    case mul_expr_kind:
-      return generate_mul_expr(gen, cast<mul_expr>(e));
-    case div_expr_kind:
-      return generate_div_expr(gen, cast<div_expr>(e));
-    case rem_expr_kind:
-      return generate_rem_expr(gen, cast<rem_expr>(e));
-    case neg_expr_kind:
-      return generate_neg_expr(gen, cast<neg_expr>(e));
-    case rec_expr_kind:
-      return generate_rec_expr(gen, cast<rec_expr>(e));
-    
+#define def_expr(E) \
+    case E ## _expr_kind: \
+      return generate_ ## E ## _expr(gen, cast<E ## _expr>(e));
+#include "../expr.def"
     default:
       break;
   }
   assert(false && "not a numeric expression");
 }
-
-cg::value
-generate_decl(generator& gen, const decl& d)
-{
-  assert(false && "not defined");
-}
-
-void
-generate_stmt(generator& gen, const stmt& s)
-{
-  assert(false && "not defined");
-}
-
 
 } // namespace numeric
 } // namespace beaker

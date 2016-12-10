@@ -168,8 +168,7 @@ enum {
 constexpr int
 get_language(int k) { return k / lang_block_size; }
 
-
-} // namespace
+} // namespace beaker
 
 
 #endif

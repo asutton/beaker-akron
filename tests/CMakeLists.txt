@@ -18,5 +18,5 @@ add_beaker_test(test-ast-fn-2 ast/fn-2.cpp)
 
 
 # Tools
-add_beaker_test(test-json json.cpp)
+# add_beaker_test(test-json json.cpp)
 

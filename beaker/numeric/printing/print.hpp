@@ -1,14 +1,14 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_PRINTING_PRINT_HPP
-#define BEAKER_LOGIC_PRINTING_PRINT_HPP
+#ifndef BEAKER_NUMERIC_PRINTING_PRINT_HPP
+#define BEAKER_NUMERIC_PRINTING_PRINT_HPP
 
 #include <beaker/base/printing/print.hpp>
 
 
 namespace beaker {
-namespace logic {
+namespace numeric {
 
 struct print_algo : print_algorithm
 {
@@ -16,7 +16,7 @@ struct print_algo : print_algorithm
   void operator()(std::ostream&, const expr&) const;
 };
 
-} // namespace logic
+} // namespace numeric
 } // namespace beaker
 
 

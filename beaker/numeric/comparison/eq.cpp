@@ -1,23 +1,18 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/numeric/comparison/eq.hpp>
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
-#include <beaker/base/comparison/eq.hpp>
 
 
 namespace beaker {
 namespace numeric {
 
-bool 
-equivalent_name(const name& a, const name& b)
-{
-  assert(false && "not defined");
-}
 
-/// Returns true when `a` and `b` have the same precision.
+/// Returns true when numeric types `a` and `b` have the same precision.
 bool
-equivalent_type(const type& a, const type& b)
+eq_algo::operator()(const type& a, const type& b) const
 {
   switch (a.get_kind()) {
 #define def_type(T) \
@@ -32,7 +27,7 @@ equivalent_type(const type& a, const type& b)
 
 /// \todo Implement me.
 bool
-equivalent_expr(const expr& a, const expr& b)
+eq_algo::operator()(const expr& a, const expr& b) const
 {
   assert(false && "not implemented");
 }

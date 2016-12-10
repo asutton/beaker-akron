@@ -1,28 +1,22 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/numeric/comparison/hash.hpp>
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
-#include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
 namespace numeric {
 
+/// Appends the precision of numeric type `t` to `h`.
 void
-hash_name(hasher& h, const name& n)
-{
-  assert(false && "not defined");
-}
-
-/// Appends the precision of `t` to `h`.
-void
-hash_type(hasher& h, const type& t)
+hash_algo::operator()(hasher& h, const type& t) const
 {
   switch (t.get_kind()) {
 #define def_type(T) \
-    case T##_type_kind: \
-      return hash(h, cast<T##_type>(t).get_precision());
+    case T ## _type_kind: \
+      return hash(h, cast<T ## _type>(t).get_precision());
 #include "../type.def"
     default:
       break;
@@ -31,9 +25,9 @@ hash_type(hasher& h, const type& t)
 }
 
 void
-hash_expr(hasher& h, const expr& n)
+hash_algo::operator()(hasher& h, const expr& n) const
 {
-  assert(false && "not defined");
+  assert(false && "not implemented");
 }
 
 } // namespace numeric
