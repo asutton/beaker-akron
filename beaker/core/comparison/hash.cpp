@@ -1,19 +1,19 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/core/comparison/hash.hpp>
 #include <beaker/core/name.hpp>
 #include <beaker/core/type.hpp>
 #include <beaker/core/expr.hpp>
 #include <beaker/util/symbol.hpp>
-#include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
 namespace core {
 
-/// Hash the name n into h.
+/// Hash the name `n` into `h`.
 void
-hash_name(hasher& h, const name& n)
+hash_algo::operator()(hasher& h, const name& n) const
 {
   switch (n.get_kind()) {
     case basic_name_kind:
@@ -23,7 +23,7 @@ hash_name(hasher& h, const name& n)
     default:
       break;
   }
-  assert(false && "name not supported");
+  assert(false && "name not a core name");
 }
 
 
@@ -45,7 +45,7 @@ hash_fn_type(hasher& h, const fn_type& t)
 
 // Append the hash of common type t to h.
 void
-hash_type(hasher& h, const type& t)
+hash_algo::operator()(hasher& h, const type& t) const
 {
   switch (t.get_kind()) {
     case void_type_kind:
@@ -57,12 +57,12 @@ hash_type(hasher& h, const type& t)
     default:
       break;
   }
-  assert(false && "not a common type");
+  assert(false && "not a core type");
 }
 
 /// TODO: Implement this function.
 void
-hash_expr(hasher& h, const expr& t)
+hash_algo::operator()(hasher& h, const expr& t) const
 {
   assert(false && "not implemented");
 }

@@ -1,20 +1,11 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/core/type.hpp>
-#include <beaker/core/expr.hpp>
-#include <beaker/core/decl.hpp>
-#include <beaker/base/generation/generation.hpp>
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-
-
 namespace beaker {
 namespace core {
 
 // Initialize the current object with zero.
-cg::value
+static cg::value
 generate_zero_init(generator& gen, const zero_init& e)
 {
   llvm::Builder ir(gen.get_current_block());
@@ -34,7 +25,7 @@ generate_zero_init(generator& gen, const zero_init& e)
 // We materialize a temporary x to store the result of make_big(). The
 // result of that expression will be a pointer to that object. We can then
 // memcpy the big object into the stored object.
-cg::value
+static cg::value
 generate_copy_init(generator& gen, const copy_init& e)
 {
   llvm::Builder ir(gen.get_current_block());
@@ -44,7 +35,7 @@ generate_copy_init(generator& gen, const copy_init& e)
   return nullptr;
 }
 
-cg::value
+static cg::value
 generate_call_init(generator& gen, const call_init& e)
 {
   assert(false && "not implemented");

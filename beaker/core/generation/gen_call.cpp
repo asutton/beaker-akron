@@ -1,15 +1,6 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/core/type.hpp>
-#include <beaker/core/expr.hpp>
-#include <beaker/core/decl.hpp>
-#include <beaker/base/generation/generation.hpp>
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-
-
 namespace beaker {
 namespace core {
 
@@ -36,7 +27,7 @@ get_function_info(generator& gen, const expr& e)
 // a landing pad. If the language has no exceptions, then call is sufficient.
 //
 // TODO: Handle non-noexcept functions.
-cg::value
+static cg::value
 generate_call_expr(generator& gen, const call_expr& e)
 {
   cg::fn_info& info = get_function_info(gen, e.get_function());
@@ -51,7 +42,6 @@ generate_call_expr(generator& gen, const call_expr& e)
   
   return ir.CreateCall(fn, args);
 }
-
 
 } // namespace core
 } // namespace beaker

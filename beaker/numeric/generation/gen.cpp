@@ -56,27 +56,281 @@ gen_algo::operator()(generator& gen, const type& t) const
   assert(false && "not a numeric type");
 }
 
-extern cg::value generate_int_expr(generator&, const int_expr&);
-extern cg::value generate_float_expr(generator&, const float_expr&);
+/// Generate an integer literal.
+static cg::value 
+generate_int_expr(generator& gen, const int_expr& e)
+{
+  int prec = get_precision(e.get_type());
+  llvm::Builder ir(gen.get_current_block());
+  return ir.getIntN(prec, e.get_value().get_integer());
+}
 
-extern cg::value generate_eq_expr(generator&, const eq_expr&);
-extern cg::value generate_ne_expr(generator&, const ne_expr&);
-extern cg::value generate_lt_expr(generator&, const lt_expr&);
-extern cg::value generate_gt_expr(generator&, const gt_expr&);
-extern cg::value generate_le_expr(generator&, const le_expr&);
-extern cg::value generate_ge_expr(generator&, const ge_expr&);
+/// Generate a floating point literal.
+static cg::value 
+generate_float_expr(generator& gen, const float_expr& e)
+{
+  cg::type type = generate(gen, e.get_type());
+  llvm::Builder ir(gen.get_current_block());
+  return llvm::ConstantFP::get(type, e.get_value().get_float());
+}
 
-extern cg::value generate_add_expr(generator&, const add_expr&);
-extern cg::value generate_sub_expr(generator&, const sub_expr&);
-extern cg::value generate_mul_expr(generator&, const mul_expr&);
-extern cg::value generate_div_expr(generator&, const div_expr&);
-extern cg::value generate_rem_expr(generator&, const rem_expr&);
-extern cg::value generate_neg_expr(generator&, const neg_expr&);
-extern cg::value generate_rec_expr(generator&, const rec_expr&);
+/// Generate an equality comparison.
+static cg::value
+generate_eq_expr(generator& gen, const eq_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case int_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpEQ(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpOEQ(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+/// Generate a not-equals comparison.
+static cg::value
+generate_ne_expr(generator& gen, const ne_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case int_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpNE(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpONE(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_lt_expr(generator& gen, const lt_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpULT(v1, v2);
+    case int_type_kind:
+      return ir.CreateICmpSLT(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpOLT(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_gt_expr(generator& gen, const gt_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpUGT(v1, v2);
+    case int_type_kind:
+      return ir.CreateICmpSGT(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpOGT(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_le_expr(generator& gen, const le_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpULE(v1, v2);
+    case int_type_kind:
+      return ir.CreateICmpSLE(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpOLE(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_ge_expr(generator& gen, const ge_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateICmpUGE(v1, v2);
+    case int_type_kind:
+      return ir.CreateICmpSGE(v1, v2);
+    case float_type_kind:
+      return ir.CreateFCmpOGE(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+/// Generate an add expression.
+static cg::value
+generate_add_expr(generator& gen, const add_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return ir.CreateNUWAdd(v1, v2);
+    case int_type_kind:
+      return ir.CreateNSWAdd(v1, v2);
+    case mod_type_kind:
+      return ir.CreateAdd(v1, v2);
+    case float_type_kind:
+      return ir.CreateFAdd(v1, v2, "");
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_sub_expr(generator& gen, const sub_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return ir.CreateNUWSub(v1, v2);
+    case int_type_kind:
+      return ir.CreateNSWSub(v1, v2);
+    case mod_type_kind:
+      return ir.CreateSub(v1, v2);
+    case float_type_kind:
+      return ir.CreateFSub(v1, v2, "");
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_mul_expr(generator& gen, const mul_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return ir.CreateNUWMul(v1, v2);
+    case int_type_kind:
+      return ir.CreateNSWMul(v1, v2);
+    case mod_type_kind:
+      return ir.CreateMul(v1, v2);
+    case float_type_kind:
+      return ir.CreateFMul(v1, v2, "");
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_div_expr(generator& gen, const div_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateUDiv(v1, v2);
+    case int_type_kind:
+      return ir.CreateSDiv(v1, v2);
+    case float_type_kind:
+      return ir.CreateFDiv(v1, v2, "");
+    default:
+      break;
+  }
+  assert(false && "not a numeric type");
+}
+
+static cg::value
+generate_rem_expr(generator& gen, const rem_expr& e)
+{
+  cg::value v1 = generate(gen, e.get_lhs());
+  cg::value v2 = generate(gen, e.get_rhs());
+
+  llvm::Builder ir(gen.get_current_block());
+  const type& t = e.get_lhs().get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+    case mod_type_kind:
+      return ir.CreateURem(v1, v2);
+    case int_type_kind:
+      return ir.CreateSRem(v1, v2);
+    default:
+      break;
+  }
+  assert(false && "not an integral type");
+}
+
+static cg::value
+generate_neg_expr(generator& gen, const neg_expr& e)
+{
+  assert(false && "not implemented");
+}
+
+static cg::value
+generate_rec_expr(generator& gen, const rec_expr& e)
+{
+  assert(false && "not implemented");
+}
 
 // Generate code for the numeric expression e.
-//
-// Code generation semantics are determined by the type of e.
 cg::value
 gen_algo::operator()(generator& gen, const expr& e) const
 {

@@ -1,13 +1,13 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/core/printing/print.hpp>
 #include <beaker/core/name.hpp>
 #include <beaker/core/type.hpp>
 #include <beaker/core/expr.hpp>
 #include <beaker/core/decl.hpp>
 #include <beaker/core/stmt.hpp>
 #include <beaker/util/symbol.hpp>
-#include <beaker/base/printing/print.hpp>
 
 #include <iostream>
 
@@ -16,7 +16,7 @@ namespace beaker {
 namespace core {
 
 void
-print_name(std::ostream& os, const name& n)
+print_algo::operator()(std::ostream& os, const name& n) const
 {
   switch (n.get_kind()) {
     case basic_name_kind:
@@ -28,7 +28,7 @@ print_name(std::ostream& os, const name& n)
     default:
       break;
   }
-  assert(false && "not a common name");
+  assert(false && "not a core name");
 }
 
 
@@ -65,7 +65,7 @@ print_fn_type(std::ostream& os, const fn_type& t)
 
 // Pretty print a common type.
 void
-print_type(std::ostream& os, const type& t)
+print_algo::operator()(std::ostream& os, const type& t) const
 {
   switch (t.get_kind()) {
     case void_type_kind:
@@ -110,7 +110,7 @@ print_copy_init(std::ostream& os, const copy_init& e)
 
 // FIXME: This is incomplete.
 void
-print_expr(std::ostream& os, const expr& e) 
+print_algo::operator()(std::ostream& os, const expr& e) const
 {
   switch (e.get_kind()) {
     case nop_expr_kind:
@@ -175,7 +175,7 @@ print_fn_decl(std::ostream& os, const fn_decl& d)
 
 // FIXME: Allow language packs to add declarations.
 void
-print_decl(std::ostream& os, const decl& d)
+print_algo::operator()(std::ostream& os, const decl& d) const
 {
   switch (d.get_kind()) {
     case var_decl_kind:
@@ -227,7 +227,7 @@ print_ret_stmt(std::ostream& os, const ret_stmt& s)
 }
 
 void
-print_stmt(std::ostream& os, const stmt& s)
+print_algo::operator()(std::ostream& os, const stmt& s) const
 {
   switch (s.get_kind()) {
     case block_stmt_kind:
@@ -246,8 +246,3 @@ print_stmt(std::ostream& os, const stmt& s)
 
 } // namespace core
 } // namespace beaker
-
-
-
-
-

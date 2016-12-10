@@ -10,6 +10,4 @@ add_beaker_module(
   construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
-  generation/gen_math.cpp
-  generation/gen_rel.cpp
 )

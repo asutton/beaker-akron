@@ -1,14 +1,6 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/core/type.hpp>
-#include <beaker/core/decl.hpp>
-#include <beaker/base/generation/generation.hpp>
-#include <beaker/base/printing/print.hpp>
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-
 #include <sstream>
 
 
@@ -227,7 +219,7 @@ generate_fn_def(generator& gen, const fn_decl& d, llvm::Function* f)
 }
 
 // Generate an LLVM function from d.
-llvm::Value*
+static cg::value
 generate_fn_decl(generator& gen, const fn_decl& d)
 {
   std::string name = generate(gen, d.get_name());

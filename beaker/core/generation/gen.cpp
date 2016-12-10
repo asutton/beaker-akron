@@ -1,13 +1,13 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/core/generation/gen.hpp>
 #include <beaker/core/name.hpp>
 #include <beaker/core/type.hpp>
 #include <beaker/core/expr.hpp>
 #include <beaker/core/decl.hpp>
 #include <beaker/core/stmt.hpp>
 #include <beaker/util/symbol.hpp>
-#include <beaker/base/generation/generation.hpp>
 
 #include <sstream>
 
@@ -34,7 +34,7 @@ generate_internal_name(generator& gen, const internal_name& n)
 
 /// \todo Replace this with name mangling.
 std::string
-generate_name(generator& gen, const name& n)
+gen_algo::operator()(generator& gen, const name& n) const
 {
   if (n.get_kind() == basic_name_kind)
     return generate_basic_name(gen, cast<basic_name>(n));
@@ -99,7 +99,7 @@ generate_fn_type(generator& gen, const fn_type& t)
 
 // Generate a common type from t.
 cg::type
-generate_type(generator& gen, const type& t)
+gen_algo::operator()(generator& gen, const type& t) const
 {
   switch (t.get_kind()) {
     case void_type_kind:
@@ -171,15 +171,14 @@ generate_deref_expr(generator& gen, const deref_expr& e)
   return ir.CreateLoad(v);
 }
 
-extern cg::value generate_call_expr(generator& gen, const call_expr&);
-
-extern cg::value generate_zero_init(generator& gen, const zero_init&);
-extern cg::value generate_copy_init(generator& gen, const copy_init&);
-extern cg::value generate_call_init(generator& gen, const call_init&);
+static cg::value generate_call_expr(generator& gen, const call_expr&);
+static cg::value generate_zero_init(generator& gen, const zero_init&);
+static cg::value generate_copy_init(generator& gen, const copy_init&);
+static cg::value generate_call_init(generator& gen, const call_init&);
 
 // Generate an LLVM instruction for the common expression e.
 cg::value
-generate_expr(generator& gen, const expr& e)
+gen_algo::operator()(generator& gen, const expr& e) const
 {
   switch (e.get_kind()) {
 #define def_expr(E) \
@@ -196,12 +195,12 @@ generate_expr(generator& gen, const expr& e)
 }
 
 
-extern cg::value generate_var_decl(generator&, const var_decl&);
-extern cg::value generate_fn_decl(generator&, const fn_decl&);
+static cg::value generate_var_decl(generator&, const var_decl&);
+static cg::value generate_fn_decl(generator&, const fn_decl&);
 
 // Generate an LLVM declaration from the common declaration d.
 cg::value
-generate_decl(generator& gen, const decl& d)
+gen_algo::operator()(generator& gen, const decl& d) const
 {
   switch (d.get_kind()) {
     case var_decl_kind:
@@ -255,7 +254,7 @@ generate_ret_stmt(generator& gen, const ret_stmt& s)
 }
 
 void
-generate_stmt(generator& gen, const stmt& s)
+gen_algo::operator()(generator& gen, const stmt& s) const
 {
   switch (s.get_kind()) {
 #define def_stmt(S) \
@@ -270,3 +269,8 @@ generate_stmt(generator& gen, const stmt& s)
 
 } // namespace core
 } // namespace beaker
+
+#include "gen_init.cpp"
+#include "gen_call.cpp"
+#include "gen_var.cpp"
+#include "gen_fn.cpp"

@@ -1,18 +1,8 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/core/type.hpp>
-#include <beaker/core/expr.hpp>
-#include <beaker/core/decl.hpp>
-#include <beaker/base/generation/generation.hpp>
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-
-
 namespace beaker {
 namespace core {
-
 
 /// Generate the declaration and initializer.
 ///
@@ -38,7 +28,7 @@ generate_local_var(generator& gen, const var_decl& d)
 /// Generate an LLVM function from d.
 ///
 /// \todo Implement generation of global variables.
-cg::value
+static cg::value
 generate_var_decl(generator& gen, const var_decl& d)
 {
   assert(d.has_storage());
