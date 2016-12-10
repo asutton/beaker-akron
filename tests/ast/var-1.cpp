@@ -42,10 +42,7 @@ main(int argc, char* argv[])
   lang.add_feature<logic::feature>();
   lang.add_feature<numeric::feature>();
 
-  sequential_allocator<> alloc;
-  symbol_table syms;
-  module mod(alloc, syms);
-  
+  module mod;
   core::builder& cb = mod.get_builder<core::builder>();
   logic::builder& lb = mod.get_builder<logic::builder>();
   numeric::builder& nb = mod.get_builder<numeric::builder>();
