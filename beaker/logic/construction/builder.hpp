@@ -27,10 +27,8 @@ struct eq_expr;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate logical terms.
-struct builder : builder_base
+struct builder : basic_builder<logic_lang>
 {
-  static constexpr int lang = logic_lang;
-
   builder(module&);
 
   // Canonical types

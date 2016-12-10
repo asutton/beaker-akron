@@ -7,16 +7,17 @@
 #include <cassert>
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
 
 namespace beaker {
 
+struct module;
 struct name;
 struct type;
 struct expr;
 struct decl;
 struct stmt;
-
 
 /// Represents an algorithm that operates on an AST.
 ///
@@ -39,9 +40,10 @@ struct algorithm
 /// for those algorithms.
 struct feature
 {
+  using build_fn = void* (*)(module&);
   using algorithm_set = std::unordered_map<std::type_index, algorithm*>;
 
-  feature(int);
+  feature(int, build_fn);
   virtual ~feature();
 
   int get_id() const;
@@ -52,16 +54,22 @@ struct feature
   template<typename T>
   const T& get_algorithm() const;
 
+  build_fn get_builder_factory() const;
+
   int id_;
+  build_fn build_;
   algorithm_set algos_;
 };
 
-inline feature::feature(int id) : id_(id) { }
+inline feature::feature(int id, build_fn f) : id_(id), build_(f) { }
 
 inline feature::~feature() { for (auto p : algos_) delete p.second; }
 
 /// Returns the id 
 inline int feature::get_id() const { return id_; }
+
+/// Returns a factory function for a builder.
+inline feature::build_fn feature::get_builder_factory() const { return build_; }
 
 /// Adds a new algorithm of the given type.
 template<typename T>
@@ -91,11 +99,11 @@ struct basic_feature : feature
 {
   static constexpr int feature_id = N;
 
-  basic_feature();
+  basic_feature(build_fn);
 };
 
 template<int N>
-inline basic_feature<N>::basic_feature() : feature(N) { }
+inline basic_feature<N>::basic_feature(build_fn f) : feature(N, f) { }
 
 
 // -------------------------------------------------------------------------- //
@@ -110,12 +118,15 @@ inline basic_feature<N>::basic_feature() : feature(N) { }
 /// at program startup.
 struct language
 {
+  using feature_list = std::vector<feature*>;
   using feature_set = std::unordered_map<int, feature*>;
 
   language();
   ~language();
 
   static language& get_instance();
+
+  const feature_list& get_features() const;
 
   template<typename T>
   void add_feature();
@@ -127,8 +138,12 @@ struct language
   static feature& get_feature(const decl&);
   static feature& get_feature(const stmt&);
 
+  feature_list list_;
   feature_set feat_;
 };
+
+/// Returns the list of features for the language.
+inline const language::feature_list& language::get_features() const { return list_; }
 
 /// Add the feature to the language. If the feature has already been added
 /// then no action is taken.
@@ -137,6 +152,7 @@ inline void
 language::add_feature()
 {
   feature *f = new T();
+  list_.push_back(f);
   feat_.emplace(f->get_id(), f);
 }
 

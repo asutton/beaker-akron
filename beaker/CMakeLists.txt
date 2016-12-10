@@ -25,7 +25,9 @@ include(numeric/CMakeLists.txt)
 include(procedural/CMakeLists.txt)
 include(data/CMakeLists.txt)
 include(variadic/CMakeLists.txt)
-include(sample/CMakeLists.txt)
+
+# FXIME: Clean this up and re-add it.
+# include(sample/CMakeLists.txt)
 
 
 # Define the core library.

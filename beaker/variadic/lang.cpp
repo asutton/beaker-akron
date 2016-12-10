@@ -2,24 +2,23 @@
 // All rights reserved
 
 #include "lang.hpp"
-#include <beaker/core/construction/builder.hpp>
-#include <beaker/core/comparison/eq.hpp>
-#include <beaker/core/comparison/hash.hpp>
-#include <beaker/core/printing/print.hpp>
-#include <beaker/core/generation/gen.hpp>
+#include <beaker/variadic/construction/builder.hpp>
+#include <beaker/variadic/comparison/eq.hpp>
+#include <beaker/variadic/comparison/hash.hpp>
+#include <beaker/variadic/printing/print.hpp>
+#include <beaker/variadic/generation/gen.hpp>
 
 #include <cassert>
 
 
 namespace beaker {
-namespace core {
+namespace variadic {
 
 /// Allocate a node builder for the language feature.
 static void* make_builder(module& m) { return new builder(m); }
 
-
 feature::feature()
-  : basic_feature<core_lang>(make_builder)
+  : basic_feature<variadic_lang>(make_builder)
 {
   add_algorithm<eq_algo>();
   add_algorithm<hash_algo>();
@@ -27,5 +26,5 @@ feature::feature()
   add_algorithm<gen_algo>();
 }
 
-} // namespace core
+} // namespace variadic
 } // namespace beaker

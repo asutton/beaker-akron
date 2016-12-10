@@ -1,28 +1,22 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/variadic/comparison/hash.hpp>
 #include <beaker/variadic/type.hpp>
 #include <beaker/variadic/expr.hpp>
-#include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
 namespace variadic {
 
 void
-hash_name(hasher& h, const name& n)
-{
-  assert(false && "not defined");
-}
-
-void
-hash_type(hasher& h, const type& t)
+hash_algo::operator()(hasher& h, const type& t) const
 {
   assert(t.get_kind() == list_type_kind);
 }
 
 void
-hash_expr(hasher& h, const expr& t)
+hash_algo::operator()(hasher& h, const expr& t) const
 {
   switch (t.get_kind()) {
     case start_expr_kind:

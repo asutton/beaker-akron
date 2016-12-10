@@ -9,7 +9,9 @@
 namespace beaker {
 namespace data {
 
-void* make_builder(module& m) { return new builder(m); }
+builder::builder(module& m)
+  : basic_builder<data_lang>(m) 
+{ }
 
 // Returns the canonical tuple type for `{t*}`.
 tuple_type&

@@ -8,9 +8,6 @@
 
 
 namespace beaker {
-
-struct module;
-
 namespace variadic {
 
 struct list_type;
@@ -21,7 +18,7 @@ struct copy_expr;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate variadic terms.
-struct builder : builder_base
+struct builder : basic_builder<variadic_lang>
 {
   builder(module&);
 

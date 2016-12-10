@@ -9,12 +9,8 @@
 namespace beaker {
 namespace procedural {
 
-/// Allocate a node builder for the language feature.
-void* make_builder(module& m) { return new builder(m); }
-
-
 builder::builder(module& m)
-  : builder_base(m)
+  : basic_builder<procedural_lang>(m)
 { }
 
 

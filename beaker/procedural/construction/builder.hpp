@@ -21,11 +21,11 @@ namespace procedural {
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate procedural terms.
-struct builder : builder_base
+struct builder : basic_builder<procedural_lang>
 {
   builder(module&);
 
-  // Statement
+  // Statements
   if_then_stmt& make_if_then_stmt(expr&, stmt&);
   if_else_stmt& make_if_else_stmt(expr&, stmt&, stmt&);
   while_stmt& make_while_stmt(expr&, stmt&);

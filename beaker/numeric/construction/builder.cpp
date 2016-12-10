@@ -11,10 +11,8 @@
 namespace beaker {
 namespace numeric {
 
-void* make_builder(module& m) { return new builder(m); }
-
 builder::builder(module& m)
-  : builder_base(m)
+  : basic_builder<numeric_lang>(m)
 { }
 
 /// Returns the canonical type `charp` with `p` bits of precision.

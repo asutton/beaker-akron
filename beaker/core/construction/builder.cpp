@@ -15,12 +15,8 @@
 namespace beaker {
 namespace core {
 
-/// Allocate a node builder for the language feature.
-void* make_builder(module& m) { return new builder(m); }
-
-
 builder::builder(module& m)
-  : builder_base(m), current_id_()
+  : basic_builder<core_lang>(m), current_id_()
 { }
 
 /// Returns the name corresponding to str.
@@ -49,6 +45,13 @@ type&
 builder::get_decl_type(decl& t)
 {
   return t.as_typed()->get_type();
+}
+
+/// Returns the canonical type `void`.
+void_type& 
+builder::get_void_type()
+{ 
+  return void_.get(); 
 }
 
 ref_type&

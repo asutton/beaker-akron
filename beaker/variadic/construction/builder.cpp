@@ -10,12 +10,8 @@
 namespace beaker {
 namespace variadic {
 
-/// Allocate a node builder for the language feature.
-void* make_builder(module& m) { return new builder(m); }
-
-
 builder::builder(module& m)
-  : builder_base(m)
+  : basic_builder<variadic_lang>(m)
 { }
 
 /// Returns the canonical list type.

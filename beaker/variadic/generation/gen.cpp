@@ -1,9 +1,9 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/variadic/generation/gen.hpp>
 #include <beaker/variadic/type.hpp>
 #include <beaker/variadic/expr.hpp>
-#include <beaker/base/generation/generation.hpp>
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Intrinsics.h>
@@ -12,16 +12,10 @@
 namespace beaker {
 namespace variadic {
 
-std::string
-generate_name(generator& gen, const name& n)
-{
-  assert(false && "not defined");
-}
-
 /// \todo The actual type of this object depends on the architecture. We need 
 /// to start propagating architectural information through the code generator.
 cg::type
-generate_type(generator& gen, const type& t)
+gen_algo::operator()(generator& gen, const type& t) const
 {
   assert(t.get_kind() == list_type_kind);
   return llvm::Type::getInt8Ty(gen.get_context());
@@ -75,7 +69,7 @@ generate_copy_expr(generator& gen, const copy_expr& e)
 }
 
 cg::value
-generate_expr(generator& gen, const expr& e)
+gen_algo::operator()(generator& gen, const expr& e) const
 {
   switch (e.get_kind()) {
     case start_expr_kind:
@@ -90,18 +84,6 @@ generate_expr(generator& gen, const expr& e)
       break;
   }
   assert(false && "not a variadic expression");
-}
-
-cg::value
-generate_decl(generator& gen, const decl& d)
-{
-  assert(false && "not defined");
-}
-
-void
-generate_stmt(generator& gen, const stmt& s)
-{
-  assert(false && "not defined");
 }
 
 } // namespace variadic

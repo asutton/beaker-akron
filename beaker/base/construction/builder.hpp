@@ -19,7 +19,7 @@ namespace beaker {
 
 struct module;
 
-// The base class of all builder objects.
+/// The base class of all builder objects.
 struct builder_base
 {
   builder_base(module&);
@@ -51,6 +51,16 @@ builder_base::make(Args&&... args)
   T* ptr = alloc.allocate(1);
   return *new (ptr) T(std::forward<Args>(args)...);
 }
+
+
+/// A base class for builders that provides a static feature index.
+template<int N>
+struct basic_builder : builder_base
+{
+  enum { feature = N };
+
+  using builder_base::builder_base;
+};
 
 } // namespace
 

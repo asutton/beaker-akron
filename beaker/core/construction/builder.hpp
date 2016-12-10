@@ -45,10 +45,8 @@ struct ret_stmt;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate core terms.
-struct builder : builder_base
+struct builder : basic_builder<core_lang>
 {
-  static constexpr int lang = core_lang;
-
   builder(module&);
 
   // Names
@@ -114,9 +112,6 @@ struct builder : builder_base
   canonical_set<ref_type> refs_;
   canonical_set<fn_type> fns_;
 };
-
-/// Returns the canonical type `void`.
-inline void_type& builder::get_void_type() { return void_.get(); }
 
 } // namespace core
 } // namespace beaker

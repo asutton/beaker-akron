@@ -9,17 +9,12 @@
 namespace beaker {
 namespace logic {
 
-/// Allocate a node builder for the language feature.
-void* make_builder(module& m) { return new builder(m); }
-
-
 builder::builder(module& m)
-  : builder_base(m),
+  : basic_builder<logic_lang>(m),
     bool_(&make_bool_type()), 
     true_(&make_true_expr()), 
     false_(&make_false_expr())
 { }
-
 
 /// Returns a new boolean type.
 bool_type&

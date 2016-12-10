@@ -21,9 +21,7 @@ struct index_expr;
 
 // Provides access to resources needed to construct, validate, and
 // evaluate data terms.
-//
-// TODO: This should use an allocator.
-struct builder : builder_base
+struct builder : basic_builder<data_lang>
 {
   builder(module&);
 
@@ -46,9 +44,6 @@ struct builder : builder_base
   canonical_set<array_type> arrays_;
   canonical_set<seq_type> seqs_;
 };
-
-inline builder::builder(module& m) : builder_base(m) { }
-
 
 
 } // namespace data

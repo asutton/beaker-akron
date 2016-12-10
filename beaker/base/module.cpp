@@ -25,10 +25,10 @@ module::module()
     my_alloc_(true), 
     my_syms_(true)
 {
-  build_.put({
-#define def_lang(l) {l##_lang, l::make_builder(*this)},
-#include "lang.def"
-  });
+  for (const feature* f : language::get_instance().get_features()) {
+    feature::build_fn make = f->get_builder_factory();
+    build_.put(f->get_id(), make(*this));
+  }
 }
 
 // Initialize the module to use the given allocator and symbol table.
@@ -41,10 +41,10 @@ module::module(allocator& a, symbol_table& s)
     my_alloc_(false), 
     my_syms_(false)
 {
-  build_.put({
-#define def_lang(l) {l##_lang, l::make_builder(*this)},
-#include "lang.def"
-  });
+  for (const feature* f : language::get_instance().get_features()) {
+    feature::build_fn make = f->get_builder_factory();
+    build_.put(f->get_id(), make(*this));
+  }
 }
 
 module::~module()

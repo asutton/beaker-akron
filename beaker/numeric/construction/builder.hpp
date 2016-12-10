@@ -21,10 +21,8 @@ namespace numeric {
 // evaluate numeric terms.
 //
 // TODO: This should use an allocator.
-struct builder : builder_base
+struct builder : basic_builder<numeric_lang>
 {
-  static constexpr int lang = numeric_lang;
-
   builder(module&);
 
   // Canonical types

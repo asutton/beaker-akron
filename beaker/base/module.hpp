@@ -7,7 +7,7 @@
 #include <beaker/base/type.hpp>
 #include <beaker/base/decl.hpp>
 
-#include <array>
+#include <unordered_map>
 
 
 namespace beaker {
@@ -23,31 +23,23 @@ struct name;
 /// that defines them.
 struct builder_set
 {
-  builder_set();
-
   void put(int, void*);
   void put(std::initializer_list<std::pair<int, void*>>);
 
   template<typename T>
-  T& get(int);
-
-  template<typename T>
   T& get();
 
-  std::array<void*, last_lang> arr_;
+  std::unordered_map<int, void*> set_;
 };
-
-/// Initialize all builders to null.
-inline builder_set::builder_set() { arr_.fill(nullptr); }
 
 /// Install a builder b for the language pack identified by l.
 ///
 /// The builder for l shall have previously been nullptr.
 inline void
-builder_set::put(int l, void* b)
+builder_set::put(int f, void* b)
 {
-  assert(arr_[l] == nullptr);
-  arr_[l] = b;
+  assert(set_.count(f) == 0);
+  set_.emplace(f, b);
 }
 
 /// Install a list of language/builder pairs.
@@ -58,26 +50,14 @@ builder_set::put(std::initializer_list<std::pair<int, void*>> list)
     put(i->first, i->second);
 }
 
-/// Returns the builder, cast as T, for the language l.
-///
-/// Behavior is undefined if there is no builder for l.
-///
-/// \deprecated Use the other version of get builder.
-template<typename T>
-inline T&
-builder_set::get(int l)
-{
-  assert(arr_[l] != nullptr);
-  return *reinterpret_cast<T*>(arr_[l]);
-}
-
 /// Returns the builder of type T.
 template<typename T>
 inline T&
 builder_set::get()
 {
-  assert(arr_[T::lang] != nullptr);
-  return *reinterpret_cast<T*>(arr_[T::lang]);
+  assert(set_.count(T::feature) != 0);
+  void* p = set_.find(T::feature)->second;
+  return *reinterpret_cast<T*>(p);
 }
 
 
@@ -95,7 +75,6 @@ struct module
   symbol_table& get_symbol_table();
   
   builder_set& get_builders();
-  template<typename T> T& get_builder(int);
   template<typename T> T& get_builder();
 
   const name& get_module_name() const;
@@ -124,12 +103,6 @@ inline symbol_table& module::get_symbol_table() { return *syms_; }
 
 /// Returns the set of term builders for the module.
 inline builder_set& module::get_builders() { return build_; }
-
-/// Returns the builder for the language l.
-///
-/// \deprecated. Use the other version of get builder.
-template<typename T>
-inline T& module::get_builder(int l) { return build_.template get<T>(l); }
 
 /// Returns the builder of the given type.
 template<typename T>
