@@ -17,7 +17,7 @@ struct hash_algo : hash_algorithm
 };
 
 } // namespace logic
-} // namespace
+} // namespace beaker
 
 
 #endif

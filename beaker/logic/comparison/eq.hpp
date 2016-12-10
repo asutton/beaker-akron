@@ -12,12 +12,12 @@ namespace logic {
 
 struct eq_algo : equivalence_algorithm
 {
-  bool operator()(const type&, const type&) const;
-  bool operator()(const expr&, const expr&) const;
+  bool operator()(const type&, const type&) const override;
+  bool operator()(const expr&, const expr&) const override;
 };
 
 } // namespace logic
-} // namespace
+} // namespace beaker
 
 
 #endif
