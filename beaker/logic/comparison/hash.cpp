@@ -1,30 +1,31 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/logic/comparison/hash.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
-#include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
 namespace logic {
 
-// Nothing else to hash.
+// Hashes no additional behavior.
 void
-hash_type(hasher& h, const type& t)
+hash_algo::operator()(hasher& h, const type& t) const
 {
   assert(t.get_kind() == bool_type_kind);
 }
 
+// Hash the boolean value of e into h.
 static void
 hash_bool_expr(hasher& h, const bool_expr& e)
 {
-  hash(h, e.get_value().get_integer());
+  hash(h, e.get_boolean());
 }
 
 // Returns true when a and b are equivalent logical expressions.
 void
-hash_expr(hasher& h, const expr& e)
+hash_algo::operator()(hasher& h, const expr& e) const
 {
   switch (e.get_kind()) {
     case bool_expr_kind:

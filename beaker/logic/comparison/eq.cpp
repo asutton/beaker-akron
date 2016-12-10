@@ -1,31 +1,33 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/logic/comparison/eq.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
-#include <beaker/base/comparison/eq.hpp>
 
 
 namespace beaker {
 namespace logic {
 
-// All bool types are equivalent.
-bool 
-eq_type(const type& a, const type& b)
+/// Returns true when a and b are of type bool.
+bool
+eq_algo::operator()(const type& a, const type& b) const
 {
+  assert(a.get_kind() == b.get_kind());
   assert(a.get_kind() == bool_type_kind);
   return true;
 }
 
+
+/// Returns true when a and b have the same truth value.
 static inline bool
 eq_bool_expr(const bool_expr& a, const bool_expr& b)
 {
   return a.get_boolean() == b.get_boolean();
 }
 
-// Returns true when a and b are equivalent logical expressions.
-bool 
-eq_expr(const expr& a, const expr& b)
+bool
+eq_algo::operator()(const expr& a, const expr& b) const
 {
   assert(a.get_kind() == b.get_kind());
   switch (a.get_kind()) {

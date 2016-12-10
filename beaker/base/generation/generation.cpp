@@ -178,15 +178,41 @@ generator::end_function()
 // -------------------------------------------------------------------------- //
 // Dispatch infrastructure
 
-#define def_lang(l) \
-namespace l { \
-  extern std::string generate_name(generator&, const name&); \
-  extern cg::type generate_type(generator&, const type&); \
-  extern cg::value generate_expr(generator&, const expr&); \
-  extern cg::value generate_decl(generator&, const decl&); \
-  extern void generate_stmt(generator&, const stmt&); \
+/// The default behavior is not defined.
+std::string
+generate_algorithm::operator()(generator&, const name&) const
+{
+  assert(false && "not defined");
 }
-#include "../lang.def"
+
+/// The default behavior is not defined.
+cg::type
+generate_algorithm::operator()(generator&, const type&) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+cg::value
+generate_algorithm::operator()(generator&, const expr&) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+cg::value
+generate_algorithm::operator()(generator&, const decl&) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+void
+generate_algorithm::operator()(generator&, const stmt&) const
+{
+  assert(false && "not defined");
+}
+
 
 /// Generate code for the declarations in m.
 void
@@ -198,6 +224,15 @@ generate(generator& gen, const module& m)
   gen.leave_source_module();
 }
 
+// Returns the codegen algorithm associated with the node t.
+template<typename T>
+static inline const generate_algorithm&
+get_generate(const T& t)
+{
+  feature& feat = language::get_feature(t);
+  return feat.template get_algorithm<generate_algorithm>();
+}
+
 /// Generate a symbol name from n.
 ///
 /// TODO: The formation of the name is determined by the ABI. In order to be
@@ -206,14 +241,14 @@ generate(generator& gen, const module& m)
 std::string
 generate(generator& gen, const name& n)
 {
-  return language::get_feature(n).gen(gen, n);
+  return get_generate(n)(gen, n);
 }
 
 // Generate an LLVM type from t.
 static cg::type
 do_generate_type(generator& gen, const type& t)
 {
-  return language::get_feature(t).gen(gen, t);
+  return get_generate(t)(gen, t);
 }
 
 /// Generate the LLVM representation of t.
@@ -235,21 +270,21 @@ generate(generator& gen, const type& t)
 cg::value
 generate(generator& gen, const expr& e)
 {
-  return language::get_feature(e).gen(gen, e);
+  return get_generate(e)(gen, e);
 }
 
 /// Generate an LLVM declaration for d.
 cg::value
 generate(generator& gen, const decl& d)
 {
-  return language::get_feature(d).gen(gen, d);
+  return get_generate(d)(gen, d);
 }
 
 /// Generate a sequence of blocks and instructions for s.
 void
 generate(generator& gen, const stmt& s)
 {
-  return language::get_feature(s).gen(gen, s);
+  return get_generate(s)(gen, s);
 }
 
 } // namespace beaker

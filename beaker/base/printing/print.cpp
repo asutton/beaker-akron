@@ -14,6 +14,42 @@
 
 namespace beaker {
 
+/// The default behavior is not defined.
+void
+print_algorithm::operator()(std::ostream& os, const name& n) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+void
+print_algorithm::operator()(std::ostream& os, const type& t) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+void
+print_algorithm::operator()(std::ostream& os, const expr& e) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+void
+print_algorithm::operator()(std::ostream& os, const decl& d) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is not defined.
+void
+print_algorithm::operator()(std::ostream& os, const stmt& s) const
+{
+  assert(false && "not defined");
+}
+
+
 void
 print(const name& n)
 {
@@ -49,39 +85,48 @@ print(const stmt& s)
   std::cout << '\n';
 }
 
+// Returns the printing algorithm associated with the node t.
+template<typename T>
+static inline const print_algorithm&
+get_print(const T& t)
+{
+  feature& feat = language::get_feature(t);
+  return feat.template get_algorithm<print_algorithm>();
+}
+
 /// Pretty print the name n.
 void
 print(std::ostream& os, const name& n)
 {
-  language::get_feature(n).print(os, n);
+  get_print(n)(os, n);
 }
 
 /// Pretty print the type t.
 void
 print(std::ostream& os, const type& t)
 {
-  language::get_feature(t).print(os, t);
+  get_print(t)(os, t);
 }
 
 /// Pretty print the expression e.
 void
 print(std::ostream& os, const expr& e)
 {
-  language::get_feature(e).print(os, e);
+  get_print(e)(os, e);
 }
 
 /// Pretty print the declaration d.
 void
 print(std::ostream& os, const decl& d)
 {
-  language::get_feature(d).print(os, d);
+  get_print(d)(os, d);
 }
 
 /// Pretty print the statement s.
 void
 print(std::ostream& os, const stmt& s)
 {
-  language::get_feature(s).print(os, s);
+  get_print(s)(os, s);
 }
 
 // Print an expression with explicit grouping.

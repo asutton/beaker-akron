@@ -1,9 +1,9 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/logic/printing/print.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
-#include <beaker/base/printing/print.hpp>
 
 #include <iostream>
 
@@ -12,17 +12,12 @@ namespace beaker {
 namespace logic {
 
 void
-print_name(std::ostream& os, const name& n)
-{
-  assert(false && "not defined");
-}
-
-void
-print_type(std::ostream& os, const type& t)
+print_algo::operator()(std::ostream& os, const type& t) const
 {
   assert(is_boolean_type(t));
   os << "bool";
 }
+
 
 // Pretty print the boolean expression e.
 static void
@@ -70,7 +65,7 @@ print_eq_expr(std::ostream& os, const eq_expr& e)
 }
 
 void
-print_expr(std::ostream& os, const expr& e)
+print_algo::operator()(std::ostream& os, const expr& e) const
 {
   switch (e.get_kind()) {
 #define def_expr(E) \
@@ -81,18 +76,6 @@ print_expr(std::ostream& os, const expr& e)
       break;
   }
   assert(false && "not a logic expression");
-}
-
-void
-print_decl(std::ostream& os, const decl& d)
-{
-  assert(false && "not defined");
-}
-
-void
-print_stmt(std::ostream& os, const stmt& s)
-{
-  assert(false && "not defined");
 }
 
 } // namespace logic

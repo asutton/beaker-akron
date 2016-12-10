@@ -4,10 +4,8 @@
 #ifndef BEAKER_BASE_LANGUAGE_HPP
 #define BEAKER_BASE_LANGUAGE_HPP
 
-#include <beaker/base/generation/generation.hpp>
-
-#include <iosfwd>
-#include <string>
+#include <cassert>
+#include <typeindex>
 #include <unordered_map>
 
 
@@ -18,53 +16,73 @@ struct type;
 struct expr;
 struct decl;
 struct stmt;
-struct hasher;
-struct generator;
 
-namespace cg {
 
-struct type;
-struct value;
+/// Represents an algorithm that operates on an AST.
+///
+/// This is an abstract base class for concrete algorithms. Each class deriving
+/// from this class defines an algorithm that operates on a subset of nodes
+/// of the entire language. A language feature may subclass that algorithm
+/// in order to provide a dispatch table for the terms it defines.
+///
+/// Note that each deriving class must provide an empty nested type named 
+/// `tag`, which is used to provide unique type information for the algorithm.
+/// This is used for storage and lookup by the feature.
+struct algorithm
+{
+  virtual ~algorithm() = default;
+};
 
-} // namespace cg
 
-/// A feature defines an extensible set of terms that can be used with the
-/// beaker language runtime. In particular, this exposes a core set of 
-/// algorithms and facilities needed to operate on those terms.
+/// A feature defines a container of algorithms that operate on a related
+/// set of terms. This essentially defines a collection of dispatch tables
+/// for those algorithms.
 struct feature
 {
+  using algorithm_set = std::unordered_map<std::type_index, algorithm*>;
+
   feature(int);
-  virtual ~feature() = default;
+  virtual ~feature();
 
   int get_id() const;
 
-  virtual bool eq(const name&, const name&);
-  virtual bool eq(const type&, const type&);
-  virtual bool eq(const expr&, const expr&);
+  template<typename T>
+  void add_algorithm();
 
-  virtual void hash(hasher&, const name&);
-  virtual void hash(hasher&, const type&);
-  virtual void hash(hasher&, const expr&);
-
-  virtual void print(std::ostream&, const name&);
-  virtual void print(std::ostream&, const type&);
-  virtual void print(std::ostream&, const expr&);
-  virtual void print(std::ostream&, const decl&);
-  virtual void print(std::ostream&, const stmt&);
-
-  virtual std::string gen(generator&, const name&);
-  virtual cg::type gen(generator&, const type&);
-  virtual cg::value gen(generator&, const expr&);
-  virtual cg::value gen(generator&, const decl&);
-  virtual void gen(generator&, const stmt&);
+  template<typename T>
+  const T& get_algorithm() const;
 
   int id_;
+  algorithm_set algos_;
 };
 
 inline feature::feature(int id) : id_(id) { }
 
+inline feature::~feature() { for (auto p : algos_) delete p.second; }
+
 /// Returns the id 
 inline int feature::get_id() const { return id_; }
+
+/// Adds a new algorithm of the given type.
+template<typename T>
+void
+feature::add_algorithm()
+{
+  using X = typename T::tag;
+  assert(algos_.count(typeid(X)) == 0);
+  algos_.emplace(typeid(X), new T());
+}
+
+/// Returns the algorithm with the given type. 
+template<typename T>
+const T&
+feature::get_algorithm() const
+{
+  using X = typename T::tag;
+  assert(algos_.count(typeid(X)) != 0);
+  algorithm* algo = algos_.find(typeid(X))->second;
+  return *static_cast<T*>(algo);
+}
 
 
 /// A helper class that provides the feature id as an integer constant.

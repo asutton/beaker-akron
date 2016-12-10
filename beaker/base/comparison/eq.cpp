@@ -8,13 +8,42 @@
 
 namespace beaker {
 
+/// The default behavior is undefined.
+bool
+equivalence_algorithm::operator()(const name& a, const name& b) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is undefined.
+bool
+equivalence_algorithm::operator()(const type& a, const type& b) const
+{
+  assert(false && "not defined");
+}
+
+/// The default behavior is undefined.
+bool
+equivalence_algorithm::operator()(const expr& a, const expr& b) const
+{
+  assert(false && "not defined");
+}
+
+// Returns the equality algorithm associated with the node t.
+template<typename T>
+static inline const equivalence_algorithm&
+get_eq(const T& t)
+{
+  feature& feat = language::get_feature(t);
+  return feat.template get_algorithm<equivalence_algorithm>();
+}
+
 bool
 equivalent(const name& a, const name& b) 
 {
   if (a.get_kind() != b.get_kind())
     return false;
-  feature& feat = language::get_feature(a);
-  return feat.eq(a, b);
+  return get_eq(a)(a, b);
 }
 
 bool
@@ -22,8 +51,7 @@ equivalent(const type& a, const type& b)
 {
   if (a.get_kind() != b.get_kind())
     return false;
-  feature& feat = language::get_feature(a);
-  return feat.eq(a, b);
+  return get_eq(a)(a, b);
 }
 
 bool
@@ -31,8 +59,7 @@ equivalent(const expr& a, const expr& b)
 {
   if (a.get_kind() != b.get_kind())
     return false;
-  feature& feat = language::get_feature(a);
-  return feat.eq(a, b);
+  return get_eq(a)(a, b);
 }
 
 

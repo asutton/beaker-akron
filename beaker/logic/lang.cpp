@@ -2,6 +2,10 @@
 // All rights reserved
 
 #include "lang.hpp"
+#include <beaker/logic/comparison/eq.hpp>
+#include <beaker/logic/comparison/hash.hpp>
+#include <beaker/logic/printing/print.hpp>
+#include <beaker/logic/generation/gen.hpp>
 
 #include <cassert>
 
@@ -9,65 +13,13 @@
 namespace beaker {
 namespace logic {
 
-extern bool eq_type(const type&, const type&);
-extern bool eq_expr(const expr&, const expr&);
-
-bool 
-feature::eq(const type& a, const type& b)
+feature::feature()
+  : basic_feature<logic_lang>()
 {
-  return eq_type(a, b);
-}
-
-bool 
-feature::eq(const expr& a, const expr& b)
-{
-  return eq_expr(a, b);
-}
-
-
-extern void hash_type(hasher& h, const type&);
-extern void hash_expr(hasher& h, const expr&);
-
-void
-feature::hash(hasher& h, const type& t)
-{ 
-  hash_type(h, t);
-}
-
-void
-feature::hash(hasher& h, const expr& e)
-{ 
-  hash_expr(h, e);
-}
-
-extern void print_type(std::ostream&, const type&);
-extern void print_expr(std::ostream&, const expr&);
-
-void
-feature::print(std::ostream& os, const type& t)
-{ 
-  print_type(os, t);
-}
-
-void
-feature::print(std::ostream& os, const expr& e)
-{ 
-  print_expr(os, e);
-}
-
-extern cg::type generate_type(generator& gen, const type&);
-extern cg::value generate_expr(generator& gen, const expr&);
-
-cg::type
-feature::gen(generator& gen, const type& t)
-{
-  return generate_type(gen, t);
-}
-
-cg::value
-feature::gen(generator& gen, const expr& e)
-{
-  return generate_expr(gen, e);
+  add_algorithm<eq_algo>();
+  add_algorithm<hash_algo>();
+  add_algorithm<print_algo>();
+  add_algorithm<gen_algo>();
 }
 
 } // namespace logic

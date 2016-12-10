@@ -4,6 +4,7 @@
 #ifndef BEAKER_BASE_GENERATION_GENERATION_HPP
 #define BEAKER_BASE_GENERATION_GENERATION_HPP
 
+#include <beaker/base/lang.hpp>
 #include <beaker/base/generation/type.hpp>
 #include <beaker/base/generation/value.hpp>
 #include <beaker/base/generation/function.hpp>
@@ -247,16 +248,6 @@ inline void generator::enter_source_module(const module& m) { src_mod_ = &m; }
 inline void generator::leave_source_module() { src_mod_ = nullptr; }
 
 
-// Operations
-
-void generate(generator&, const module&);
-std::string generate(generator&, const name&);
-cg::type generate(generator&, const type&);
-cg::value generate(generator&, const expr&);
-cg::value generate(generator&, const decl&);
-void generate(generator&, const stmt&);
-
-
 // Utilities
 
 // Used to manage the entry and exit of declaration contexts during
@@ -318,6 +309,28 @@ struct generator::init_guard
   generator& gen;
   llvm::Value* ptr;
 };
+
+// -------------------------------------------------------------------------- //
+// Operations
+
+/// Defines the dispatch signature for codegen algorithms.
+struct generate_algorithm : algorithm
+{
+  struct tag { };
+
+  virtual std::string operator()(generator&, const name&) const;
+  virtual cg::type operator()(generator&, const type&) const;
+  virtual cg::value operator()(generator&, const expr&) const;
+  virtual cg::value operator()(generator&, const decl&) const;
+  virtual void operator()(generator&, const stmt&) const;
+};
+
+void generate(generator&, const module&);
+std::string generate(generator&, const name&);
+cg::type generate(generator&, const type&);
+cg::value generate(generator&, const expr&);
+cg::value generate(generator&, const decl&);
+void generate(generator&, const stmt&);
 
 } // namespace beaker
 

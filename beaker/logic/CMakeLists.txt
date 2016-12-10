@@ -10,12 +10,10 @@ add_beaker_module(
   construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
-  serialization/read_json.cpp
-
+  
+  # serialization/read_json.cpp
   # visitation.cpp
   # evaluation.cpp
-  # generation.cpp
-  # serialization.cpp
 )
 
 # add_beaker_test(test-logic-eval test/eval.cpp)

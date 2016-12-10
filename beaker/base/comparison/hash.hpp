@@ -5,6 +5,7 @@
 #define BEAKER_BASE_COMPARISON_HASH_HPP
 
 #include <beaker/util/hash.hpp>
+#include <beaker/base/lang.hpp>
 #include <beaker/base/comparison/eq.hpp>
 
 namespace beaker {
@@ -14,6 +15,16 @@ struct type;
 struct expr;
 struct unary_expr;
 struct binary_expr;
+
+/// Defines the dispatch signature for hash algorithms.
+struct hash_algorithm : algorithm
+{
+  struct tag { };
+
+  virtual void operator()(hasher&, const name&) const;
+  virtual void operator()(hasher&, const type&) const;
+  virtual void operator()(hasher&, const expr&) const;
+};
 
 void hash(hasher&, const name&);
 void hash(hasher&, const type&);
