@@ -8,14 +8,17 @@
 #include <beaker/base/generation/generation.hpp>
 #include <beaker/base/printing/print.hpp>
 
+#include <beaker/logic/lang.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
 #include <beaker/logic/construction/builder.hpp>
 
+#include <beaker/numeric/lang.hpp>
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
 #include <beaker/numeric/construction/builder.hpp>
 
+#include <beaker/core/lang.hpp>
 #include <beaker/core/name.hpp>
 #include <beaker/core/type.hpp>
 #include <beaker/core/expr.hpp>
@@ -34,7 +37,11 @@ using namespace beaker;
 int
 main(int argc, char* argv[])
 {
-  // Define the module.
+  language lang;
+  lang.add_feature<core::feature>();
+  lang.add_feature<logic::feature>();
+  lang.add_feature<numeric::feature>();
+
   sequential_allocator<> alloc;
   symbol_table syms;
   module mod(alloc, syms);

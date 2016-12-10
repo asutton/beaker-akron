@@ -87,7 +87,9 @@ builder_set::get()
 /// or transformation.
 struct module
 {
+  module();
   module(allocator&, symbol_table&);
+  ~module();
 
   allocator& get_allocator();
   symbol_table& get_symbol_table();
@@ -109,6 +111,9 @@ struct module
   builder_set build_;
   name* name_;
   decl_seq decls_;
+
+  bool my_alloc_ : 1; // True if the allocator is internal.
+  bool my_syms_ : 1; // True if the symbol table is internal.
 };
 
 /// Returns the allocator for the module.

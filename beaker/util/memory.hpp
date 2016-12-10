@@ -14,6 +14,8 @@ namespace beaker
 // The base class of all allocators.
 struct allocator
 {
+  virtual ~allocator() = default;
+
   // Allocate n bytes of storage.
   virtual void* allocate(int) = 0;
 
