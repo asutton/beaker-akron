@@ -6,10 +6,6 @@
 
 #include <beaker/base/lang.hpp>
 
-#include <iosfwd>
-#include <string>
-#include <unordered_map>
-
 
 namespace beaker {
 namespace logic {
@@ -23,7 +19,7 @@ struct feature : basic_feature<logic_lang>
 };
 
 } // namespace logic
-} // namespace
+} // namespace beaker
 
 
 #endif
