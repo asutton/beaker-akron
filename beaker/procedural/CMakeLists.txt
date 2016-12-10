@@ -2,11 +2,9 @@
 # All rights reserved
 
 add_beaker_module(
+  lang.cpp
   stmt.cpp
-  comparison/eq.cpp
-  comparison/hash.cpp
   construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
-  serialization/read_json.cpp
 )

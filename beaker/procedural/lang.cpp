@@ -1,21 +1,20 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include "lang.hpp"
 #include <beaker/procedural/printing/print.hpp>
-#include <beaker/procedural/stmt.hpp>
-
-#include <iostream>
+#include <beaker/procedural/generation/gen.hpp>
 
 
 namespace beaker {
 namespace procedural {
 
-void
-print_algo::operator()(std::ostream& os, const stmt& s) const
+feature::feature()
+  : basic_feature<procedural_lang>()
 {
-  assert(false && "not defined");
+  add_algorithm<print_algo>();
+  add_algorithm<gen_algo>();
 }
 
 } // namespace procedural
 } // namespace beaker
-
