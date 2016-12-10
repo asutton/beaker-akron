@@ -1,20 +1,14 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/data/generation/gen.hpp>
 #include <beaker/data/type.hpp>
 #include <beaker/data/expr.hpp>
 #include <beaker/core/type.hpp>
-#include <beaker/base/generation/generation.hpp>
 
 
 namespace beaker {
 namespace data {
-
-std::string
-generate_name(generator& gen, const name& n)
-{
-  assert(false && "not defined");
-}
 
 // Generates a literal record type from t.
 //
@@ -52,7 +46,7 @@ generate_seq_type(generator& gen, const seq_type& t)
 }
 
 cg::type
-generate_type(generator& gen, const type& t)
+gen_algo::operator()(generator& gen, const type& t) const
 {
   switch (t.get_kind()) {
     case tuple_type_kind:
@@ -154,7 +148,7 @@ generate_index_expr(generator& gen, const index_expr& e)
 
 // Generate an expression from e.
 cg::value
-generate_expr(generator& gen, const expr& e)
+gen_algo::operator()(generator& gen, const expr& e) const
 {
   switch (e.get_kind()) {
     case tuple_expr_kind:
@@ -170,19 +164,6 @@ generate_expr(generator& gen, const expr& e)
   }
   assert(false && "not a data expression");
 }
-
-cg::value
-generate_decl(generator& gen, const decl& s)
-{
-  assert(false && "not defined");
-}
-
-void
-generate_stmt(generator& gen, const stmt& s)
-{
-  assert(false && "not defined");
-}
-
 
 } // namespace data
 } // namespace beaker

@@ -1,8 +1,8 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/data/printing/print.hpp>
 #include <beaker/data/expr.hpp>
-#include <beaker/base/printing/print.hpp>
 
 #include <iostream>
 
@@ -11,13 +11,7 @@ namespace beaker {
 namespace data {
 
 void
-print_name(std::ostream& os, const name&)
-{
-  assert(false && "not defined");
-}
-
-void
-print_type(std::ostream& os, const type&)
+print_algo::operator()(std::ostream& os, const type&) const
 {
   assert(false && "not implemented");
 }
@@ -71,7 +65,7 @@ print_index_expr(std::ostream& os, const index_expr& e)
 
 // Pretty print the data expression e.
 void 
-print_expr(std::ostream& os, const expr& e)
+print_algo::operator()(std::ostream& os, const expr& e) const
 {
   switch (e.get_kind()) {
     case tuple_expr_kind:
@@ -86,19 +80,6 @@ print_expr(std::ostream& os, const expr& e)
       break;
   }
   assert(false && "not a data expression");
-}
-
-
-void
-print_decl(std::ostream& os, const decl& d)
-{
-  assert(false && "not defined");
-}
-
-void
-print_stmt(std::ostream& os, const stmt& s)
-{
-  assert(false && "not defined");
 }
 
 } // namespace data

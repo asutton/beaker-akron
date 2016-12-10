@@ -1,20 +1,14 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/data/comparison/hash.hpp>
 #include <beaker/data/type.hpp>
-#include <beaker/base/comparison/hash.hpp>
 
 #include <iostream>
 
 
 namespace beaker {
 namespace data {
-
-void
-hash_name(hasher& h, const name& t)
-{
-  assert(false && "not defined");
-}
 
 // Append the hash of t's element types to h.
 static inline void
@@ -40,7 +34,7 @@ hash_seq_type(hasher& h, const seq_type& t)
 
 // Append the hash of data type to h.
 void 
-hash_type(hasher& h, const type& t)
+hash_algo::operator()(hasher& h, const type& t) const
 {
   switch (t.get_kind()) {
     case tuple_type_kind:
@@ -56,7 +50,7 @@ hash_type(hasher& h, const type& t)
 }
 
 void
-hash_expr(hasher& h, const expr& e)
+hash_algo::operator()(hasher& h, const expr& e) const
 {
   assert(false && "not implemented");
 }

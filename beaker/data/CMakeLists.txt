@@ -2,6 +2,7 @@
 # All rights reserved
 
 add_beaker_module(
+  lang.cpp
   type.cpp
   expr.cpp
   comparison/eq.cpp
@@ -9,6 +10,5 @@ add_beaker_module(
   construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
-  serialization/read_json.cpp
 )
 
