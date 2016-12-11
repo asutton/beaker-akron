@@ -22,6 +22,7 @@ struct value : annotated
 {
   value(llvm::Value*);
   
+  explicit operator bool() const;
   operator llvm::Value*() const;
   llvm::Value* operator->() const;
 
@@ -30,6 +31,9 @@ struct value : annotated
 
 /// Initialize this as a direct type.
 inline value::value(llvm::Value* t) : val_(t) { }
+
+/// Converts to an true when the value is non-null.
+inline value::operator bool() const { return val_; }
 
 /// Converts to an LLVM type.
 inline value::operator llvm::Value*() const { return val_; }

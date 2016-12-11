@@ -131,7 +131,7 @@ seq_iterator<T> operator-(seq_iterator<T> i, std::ptrdiff_t n)
 template<typename T>
 std::ptrdiff_t operator-(seq_iterator<T> i, seq_iterator<T> j)
 {
-  return i - j;
+  return i.iter - j.iter;
 }
 
 

@@ -23,6 +23,7 @@ struct type : annotated
   type(llvm::Type*);
   type(llvm::Type*, bool);
 
+  explicit operator bool() const;
   operator llvm::Type*() const;
 
   llvm::Type* get_type();
@@ -40,6 +41,9 @@ inline type::type(llvm::Type* t) : type_(t), direct_(true) { }
 
 /// Initialize the type.
 inline type::type(llvm::Type* t, bool d) : type_(t), direct_(d) { }
+
+/// Converts to an true when the value is non-null.
+inline type::operator bool() const { return type_; }
 
 /// Converts to an LLVM type.
 inline type::operator llvm::Type*() const { return type_; }

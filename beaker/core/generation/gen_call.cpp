@@ -1,6 +1,7 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+
 namespace beaker {
 namespace core {
 
@@ -30,15 +31,68 @@ get_function_info(generator& gen, const expr& e)
 static cg::value
 generate_call_expr(generator& gen, const call_expr& e)
 {
-  cg::fn_info& info = get_function_info(gen, e.get_function());
+  const expr& fexpr = e.get_function();
+  const fn_type& ftype = cast<fn_type>(fexpr.get_type());
+  cg::fn_info& info = get_function_info(gen, fexpr);
 
   llvm::Builder ir(gen.get_current_block());
+
+  // Generate the code to the the function
   cg::value fn = generate(gen, e.get_function());
-  
-  // FIXME: We probably want cg::values for analysis.
+
+  // Build the list of arguments.
   std::vector<llvm::Value*> args;
-  for (const expr& a : e.get_arguments())
-    args.push_back(generate(gen, a));
+  auto pii = info.get_parameters().begin();
+
+  // If needed, materialize a temporary to use as the return value.
+  //
+  // TODO: If we're in an initialization context, we might be able to use
+  // the initialization target as the return value.
+  if (info.has_return_parameter()) {
+    llvm::Builder ir(gen.get_entry_block());
+    cg::type type = generate(gen, ftype.get_return_type());
+    cg::value ret = ir.CreateAlloca(type);
+    args.push_back(ret);
+    ++pii;
+  }
+  
+  auto ai = e.get_arguments().begin();
+  auto ae = e.get_arguments().end();
+  while (ai != ae) {
+    // Look at the parameter to determine how it should be passed.
+    //
+    // FIXME: We actually need to look at the parameter declaration to
+    // determine if it's intended to be passed by value or by reference.
+    cg::parm_info parm = *pii;
+    if (parm.is_direct()) {
+      // The parameter passed directly by value.
+      //
+      // Note that the expression should be an initialization. However, there 
+      // is no object to initialize since the value is passed in a register.
+      cg::value arg = generate(gen, *ai);
+      args.push_back(arg);
+    } else if (parm.is_by_value()) {
+      // The parameter is passed indirectly by value.
+      //
+      // Materialize a caller-side object and initialize. Note that the 
+      // parameter and argument type must match.
+      llvm::Builder ir(gen.get_entry_block());
+      cg::type type = generate(gen, ai->get_type());
+      cg::value arg = ir.CreateAlloca(type);
+      
+      // Initialize that caller-side argument.
+      generator::init_guard (gen, arg);
+      generate(gen, *ai);
+      
+      args.push_back(arg);
+    } else {
+      // The argument is indirectly passed by reference.
+      cg::value arg = generate(gen, *ai);
+      args.push_back(arg);
+    }
+    ++ai;
+    ++pii;
+  }
   
   return ir.CreateCall(fn, args);
 }
