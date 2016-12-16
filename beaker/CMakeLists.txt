@@ -43,5 +43,6 @@ install(
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include
   FILES_MATCHING
   PATTERN "*.hpp"
+  PATTERN "*.def"
   PATTERN "CMakeFiles" EXCLUDE
 )
