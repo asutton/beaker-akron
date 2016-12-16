@@ -20,6 +20,11 @@ constexpr std::uint32_t basis_32() { return 2166136261u; }
 constexpr std::uint64_t prime_64() { return 1099511628211ul; }
 constexpr std::uint64_t basis_64() { return 14695981039346656037ul; }
 
+// FIXME: This is a hack
+#ifndef BEAKER_ARCH
+#  define BEAKER_ARCH 64
+#endif
+
 #if BEAKER_ARCH == 32
 constexpr std::size_t prime() { return prime_32(); }
 constexpr std::size_t basis() { return basis_32(); }
