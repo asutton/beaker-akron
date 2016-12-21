@@ -7,116 +7,96 @@
 namespace beaker {
 namespace core {
 
-// Returns cg information for the function.
-static cg::fn_info&
-get_function_info(generator& gen, const fn_decl& d)
-{
-  cg::type type = gen.get_type(d.get_type());
-  cg::fn_info* info = type.get_note<cg::fn_info>();
-  assert(info != nullptr);
-  return *info; 
-}
+using arg_iterator = llvm::Function::arg_iterator;
 
-// Adjust the return value when it's passed as an argument.
-static void
-generate_return_value(generator& gen, llvm::Argument* arg)
+// If needed, adjust parameter information the return type. Returns an iterator
+// referring to the first non-parameter function.
+static arg_iterator
+adjust_return_parm(generator& gen, const type& t)
 {
-  arg->setName("result");
-  gen.set_return_value(arg);
-}
-
-// Allocate local storage for the return value.
-static void
-generate_return_value(generator& gen, const fn_decl& fn)
-{
-  llvm::Builder ir(gen.get_entry_block());
-  cg::type type = generate(gen, fn.get_return_type());
-  cg::value ret = ir.CreateAlloca(type, nullptr, "result");
-  gen.set_return_value(ret);
-}
-
-// Generate automatic storage for variable parameters. 
-//
-// Note that the parameter must have object type (otherwise, it would be a 
-// reference declaration). A variable parameter requires a copy. If the
-// type is passed indirectly, then the caller must be responsible for making
-// the copy prior to the call.
-//
-// If the object is passed directly, then we allocate local storage for
-// the parameter.
-static void
-generate_var_parm(generator& gen, const var_decl& parm, llvm::Argument* arg)
-{
-  cg::type type = gen.get_type(parm.get_type());
+  llvm::Function* fn = gen.get_function();
+  arg_iterator ai = fn->arg_begin();
   
-  if (type.is_indirect()) {
-    // If the parameter has object type, but has indirect type, then it is
-    // passed indirectly (by value). Annotate it as such.
-    llvm::Context& cxt = gen.get_context();
-    llvm::AttrBuilder attrs;
-    attrs.addAttribute(llvm::Attribute::ByVal);
-    arg->addAttr(llvm::AttributeSet::get(cxt, arg->getArgNo() + 1, attrs));
-    gen.put_value(parm, arg);
+  if (is_object_type(t)) {
+    cg::type ret = generate(gen, t);
+    if (ret.is_indirect()) {
+      llvm::Argument& arg = *ai++;
+      arg.setName("result");
+
+      // Indicate that the return value is a struct return. 
+      //
+      // TODO: Is this actually valid on non-struct types?
+      fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::StructRet);
+
+      // Make this object the return value.
+      gen.set_return_value(&arg);
+    }
   }
-  else {
-    // Otherwise, create local storage for the variable.
-    llvm::Builder ir(gen.get_entry_block());
-    std::stringstream ss;
-    ss << "parm" << arg->getArgNo();
-    llvm::Value* ptr = ir.CreateAlloca(type, nullptr, ss.str());
-    ir.CreateStore(arg, ptr);
-    gen.put_value(parm, ptr);
+  return ai;
+}
+
+static void
+adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
+{
+  const parm_decl& p = cast<parm_decl>(d);
+  const type& t = p.get_type();
+
+  llvm::Function* fn = gen.get_function();
+  llvm::Argument& arg = *ai;
+
+  // Set the name of the argument and create a binding for it.
+  std::string name = generate(gen, p.get_name());
+  arg.setName(name);
+
+  if (is_object_type(t)) {
+    cg::type type = generate(gen, t);
+    if (type.is_indirect()) {
+      // Note that byval implies that a copy has actually been created
+      // and that the calling function is free to modify it. When types
+      // are passed directly, the copy is made by the callee.
+      //
+      // TODO: nonnull is not sufficiently strong for indirect arguments.
+      // It should be dereferenceable.
+      //
+      // TODO: If the parameter is const, then we should be able to omit
+      // the copy, because the callee is not permitted to modify it.
+      fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::ByVal);
+      fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::NonNull);
+
+      // Bind the parameter directly to the argument.
+      gen.put_value(p, &arg);
+    }
+    else {
+      // Create local storage for the parameter variable. Note that we don't 
+      // need complex initialization because the argument is passed directly.
+      llvm::Builder ir(gen.get_entry_block());
+      std::stringstream ss;
+      llvm::Value* ptr = ir.CreateAlloca(type, nullptr, "var." + name);
+      ir.CreateStore(&arg, ptr);
+      
+      // Bind the parameter to the automatic storage.
+      gen.put_value(p, ptr);
+    }
+  }
+  else if (is_reference_type(t)) {
+    // Arguments passed by reference are guaranteed to be nonnull.
+    //
+    // TODO: See above. This is also dereferenceable.
+    fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::NonNull);
   }
 }
 
-// Generate code for a reference parameter.
-static void
-generate_ref_parm(generator& gen, const ref_decl& p, llvm::Argument* arg)
-{
-  assert(false && "not implemented");
-}
-
-// Generate code for a registered parameter.
-//
-// TODO: Set the inreg attribute?
-static void
-generate_reg_parm(generator& gen, const reg_decl& p, llvm::Argument* arg)
-{
-  assert(false && "not implemented");
-}
 
 // Generate formal parameters.
 static void
-generate_parms(generator& gen, const fn_decl& d, llvm::Function* fn)
+generate_parms(generator& gen, const fn_decl& d)
 {
-  cg::fn_info& info = get_function_info(gen, d);
-  auto iter = fn->arg_begin();
-  
-  // Generate/annotate the return value.
-  if (info.has_return_parameter())
-    generate_return_value(gen, &*iter++);
-  else
-    generate_return_value(gen, d);
+  // Adjust the return parameter if needed.
+  auto ai = adjust_return_parm(gen, d.get_return_type());
 
   // Generate/annotate each parameter in turn.
-  for (const decl& p : d.get_parameters()) {
-    const typed_decl& parm = *p.as_typed();
-    llvm::Argument* arg = &*iter++;
-    
-    // Set the name of the argument and bind it locally.
-    std::string name = generate(gen, parm.get_name());
-    arg->setName(name);
-
-    // Bind the declared parameter to the object containing its value.
-    if (const var_decl* var = as<var_decl>(&parm))
-      generate_var_parm(gen, *var, arg);
-    else if (const ref_decl* ref = as<ref_decl>(&parm))
-      generate_ref_parm(gen, *ref, arg);
-    else if (const reg_decl* reg = as<reg_decl>(&parm))
-      generate_reg_parm(gen, *reg, arg);
-    else
-      assert(false && "unsupported parameter");
-  }
+  for (const decl& parm : d.get_parameters())
+    adjust_function_parm(gen, parm, ai++);
 }
 
 // Generate a function definition that is an expression `e`. This is equivalent
@@ -170,32 +150,33 @@ generate_body(generator& gen, const fn_decl& d)
     assert(false && "unsupported definition");
 }
 
-// Generate the final return from the function.
-//
-// FIXME: The return depends on the declaration. If the return is a
-// register, then we can return directly. If not, then we probably
-// have to load.
-static void
-generate_exit(generator& gen, const fn_decl& d)
-{
-  llvm::Builder ir(gen.get_exit_block());    
-  if (is<void_type>(d.get_return_type())) {
-    // The function is void. Just return.
-    ir.CreateRetVoid();
-  }
-  else if (is<var_decl>(d.get_return())) {
-    // The function returns an object. If that object is returned in a 
-    // register, load and return. Otherwise, the function is actually void.
-    cg::fn_info& info = get_function_info(gen, d);
-    if (!info.has_return_parameter()) {
-      llvm::Value* ret = ir.CreateLoad(gen.get_return_value());
-      ir.CreateRet(ret); 
-    }
-  }
-  else {
-    assert(false && "unsupported return value");
-  }
-}
+// // Generate the final return from the function.
+// static void
+// generate_exit(generator& gen, const fn_decl& d)
+// {
+//   // If there's a return value.
+//   if (gen.get_return_value()) {
+
+//   }
+
+//   llvm::Builder ir(gen.get_exit_block());    
+//   if (is<void_type>(d.get_return_type())) {
+//     // The function is void. Just return.
+//     ir.CreateRetVoid();
+//   }
+//   else if (is<var_decl>(d.get_return())) {
+//     // The function returns an object. If that object is returned in a 
+//     // register, load and return. Otherwise, the function is actually void.
+//     cg::fn_info& info = get_function_info(gen, d);
+//     if (!info.has_return_parameter()) {
+//       llvm::Value* ret = ir.CreateLoad(gen.get_return_value());
+//       ir.CreateRet(ret); 
+//     }
+//   }
+//   else {
+//     assert(false && "unsupported return value");
+//   }
+// }
 
 // Generate a function definition.
 //
@@ -204,17 +185,16 @@ generate_exit(generator& gen, const fn_decl& d)
 static void
 generate_fn_def(generator& gen, const fn_decl& d, llvm::Function* f)
 {
+  // If the function isn't defined, there's nothing to do.
   defn def = d.get_definition();
-  
   if (def.is_remote())
-    // The function is not defined; it is a declaration only.
     return;
 
   // Generate a local definition.
   gen.define_function(f);
-  generate_parms(gen, d, f);
+  generate_parms(gen, d);
   generate_body(gen, d);  
-  generate_exit(gen, d);
+  // generate_exit(gen, d);
   gen.end_function();
 }
 

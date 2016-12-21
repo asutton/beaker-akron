@@ -60,26 +60,38 @@ builder::get_ref_type(type& t)
   return refs_.get(t);
 }
 
-fn_type&
-builder::get_fn_type(const type_seq& p, type& r, int s)
+in_type&
+builder::get_in_type(type& t)
 {
-  return fns_.get(p, r, s);
+  return ins_.get(t);
+}
+
+out_type&
+builder::get_out_type(type& t)
+{
+  return outs_.get(t);
 }
 
 fn_type&
-builder::get_fn_type(type_seq&& p, type& r, int s)
+builder::get_fn_type(const type_seq& p, type& r)
 {
-  return fns_.get(std::move(p), r, s);
+  return fns_.get(p, r);
 }
 
 fn_type&
-builder::get_fn_type(const decl_seq& p, decl& r, int s)
+builder::get_fn_type(type_seq&& p, type& r)
+{
+  return fns_.get(std::move(p), r);
+}
+
+fn_type&
+builder::get_fn_type(const decl_seq& p, decl& r)
 {
   type_seq parms;
   for (const decl& d : p)
     parms.push_back(get_decl_type(d));
   type& ret = get_decl_type(r);
-  return get_fn_type(std::move(parms), ret, s);
+  return get_fn_type(std::move(parms), ret);
 }
 
 /// Returns a new expression `nop`.
@@ -185,42 +197,6 @@ builder::make_var_decl(name& n, type& t, expr& e)
   return make<var_decl>(n, t, e);
 }
 
-ref_decl&
-builder::make_ref_decl(name& n, type& t)
-{
-  return make<ref_decl>(n, t);
-}
-
-ref_decl&
-builder::make_ref_decl(name& n, type& t, expr& e)
-{
-  return make<ref_decl>(n, t, e);
-}
-
-reg_decl&
-builder::make_reg_decl(name& n, type& t)
-{
-  return make<reg_decl>(n, t);
-}
-
-reg_decl&
-builder::make_reg_decl(name& n, type& t, expr& e)
-{
-  return make<reg_decl>(n, t, e);
-}
-
-const_decl&
-builder::make_const_decl(name& n, type& t)
-{
-  return make<const_decl>(n, t);
-}
-
-const_decl&
-builder::make_const_decl(name& n, type& t, expr& e)
-{
-  return make<const_decl>(n, t, e);
-}
-
 /// Returns a new function that has no definition.
 fn_decl&
 builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r)
@@ -263,24 +239,36 @@ builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
   return make<fn_decl>(n, t, std::move(p), r, s);
 }
 
+/// Returns a new parameter.
+parm_decl&
+builder::make_parm_decl(name& n, type& t)
+{
+  return make<parm_decl>(n, t);
+}
+
+
+/// Returns a new block statement with statements s.
 block_stmt& 
 builder::make_block_stmt(const stmt_seq& s)
 {
   return make<block_stmt>(s);
 }
 
+/// Returns a new block statement with statements s.
 block_stmt& 
 builder::make_block_stmt(stmt_seq&& s)
 {
   return make<block_stmt>(std::move(s));
 }
 
+/// Returns a new expression statement.
 expr_stmt& 
 builder::make_expr_stmt(expr& e)
 {
   return make<expr_stmt>(e);
 }
 
+/// Returns a new declaration statement.
 decl_stmt& 
 builder::make_decl_stmt(decl& d)
 {
@@ -292,7 +280,6 @@ builder::make_decl_stmt(decl& d)
 ret_stmt& 
 builder::make_ret_stmt(expr& e)
 {
-  assert(is_void_expression(e));
   return make<ret_stmt>(e);
 }
 

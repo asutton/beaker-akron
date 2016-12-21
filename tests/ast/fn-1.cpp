@@ -23,6 +23,7 @@
 #include <beaker/core/type.hpp>
 #include <beaker/core/expr.hpp>
 #include <beaker/core/decl.hpp>
+#include <beaker/core/stmt.hpp>
 #include <beaker/core/construction/builder.hpp>
 
 #include <llvm/IR/Type.h>
@@ -52,8 +53,6 @@ main(int argc, char* argv[])
   type& i32 = nb.get_int_type(32);
   type& i1024 = nb.get_int_type(1024);
 
-  expr& t = lb.get_true_expr();
-
   // Some declarations
   decl* vars[] {
     &cb.make_var_decl(cb.get_name("a"), i32),
@@ -62,19 +61,37 @@ main(int argc, char* argv[])
     &cb.make_var_decl(cb.get_name("r"), i32)
   };
 
-  { // f1 : (int32, bool, int1024) -> i32
+  { // Beaker: f1(int32, bool, int1024) -> int32
+    // LLVM: i32 f1(i32, bool, int1024*)
     decl_seq parms {vars[0], vars[1], vars[2]};
     decl& ret = *vars[3];
     type& type = cb.get_fn_type(parms, ret);
-    decl& fn = cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, t);
+
+    expr& z = nb.make_int_expr(i32, 0);
+    expr& c = cb.make_copy_init(z);
+    stmt_seq ss {
+      &cb.make_ret_stmt(c)
+    };
+    stmt& def = cb.make_block_stmt(ss);
+
+    decl& fn = cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, def);
     mod.add_declaration(fn);
   }
 
-  { // f2 : (bool) -> int1024
+  { // Beaker: f2(bool) -> int1024
+    // LLVM: void f2(int1024*, bool)
     decl_seq parms {vars[1]};
     decl& ret = *vars[2];
     type& type = cb.get_fn_type(parms, ret);
-    decl& fn = cb.make_fn_decl(cb.get_name("f2"), type, parms, ret, t);
+
+    expr& z = nb.make_int_expr(i1024, 5);
+    expr& c = cb.make_copy_init(z);
+    stmt_seq ss {
+      &cb.make_ret_stmt(c)
+    };
+    stmt& def = cb.make_block_stmt(ss);
+
+    decl& fn = cb.make_fn_decl(cb.get_name("f2"), type, parms, ret, def);
     mod.add_declaration(fn);
   }
 

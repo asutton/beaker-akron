@@ -9,6 +9,9 @@
 namespace beaker {
 namespace core {
 
+struct fn_type;
+struct parm_type;
+
 enum 
 {
   first_decl_kind = core_lang_block,
@@ -29,35 +32,6 @@ struct var_decl : generic_value_decl<var_decl_kind>
 };
 
 
-// Represents the declaration of a name as a reference to a stored entity.
-//
-// References can refer to objects or functions with any storage class.
-struct ref_decl : generic_value_decl<ref_decl_kind>
-{
-  using generic_value_decl<ref_decl_kind>::generic_value_decl;
-};
-
-
-// Represents the declaration of a name as a registered object.
-//
-// A registered object can be initialized with a value, but never modified.
-// In general, these should not be used because they are highly irregular,
-// but we support them as a low-level feature (e.g., parameter passing).
-struct reg_decl : generic_value_decl<reg_decl_kind>
-{
-  using generic_value_decl<reg_decl_kind>::generic_value_decl;
-};
-
-
-// Represents the declaration of a name as a constant.
-//
-// Note that constants never have storage.
-struct const_decl : generic_value_decl<const_decl_kind>
-{
-  using generic_value_decl<const_decl_kind>::generic_value_decl;
-};
-
-
 /// Represents the declaration of a name as a function.
 ///
 /// Function parameters are limited to variables are references.
@@ -68,7 +42,26 @@ struct fn_decl : generic_mapping_decl<fn_decl_kind>
 {
   using generic_mapping_decl<fn_decl_kind>::generic_mapping_decl;
 
+  fn_type const& get_type() const;
+  fn_type& get_type();
+
   bool is_variadic() const;
+};
+
+
+/// Represents the declaration of function parameter.
+///
+/// A parameter represent the way in which objects and references are passed
+/// to a function. Parameters are similar to variables except that they may
+/// not be directly associated with storage.
+struct parm_decl : generic_value_decl<parm_decl_kind>
+{
+  using generic_value_decl<parm_decl_kind>::generic_value_decl;
+
+  bool is_var_parm() const;
+  bool is_ref_parm() const;
+  bool is_in_parm() const;
+  bool is_out_parm() const;
 };
 
 } // namespace core

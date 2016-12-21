@@ -40,10 +40,11 @@ print_void_type(std::ostream& os, const void_type& t)
 }
 
 // Pretty print a reference type.
+template<typename T>
 static void
-print_ref_type(std::ostream& os, const ref_type& t)
+print_reference_type(std::ostream& os, const T& t, const char* str)
 {
-  os << "ref" << ' ';
+  os << str << ' ';
   print(os, t.get_object_type());
 }
 
@@ -71,7 +72,11 @@ print_algo::operator()(std::ostream& os, const type& t) const
     case void_type_kind:
       return print_void_type(os, cast<void_type>(t));
     case ref_type_kind:
-      return print_ref_type(os, cast<ref_type>(t));
+      return print_reference_type(os, cast<ref_type>(t), "ref");
+    case in_type_kind:
+      return print_reference_type(os, cast<in_type>(t), "in");
+    case out_type_kind:
+      return print_reference_type(os, cast<out_type>(t), "out");
     case fn_type_kind:
       return print_fn_type(os, cast<fn_type>(t));
     default:
@@ -173,6 +178,14 @@ print_fn_decl(std::ostream& os, const fn_decl& d)
   }
 }
 
+void
+print_parm_decl(std::ostream& os, const parm_decl& d)
+{
+  print(os, d.get_type());
+  os << ' ';
+  print(os, d.get_name());
+}
+
 // FIXME: Allow language packs to add declarations.
 void
 print_algo::operator()(std::ostream& os, const decl& d) const
@@ -180,14 +193,10 @@ print_algo::operator()(std::ostream& os, const decl& d) const
   switch (d.get_kind()) {
     case var_decl_kind:
       return print_value_decl(os, cast<var_decl>(d), "var");
-    case ref_decl_kind:
-      return print_value_decl(os, cast<ref_decl>(d), "ref");
-    case reg_decl_kind:
-      return print_value_decl(os, cast<reg_decl>(d), "reg");
-    case const_decl_kind:
-      return print_value_decl(os, cast<const_decl>(d), "const");
     case fn_decl_kind:
       return print_fn_decl(os, cast<fn_decl>(d));
+    case parm_decl_kind:
+      return print_parm_decl(os, cast<parm_decl>(d));
     default:
       break;
   }

@@ -336,8 +336,6 @@ struct generic_value_decl : value_decl
 
   generic_value_decl(name&, type&);
   generic_value_decl(name&, type&, expr&);
-
-  expr* init_;
 };
 
 template<int K>

@@ -28,8 +28,9 @@ hash_algo::operator()(hasher& h, const name& n) const
 
 
 // Append the hash of t's referent type to h.
+template<typename T>
 static void
-hash_ref_type(hasher& h, const ref_type& t)
+hash_reference_type(hasher& h, const T& t)
 {
   hash(h, t.get_object_type());
 }
@@ -40,7 +41,8 @@ hash_fn_type(hasher& h, const fn_type& t)
 {
   hash(h, t.get_parameter_types());
   hash(h, t.get_return_type());
-  hash(h, t.get_specifiers());
+  hash(h, t.is_noexcept());
+  hash(h, t.is_variadic());
 }
 
 // Append the hash of common type t to h.
@@ -51,7 +53,11 @@ hash_algo::operator()(hasher& h, const type& t) const
     case void_type_kind:
       return;
     case ref_type_kind:
-      return hash_ref_type(h, cast<ref_type>(t));
+      return hash_reference_type(h, cast<ref_type>(t));
+    case in_type_kind:
+      return hash_reference_type(h, cast<in_type>(t));
+    case out_type_kind:
+      return hash_reference_type(h, cast<out_type>(t));
     case fn_type_kind:
       return hash_fn_type(h, cast<fn_type>(t));
     default:

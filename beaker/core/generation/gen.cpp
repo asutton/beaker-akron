@@ -44,57 +44,86 @@ gen_algo::operator()(generator& gen, const name& n) const
     assert(false && "not a core name");
 }
 
-/// Returns llvm void type.
+
+/// Returns LLVM void type.
 static inline cg::type
 generate_void_type(generator& gen, const void_type& t)
 {
   return llvm::Type::getVoidTy(gen.get_context());
 }
 
-/// Returns an llvm pointer type.
+/// Returns an LLVM pointer type.
 static inline cg::type
 generate_ref_type(generator& gen, const ref_type& t)
 {
-  llvm::Type* elem = generate(gen, t.get_object_type());
-  return llvm::PointerType::getUnqual(elem);
+  llvm::Type* type = generate(gen, t.get_object_type());
+  return llvm::PointerType::getUnqual(type);
+}
+
+/// An input parameter of indirect type is a pointer. An input parameter
+/// of direct type is simply that type.
+cg::type
+generate_in_type(generator& gen, const in_type& t)
+{
+  cg::type type = generate(gen, t.get_object_type());
+  if (type.is_direct())
+    return type;
+  return llvm::PointerType::getUnqual(type);
+}
+
+// An output parameter is always a pointer
+cg::type
+generate_out_type(generator& gen, const out_type& t)
+{
+  cg::type type = generate(gen, t.get_object_type());
+  return llvm::PointerType::getUnqual(type);
+}
+
+static cg::type
+generate_return_type(generator& gen, const type& t, std::vector<llvm::Type*>& parms)
+{
+  cg::type ret = generate(gen, t);
+  if (is_object_type(t)) {
+    // The function has a return value whose type is indirect, then adjust the 
+    // function to accept that value as an argument and make the function void.
+    if (ret.is_indirect()) {
+      ret = llvm::PointerType::getUnqual(ret);
+      parms.push_back(ret);
+      ret = llvm::Type::getVoidTy(gen.get_context());
+    }
+  }
+  return ret;
+}
+
+static cg::type
+generate_parm_type(generator& gen, const type& t, std::vector<llvm::Type*>& parms)
+{
+  cg::type parm = generate(gen, t);
+  if (is_object_type(t) || is<in_type>(t)) {
+    // Passing by value and passing require similar adjustments. If the 
+    // parameter type is indirect, adjust the type to be passed indirectly.
+    if (parm.is_indirect())
+      parm = llvm::PointerType::getUnqual(parm);
+  }
+  parms.push_back(parm);
+  return parm;
 }
 
 /// Generates a function type.
 static cg::type
 generate_fn_type(generator& gen, const fn_type& t)
 {
-  std::vector<cg::parm_info> pinfo;
   std::vector<llvm::Type*> parms;
   
-  // If the function returns an indirect type by value, then adjust the return 
-  // value so it's passed as an indirect parameter. The actual return value
-  // is adjusted to be void.
-  const type& rt = t.get_return_type();
-  cg::type ret = generate(gen, rt);
-  if (is_object_type(rt) && ret.is_indirect()) {
-    parms.push_back(ret);
-    pinfo.emplace_back(cg::indirect_parm, true, false);
-    ret = llvm::Type::getVoidTy(gen.get_context());
-  }
+  // Generate the return type.
+  cg::type ret = generate_return_type(gen, t.get_return_type(), parms);
   
-  // Generate parameter types. If a parameter type is indirect, then make
-  // make it a pointer, and pass by value.
-  for (const type& pt : t.get_parameter_types()) {
-    cg::type parm = generate(gen, pt);
-    if (is_object_type(pt) && parm.is_indirect()) {
-      parm = llvm::PointerType::getUnqual(parm);
-      pinfo.emplace_back(cg::indirect_parm, false, true);
-    }
-    else {
-      pinfo.emplace_back(cg::direct_parm, false, false);
-    }
-    parms.push_back(parm);
-  }
+  // Generate parameter types.
+  for (const type& p : t.get_parameter_types())
+    generate_parm_type(gen, p, parms);
 
   // Create and annotate the function type.
-  cg::type fn = llvm::FunctionType::get(ret, parms, t.is_variadic());
-  gen.annotate<cg::fn_info>(fn, std::move(pinfo));
-  return fn;
+  return llvm::FunctionType::get(ret, parms, t.is_variadic());
 }
 
 // Generate a common type from t.
@@ -106,6 +135,10 @@ gen_algo::operator()(generator& gen, const type& t) const
       return generate_void_type(gen, cast<void_type>(t));
     case ref_type_kind:
       return generate_ref_type(gen, cast<ref_type>(t));
+    case in_type_kind:
+      return generate_in_type(gen, cast<in_type>(t));
+    case out_type_kind:
+      return generate_out_type(gen, cast<out_type>(t));
     case fn_type_kind:
       return generate_fn_type(gen, cast<fn_type>(t));
     default:
@@ -205,9 +238,6 @@ gen_algo::operator()(generator& gen, const decl& d) const
   switch (d.get_kind()) {
     case var_decl_kind:
     return generate_var_decl(gen, cast<var_decl>(d));
-    case ref_decl_kind:
-    case const_decl_kind:
-      break;
     case fn_decl_kind:
       return generate_fn_decl(gen, cast<fn_decl>(d));
     default:
@@ -244,13 +274,24 @@ generate_decl_stmt(generator& gen, const decl_stmt& s)
 void
 generate_ret_stmt(generator& gen, const ret_stmt& s)
 {
-  // Initialize the return value.
-  generator::init_guard guard(gen, gen.get_return_value());
-  generate(gen, s.get_return());
-
-  // Jump to the exit block.
+  cg::value ret = gen.get_return_value();
+  
+  // Initialize the return value. Note that this will be null if the return
+  // value has direct type.
+  generator::init_guard guard(gen, ret);
+  cg::value val = generate(gen, s.get_return());
+  
   llvm::Builder ir(gen.get_current_block());
-  ir.CreateBr(gen.get_exit_block());
+  if (!ret) {
+    // If the return value has direct type, then we didn't store a value,
+    // and we can simply return the value.
+    ir.CreateRet(val);
+  }
+  else {
+    // Otherwise, we stored the indirect return value, and we should jump to 
+    // the exit block, which will return void.
+    ir.CreateBr(gen.get_exit_block());
+  }
 }
 
 void

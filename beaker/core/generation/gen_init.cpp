@@ -16,15 +16,22 @@ generate_zero_init(generator& gen, const zero_init& e)
 }
 
 // Generate the value of e and store the result in the current initialization
-// target. 
+// target. Returns the address of the initialized object.
+//
+// When we are initializing function arguments and return values whose types
+// are passed directly, then the current initialization is null. In this case,
+// we generate and return the initial value, assuming that it will be provided
+// directly to the appropriate context.
 static cg::value
 generate_copy_init(generator& gen, const copy_init& e)
 {
-  cg::value ptr = gen.get_initialized_object();
   cg::value val = generate(gen, e.get_operand());
-  llvm::Builder ir(gen.get_current_block());
-  ir.CreateStore(val, ptr);
-  return nullptr;
+  if (cg::value ptr = gen.get_initialized_object()) {
+    llvm::Builder ir(gen.get_current_block());
+    ir.CreateStore(val, ptr);
+    return ptr;
+  }
+  return val;
 }
 
 static cg::value

@@ -18,6 +18,8 @@ struct internal_name;
 
 struct void_type;
 struct ref_type;
+struct in_type;
+struct out_type;
 struct fn_type;
 
 struct nop_expr;
@@ -33,10 +35,8 @@ struct copy_init;
 struct call_init;
 
 struct var_decl;
-struct ref_decl;
-struct reg_decl;
-struct const_decl;
 struct fn_decl;
+struct parm_decl;
 
 struct block_stmt;
 struct expr_stmt;
@@ -60,9 +60,11 @@ struct builder : basic_builder<core_lang>
   // Canonical types
   void_type& get_void_type();
   ref_type& get_ref_type(type&);
-  fn_type& get_fn_type(const type_seq&, type&, int = 0);
-  fn_type& get_fn_type(type_seq&&, type&, int = 0);
-  fn_type& get_fn_type(const decl_seq&, decl&, int = 0);
+  in_type& get_in_type(type&);
+  out_type& get_out_type(type&);
+  fn_type& get_fn_type(const type_seq&, type&);
+  fn_type& get_fn_type(type_seq&&, type&);
+  fn_type& get_fn_type(const decl_seq&, decl&);
 
   // General types
   ref_type& make_ref_type(type&);
@@ -86,18 +88,13 @@ struct builder : basic_builder<core_lang>
   // Declarations
   var_decl& make_var_decl(name&, type&);
   var_decl& make_var_decl(name&, type&, expr&);
-  ref_decl& make_ref_decl(name&, type&);
-  ref_decl& make_ref_decl(name&, type&, expr&);
-  reg_decl& make_reg_decl(name&, type&);
-  reg_decl& make_reg_decl(name&, type&, expr&);
-  const_decl& make_const_decl(name&, type&);
-  const_decl& make_const_decl(name&, type&, expr&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, expr&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, expr&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
+  parm_decl& make_parm_decl(name&, type&);
 
   // Statements
   block_stmt& make_block_stmt(const stmt_seq&);
@@ -110,6 +107,8 @@ struct builder : basic_builder<core_lang>
   canonical_set<basic_name> names_;
   singleton_set<void_type> void_;
   canonical_set<ref_type> refs_;
+  canonical_set<in_type> ins_;
+  canonical_set<out_type> outs_;
   canonical_set<fn_type> fns_;
 };
 

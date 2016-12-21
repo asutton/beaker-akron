@@ -26,14 +26,13 @@ struct void_type : base_type<void_type_kind>
 };
 
 
-/// Represents the type `ref t`.
-///
-/// Values of reference type refer to objects in memory.
-struct ref_type : type
+/// A helper class for defining reference types.
+template<int K>
+struct basic_reference_type : type
 {
-  static constexpr int node_kind = ref_type_kind;
+  static constexpr int node_kind = K;
 
-  ref_type(type& t);
+  basic_reference_type(type& t);
 
   const type& get_object_type() const;
   type& get_object_type();
@@ -41,21 +40,45 @@ struct ref_type : type
   type* type_;
 };
 
-inline 
-ref_type::ref_type(type& t)
-  : type(node_kind), type_(&t)
+template<int K>
+basic_reference_type<K>::basic_reference_type(type& t)
+  : type(K), type_(&t)
 { }
 
 /// Returns the type of the referenced object.
-inline const type& ref_type::get_object_type() const { return *type_; }
+template<int K>
+inline const type& basic_reference_type<K>::get_object_type() const { return *type_; }
 
 /// Returns the type of the referenced object.
-inline type& ref_type::get_object_type() { return *type_; }
+template<int K>
+inline type& basic_reference_type<K>::get_object_type() { return *type_; }
 
 
-/// Represents function types `(t1, t2, ..., tn) -> t`.
-///
-/// A function type describes entities that map inputs to outputs.
+/// Represents the type `ref t`. A reference refers to an object.
+struct ref_type : basic_reference_type<ref_type_kind>
+{
+  using basic_reference_type<ref_type_kind>::basic_reference_type;
+};
+
+
+/// Represents the input parameter type `in t`. Input types describe parameters
+/// that accept read-only inputs for functions.
+struct in_type : basic_reference_type<in_type_kind>
+{
+  using basic_reference_type<in_type_kind>::basic_reference_type;
+};
+
+
+/// Represents the output parameter type `out t`. Output types describe
+/// parameters that accept uninitialized objects as outputs.
+struct out_type : basic_reference_type<out_type_kind>
+{
+  using basic_reference_type<out_type_kind>::basic_reference_type;
+};
+
+
+/// Represents function types `(t1, t2, ..., tn) -> t`. A function type 
+/// describes entities that map inputs to outputs.
 ///
 /// A variadic function type accepts a variadic argument list after its
 /// last declared parameter.
@@ -63,12 +86,8 @@ struct fn_type : type
 {
   static constexpr int node_kind = fn_type_kind;
 
-  enum {
-    variadic_spec = 0x01
-  };
-  
-  fn_type(const type_seq&, type&, int = 0);
-  fn_type(type_seq&&, type&, int = 0);
+  fn_type(const type_seq&, type&);
+  fn_type(type_seq&&, type&);
 
   const type_seq& get_parameter_types() const;
   type_seq& get_parameter_types();
@@ -76,24 +95,25 @@ struct fn_type : type
   const type& get_return_type() const;
   type& get_return_type();
 
-  int get_specifiers() const;
+  bool is_noexcept() const;
   bool is_variadic() const;
 
   type_seq parms_;
   type* ret_;
-  int specs_;
+  bool noexcept_ : 1;
+  bool variadic_ : 1;
 };
 
 // Initialize the function type with parameters p and return type t.
 inline
-fn_type::fn_type(const type_seq& p, type& t, int s)
-  : type(node_kind), parms_(p), ret_(&t), specs_(s)
+fn_type::fn_type(const type_seq& p, type& t)
+  : type(node_kind), parms_(p), ret_(&t), noexcept_(false), variadic_(false)
 { }
 
 // Initialize the function type with parameters p and return type t.
 inline
-fn_type::fn_type(type_seq&& p, type& t, int s)
-  : type(node_kind), parms_(std::move(p)), ret_(&t), specs_(s)
+fn_type::fn_type(type_seq&& p, type& t)
+  : type(node_kind), parms_(std::move(p)), ret_(&t), noexcept_(false), variadic_(false)
 { }
 
 // Returns the sequence of parameter types.
@@ -108,11 +128,11 @@ inline const type& fn_type::get_return_type() const { return *ret_; }
 // Returns the return type.
 inline type& fn_type::get_return_type() { return *ret_; }
 
-/// Returns the function type specifiers.
-inline int fn_type::get_specifiers() const { return specs_; }
+/// Returns true if the function is noexcept.
+inline bool fn_type::is_noexcept() const { return noexcept_; }
 
 /// Returns true if the function type is variadic.
-inline bool fn_type::is_variadic() const { return specs_ & variadic_spec; }
+inline bool fn_type::is_variadic() const { return variadic_; }
 
 
 // -------------------------------------------------------------------------- //
@@ -122,39 +142,56 @@ inline bool fn_type::is_variadic() const { return specs_ & variadic_spec; }
 inline bool
 is_void_type(const type& t)
 {
-  return is<void_type>(t);
+  return t.get_kind() == void_type_kind;
 }
 
-/// Returns true if t is an object type.
-///
-/// The object types are all types that are not reference or function types.
+/// Returns true if `t` is a function type.
+inline bool
+is_function_type(const type& t)
+{
+  return t.get_kind() == fn_type_kind;
+}
+
+/// Returns true if t is a reference type. The reference types are `ref t`, 
+/// `in t`, and `out t`.
+inline bool
+is_reference_type(const type& t)
+{
+  return t.get_kind() >= ref_type_kind && t.get_kind() <= out_type_kind;
+}
+
+/// Returns true if t is an object type. The object types are all types that 
+/// are not `void`, reference types or function types.
 inline bool 
 is_object_type(const type& t)
 {
-  return !is<ref_type>(t) && !is<fn_type>(t);
+  return !is_void_type(t) && !is_function_type(t) && !is_reference_type(t);
 }
 
-/// Returns a type u that is guaranteed to be an object type for t.
-///
-/// If t is a reference type, this returns the type of the referenced object.
-/// Otherwise, this returns t.
+/// Returns a type u that is guaranteed to be an object type for t. If t is a 
+/// reference type, this returns the type of the referenced object. Otherwise, 
+/// this returns t.
 inline const type&
 get_object_type(const type& t)
 {
   if (const ref_type* ref = as<ref_type>(&t))
     return ref->get_object_type();
+  else if (const in_type* in = as<in_type>(&t))
+    return in->get_object_type();
+  else if (const out_type* out = as<out_type>(&t))
+    return out->get_object_type();
   return t;
 }
 
-/// Returns a type u that is guaranteed to be an object type for t.
-///
-/// If t is a reference type, this returns the type of the referenced object.
-/// Otherwise, this returns t.
 inline type&
 get_object_type(type& t)
 {
   if (ref_type* ref = as<ref_type>(&t))
     return ref->get_object_type();
+  else if (in_type* in = as<in_type>(&t))
+    return in->get_object_type();
+  else if (out_type* out = as<out_type>(&t))
+    return out->get_object_type();
   return t;
 }
 

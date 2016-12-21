@@ -2,7 +2,5 @@
 // All rights reserved
 
 def_decl(var)
-def_decl(ref)
-def_decl(reg)
-def_decl(const)
 def_decl(fn)
+def_decl(parm)
