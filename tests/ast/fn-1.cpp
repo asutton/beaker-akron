@@ -95,6 +95,10 @@ main(int argc, char* argv[])
     mod.add_declaration(fn);
   }
 
+  std::cout << "-- input --\n";
+  print(mod);
+
+
   // Emit LLVM.
   generator gen("out.ll");
   generate(gen, mod);

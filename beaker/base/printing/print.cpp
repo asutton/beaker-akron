@@ -8,6 +8,7 @@
 #include <beaker/base/expr.hpp>
 #include <beaker/base/decl.hpp>
 #include <beaker/base/stmt.hpp>
+#include <beaker/base/module.hpp>
 
 #include <iostream>
 
@@ -85,6 +86,13 @@ print(const stmt& s)
   std::cout << '\n';
 }
 
+/// Pretty print the module m.
+void
+print(const module& m)
+{
+  print(std::cout, m);
+}
+
 // Returns the printing algorithm associated with the node t.
 template<typename T>
 static inline const print_algorithm&
@@ -127,6 +135,14 @@ void
 print(std::ostream& os, const stmt& s)
 {
   get_print(s)(os, s);
+}
+
+/// Pretty print the module m.
+void
+print(std::ostream& os, const module& m)
+{
+  for (const decl& d : m.get_declarations())
+    print(os, d);
 }
 
 // Print an expression with explicit grouping.

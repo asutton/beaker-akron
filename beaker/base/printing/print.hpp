@@ -39,12 +39,14 @@ void print(const type&);
 void print(const expr&);
 void print(const decl&);
 void print(const stmt&);
+void print(const module&);
 
 void print(std::ostream&, const name&);
 void print(std::ostream&, const type&);
 void print(std::ostream&, const expr&);
 void print(std::ostream&, const decl&);
 void print(std::ostream&, const stmt&);
+void print(std::ostream&, const module&);
 
 void print_grouped_expr(std::ostream&, const expr&);
 void print_prefix_expr(std::ostream&, const unary_expr&, const char*);

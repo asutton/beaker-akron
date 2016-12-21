@@ -103,13 +103,13 @@ print_call_expr(std::ostream& os, const call_expr& e)
 static void
 print_zero_init(std::ostream& os, const zero_init& e)
 {
-  os << " = zero";
+  os << "= zero";
 }
 
 static void
 print_copy_init(std::ostream& os, const copy_init& e)
 {
-  os << " = " << "copy ";
+  os << "= " << "copy ";
   print(os, e.get_operand());
 }
 
@@ -231,7 +231,7 @@ static void
 print_ret_stmt(std::ostream& os, const ret_stmt& s)
 {
   os << "return ";
-  print(s.get_return());
+  print(os, s.get_return());
   os << ";\n";
 }
 
