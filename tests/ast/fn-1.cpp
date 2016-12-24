@@ -75,7 +75,7 @@ main(int argc, char* argv[])
     stmt& def = cb.make_block_stmt(ss);
 
     decl& fn = cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, def);
-    // mod.add_declaration(fn);
+    mod.add_declaration(fn);
   }
 
   { // Beaker: f2(bool) -> int1024

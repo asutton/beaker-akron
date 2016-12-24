@@ -73,8 +73,16 @@ generate_int_expr(generator& gen, const int_expr& e)
   } else {
     // Large integers are passed indirectly, so allocate the temporary, store
     // the computed value, and return the pointer.
-    llvm::Builder entry(gen.get_entry_block());
-    cg::value ptr = entry.CreateAlloca(type, nullptr, "temp");
+    //
+    // Copy ellision: don't create a new temporary we're initializing an
+    // existing object.
+    //
+    // TODO: Factor this out so we can reuse it everywhere.
+    cg::value ptr = gen.get_initialized_object();
+    if (!ptr) {
+      llvm::Builder entry(gen.get_entry_block());
+      ptr = entry.CreateAlloca(type, nullptr, "temp");
+    }
     ir.CreateStore(val, ptr);
     return ptr;
   }

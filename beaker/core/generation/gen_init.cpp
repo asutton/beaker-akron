@@ -35,16 +35,24 @@ generate_copy_init(generator& gen, const copy_init& e)
     cg::type type = generate(gen, e.get_operand().get_type());
     llvm::Builder ir(gen.get_current_block());
     if (type.is_direct()) {
+      // For direct values, we always need to store.
       ir.CreateStore(val, ptr);
     }
     else {
-      // FIXME: Correctly compute the alignment of the type. Also, correctly
-      // compute the size of the type based on the target architecture.
+      // For indirect values, we may need to memcpy (we require no overlap
+      // between the memory of the source and destination).
       //
-      // We'll need to integrate data layout into the generator and evaluator
-      // (since compile-time evaluation may necessitate target-dependent info).
-      llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
-      ir.CreateMemCpy(ptr, val, size, 0);
+      // If the value and pointer are the same, then we've already performed
+      // some initialization. Only copy when source and destination differ.
+      if (ptr != val) {
+        // FIXME: Correctly compute the alignment of the type. Also, correctly
+        // compute the size of the type based on the target architecture.
+        //
+        // We'll need to integrate data layout into the generator and evaluator
+        // (since compile-time evaluation may necessitate target-dependent info).
+        llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
+        ir.CreateMemCpy(ptr, val, size, 0);
+      }
     }
     return ptr;
   }
