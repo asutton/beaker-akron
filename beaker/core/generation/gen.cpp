@@ -168,11 +168,28 @@ generate_void_expr(generator& gen, const void_expr& e)
   return nullptr;
 }
 
-// Generates the address of the referenced declaration.
+// Generates the value at a given address.
 static cg::value
 generate_ref_expr(generator& gen, const ref_expr& e)
 {
-  return gen.get_value(e.get_declaration());
+  llvm::Builder ir(gen.get_current_block());
+  cg::value ref = gen.get_value(e.get_declaration());
+
+  const type& tref = e.get_type();
+  const type& tobj = get_object_type(tref);
+  
+  if (is_function_type(tobj))
+    // Dereferencing a pointer is not meaningful.
+    return ref;
+  else {
+    // The value of an indirect type is always its address. The value of a
+    // direct type must be loaded from its address.
+    cg::type type = generate(gen, tobj);
+    if (type.is_indirect())
+      return ref;
+    else
+      return ir.CreateLoad(ref);
+  }
 }
 
 static cg::value

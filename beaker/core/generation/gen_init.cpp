@@ -54,8 +54,11 @@ generate_copy_init(generator& gen, const copy_init& e)
       }
     }
     return ptr;
+  } else {
+    // When there is no initialized object, just return the value since it
+    // will be used to 
+    return val;
   }
-  return val;
 }
 
 static cg::value

@@ -51,7 +51,7 @@ main(int argc, char* argv[])
   type& i32 = nb.get_int_type(32);
 
   expr& t = lb.get_true_expr();
-  expr& z0 = nb.make_int_expr(i32, 0);
+  expr& z = nb.make_int_expr(i32, 42);
 
   // Some declarations
   decl* vars[] {
@@ -66,29 +66,35 @@ main(int argc, char* argv[])
     decl& ret = *vars[2];
     type& type = cb.get_fn_type(parms, ret);
 
-    // FIXME: Make this return a legit value.
-    d1 = &cb.make_fn_decl(cb.get_name("f1"), type, parms, ret);
+    // expr& val = nb.make_int_expr(i32, 3); // = 3
+    expr& val = cb.make_ref_expr(cb.get_ref_type(i32), parms[0]); // = ref a
+    expr& def = cb.make_copy_init(val);
+    
+    d1 = &cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, def);
     mod.add_declaration(*d1);
   }
+
+  // Generate the call expression.
   expr& f1 = cb.make_ref_expr(d1->get_type(), *d1);
-
-  // Pre-seed a set of expressions.
-  expr_seq exprs {
-    &cb.make_call_expr(i32, f1, expr_seq{&t, &z0})
+  expr_seq args {
+    &cb.make_copy_init(z),
+    &cb.make_copy_init(t)
   };
+  expr& call = cb.make_call_expr(i32, f1, args);
 
+  // Generate the function definition (note that copy of the call).
   stmt_seq stmts {
-    &cb.make_expr_stmt(exprs[0])
+    &cb.make_ret_stmt(cb.make_copy_init(call))
   };
-  stmt& block = cb.make_block_stmt(stmts);
+  stmt& def = cb.make_block_stmt(stmts);
 
   // main : () -> int32
   decl_seq parms;
   decl& ret = *vars[2];
   type& type = cb.get_fn_type(parms, ret);
-  decl& fn = cb.make_fn_decl(cb.get_name("f"), type, parms, ret, block);
+  decl& fn = cb.make_fn_decl(cb.get_name("main"), type, parms, ret, def);
   mod.add_declaration(fn);
-  // print(fn);
+  print(mod);
 
   // Emit LLVM.
   generator gen("out.ll");

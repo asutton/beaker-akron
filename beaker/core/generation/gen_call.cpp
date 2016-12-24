@@ -1,6 +1,8 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/base/printing/print.hpp>
+#include <iostream>
 
 namespace beaker {
 namespace core {
@@ -22,71 +24,60 @@ generate_call_expr(generator& gen, const call_expr& e)
   const expr& fexpr = e.get_function();
   const fn_type& ftype = cast<fn_type>(fexpr.get_type());
 
+  llvm::Builder entry(gen.get_entry_block());
   llvm::Builder ir(gen.get_current_block());
 
-  // Generate the function access.
+  // Generate the function address.
   cg::value fn = generate(gen, e.get_function());
-  fn->dump();
-  return fn;
 
   // Build the list of arguments.
-  // std::vector<llvm::Value*> args;
+  std::vector<llvm::Value*> fargs;
 
-#if 0
-  auto pii = info.get_parameters().begin();
+  // If the return type is passed indirectly, then we're going to need
+  // to create a local temporary to be initialized by the function.
+  const type& tret = e.get_type();
+  cg::type ret = generate(gen, tret);
+  if (ret.is_indirect())
+    fargs.push_back(entry.CreateAlloca(ret));
 
-  // If needed, materialize a temporary to use as the return value.
-  //
-  // TODO: If we're in an initialization context, we might be able to use
-  // the initialization target as the return value.
-  if (info.has_return_parameter()) {
-    llvm::Builder ir(gen.get_entry_block());
-    cg::type type = generate(gen, ftype.get_return_type());
-    cg::value ret = ir.CreateAlloca(type);
-    args.push_back(ret);
-    ++pii;
-  }
-  
-  auto ai = e.get_arguments().begin();
-  auto ae = e.get_arguments().end();
-  while (ai != ae) {
-    // Look at the parameter to determine how it should be passed.
-    //
-    // FIXME: We actually need to look at the parameter declaration to
-    // determine if it's intended to be passed by value or by reference.
-    cg::parm_info parm = *pii;
-    if (parm.is_direct()) {
-      // The parameter passed directly by value.
-      //
-      // Note that the expression should be an initialization. However, there 
-      // is no object to initialize since the value is passed in a register.
-      cg::value arg = generate(gen, *ai);
-      args.push_back(arg);
-    } else if (parm.is_by_value()) {
-      // The parameter is passed indirectly by value.
-      //
-      // Materialize a caller-side object and initialize. Note that the 
-      // parameter and argument type must match.
-      llvm::Builder ir(gen.get_entry_block());
-      cg::type type = generate(gen, ai->get_type());
-      cg::value arg = ir.CreateAlloca(type);
-      
-      // Initialize that caller-side argument.
-      generator::init_guard (gen, arg);
-      generate(gen, *ai);
-      
-      args.push_back(arg);
-    } else {
-      // The argument is indirectly passed by reference.
-      cg::value arg = generate(gen, *ai);
-      args.push_back(arg);
-    }
+  const expr_seq& args = e.get_arguments();
+  const type_seq& parms = ftype.get_parameter_types();
+  auto ai = args.begin(), ae = args.end();
+  auto pi = parms.begin(), pe = parms.end();
+  while (ai != ae && pi != pe) {
+    print(std::cout, *ai);
+    std::cout << " ==> ";
+    print(std::cout, *pi);
+    std::cout << '\n';
+
+    const expr& arg = *ai;
+    const type& parm = * pi;
+    cg::type ptype = generate(gen, parm);
+    
+    // If the type is passed indirectly, then we need to create caller-side
+    // temporary and initialize that so we can pass the address. Otherwise,
+    // we can pass the value directly (tmp will be null in that case).
+    cg::value tmp = nullptr;
+    if (ptype.is_indirect())
+      tmp = entry.CreateAlloca(ptype);
+    generator::init_guard guard(gen, tmp);
+    
+    // Generate the argument initializer.
+    cg::value val = generate(gen, arg);
+    // val->dump();
+    fargs.push_back(val);
+
     ++ai;
-    ++pii;
+    ++pi;
   }
 
-  return ir.CreateCall(fn, args);
-  #endif
+  // Handle extra arguments in the case of variadic functions.
+  if (ai != ae) {
+    assert(ftype.is_variadic());
+    assert(false && "variadic arguments not implemented");
+  }
+
+  return ir.CreateCall(fn, fargs);
 }
 
 } // namespace core

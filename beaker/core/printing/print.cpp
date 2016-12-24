@@ -168,9 +168,9 @@ print_fn_decl(std::ostream& os, const fn_decl& d)
   print(os, d.get_return());
 
   if (d.has_definition()) {
+    os << ' ';
     defn def = d.get_definition();
     if (def.get_kind() == fn_decl::expr_defn) {
-      os << ' ';
       print(os, def.get_as<expr>());
       os << ';';
     }
