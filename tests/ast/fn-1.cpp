@@ -95,16 +95,26 @@ main(int argc, char* argv[])
     mod.add_declaration(fn);
   }
 
-  std::cout << "-- input --\n";
-  print(mod);
+  // Defined by expression.
+  { // Beaker: f3() -> bool = true
+    // LLVM: bool f3()
+    decl_seq parms {};
+    decl& ret = *vars[1]; // A boolean value
+    type& type = cb.get_fn_type(parms, ret);
 
+    // = copy true.
+    expr& t = lb.get_true_expr();
+    expr& def = cb.make_copy_init(t);
+
+    decl& fn = cb.make_fn_decl(cb.get_name("f3"), type, parms, ret, def);
+    mod.add_declaration(fn);
+  }
+
+  // std::cout << "-- input --\n";
+  // print(mod);
 
   // Emit LLVM.
   generator gen("out.ll");
   generate(gen, mod);
-
-  // std::cout << "bool: " << gen.get_type(b).is_indirect() << '\n';
-  // std::cout << "i32: " << gen.get_type(i32).is_indirect() << '\n';
-
   gen.get_module().dump();
 }

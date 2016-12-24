@@ -1,8 +1,6 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/base/printing/print.hpp>
-
 namespace beaker {
 namespace core {
 
@@ -49,7 +47,8 @@ generate_copy_init(generator& gen, const copy_init& e)
         // compute the size of the type based on the target architecture.
         //
         // We'll need to integrate data layout into the generator and evaluator
-        // (since compile-time evaluation may necessitate target-dependent info).
+        // (since compile-time evaluation may necessitate target-dependent 
+        // info). Note that we could jam that info in to cg::type.
         llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
         ir.CreateMemCpy(ptr, val, size, 0);
       }

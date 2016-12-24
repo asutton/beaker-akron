@@ -5,18 +5,6 @@
 namespace beaker {
 namespace core {
 
-// Returns information for the called function.
-//
-// FIXME: This is now defined in two files. Factor this into a common facility.
-static cg::fn_info&
-get_function_info(generator& gen, const expr& e)
-{
-  cg::type type = gen.get_type(e.get_type());
-  cg::fn_info* info = type.get_note<cg::fn_info>();
-  assert(info != nullptr);
-  return *info; 
-}
-
 // Generate a call expression.
 //
 // TODO: Adjust the arguments of the call to include a (possibly) materialized
@@ -33,15 +21,18 @@ generate_call_expr(generator& gen, const call_expr& e)
 {
   const expr& fexpr = e.get_function();
   const fn_type& ftype = cast<fn_type>(fexpr.get_type());
-  cg::fn_info& info = get_function_info(gen, fexpr);
 
   llvm::Builder ir(gen.get_current_block());
 
-  // Generate the code to the the function
+  // Generate the function access.
   cg::value fn = generate(gen, e.get_function());
+  fn->dump();
+  return fn;
 
   // Build the list of arguments.
-  std::vector<llvm::Value*> args;
+  // std::vector<llvm::Value*> args;
+
+#if 0
   auto pii = info.get_parameters().begin();
 
   // If needed, materialize a temporary to use as the return value.
@@ -93,8 +84,9 @@ generate_call_expr(generator& gen, const call_expr& e)
     ++ai;
     ++pii;
   }
-  
+
   return ir.CreateCall(fn, args);
+  #endif
 }
 
 } // namespace core

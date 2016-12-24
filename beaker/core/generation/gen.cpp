@@ -276,8 +276,7 @@ generate_ret_stmt(generator& gen, const ret_stmt& s)
 {
   cg::value ret = gen.get_return_value();
   
-  // Initialize the return value. No special cases are needed for void 
-  // returns.
+  // Initialize the return value. No special cases are needed for void returns.
   generator::init_guard guard(gen, ret);
   generate(gen, s.get_return());
   

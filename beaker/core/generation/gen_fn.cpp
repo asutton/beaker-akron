@@ -23,6 +23,8 @@ adjust_return_parm(generator& gen, const type& t)
  if (is_object_type(t)) {
     cg::type ret = generate(gen, t);
     if (ret.is_indirect()) {
+      // If the return type is indirect, the first parameter is the caller's
+      // return object.
       llvm::Argument& arg = *ai++;
       arg.setName("result");
 
@@ -36,6 +38,9 @@ adjust_return_parm(generator& gen, const type& t)
     }
     else {
       // Allocate a local return value.
+      //
+      // FIXME: If the function is defined by an expression, then we don't
+      // need to generate the object.
       llvm::Builder ir(gen.get_entry_block());
       cg::type ret = generate(gen, t);
       cg::value ptr = ir.CreateAlloca(ret, nullptr, "retval");
@@ -120,10 +125,13 @@ generate_parms(generator& gen, const fn_decl& d)
 static void
 generate_expr_def(generator& gen, const fn_decl& decl, const expr& def)
 {
-  // FIXME: This is an initialization of the return value. We should be able to
-  // replace the result of a temp expr with this object in the initializer.
-  // generate(gen, def);
-  assert(false && "expression definitions not implemented");
+  // Simply initialize the return value.
+  generator::init_guard guard(gen, gen.get_return_value());
+  generate(gen, def);
+
+  // And jump to the exit block.
+  llvm::Builder ir(gen.get_current_block());
+  ir.CreateBr(gen.get_exit_block());
 }
 
 // Generate a function definition that is a (block) statement.
@@ -141,7 +149,7 @@ generate_stmt_def(generator& gen, const fn_decl& decl, const stmt& def)
   // Generate the statement body.
   generate(gen, def);
 
-  // Insert a terminator if needed.
+  // Insert a terminator, if needed.
   llvm::BasicBlock* last = gen.get_current_block();
   if (!last->getTerminator()) {
     llvm::Builder ir(last);
