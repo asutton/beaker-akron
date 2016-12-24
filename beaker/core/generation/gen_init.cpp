@@ -1,6 +1,8 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include <beaker/base/printing/print.hpp>
+
 namespace beaker {
 namespace core {
 
@@ -27,8 +29,23 @@ generate_copy_init(generator& gen, const copy_init& e)
 {
   cg::value val = generate(gen, e.get_operand());
   if (cg::value ptr = gen.get_initialized_object()) {
+    // Copying the value depends on whether the is direct or indirect.
+    // Note that the copy initializer operand must have the same type as
+    // the initialized object.
+    cg::type type = generate(gen, e.get_operand().get_type());
     llvm::Builder ir(gen.get_current_block());
-    ir.CreateStore(val, ptr);
+    if (type.is_direct()) {
+      ir.CreateStore(val, ptr);
+    }
+    else {
+      // FIXME: Correctly compute the alignment of the type. Also, correctly
+      // compute the size of the type based on the target architecture.
+      //
+      // We'll need to integrate data layout into the generator and evaluator
+      // (since compile-time evaluation may necessitate target-dependent info).
+      llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
+      ir.CreateMemCpy(ptr, val, size, 0);
+    }
     return ptr;
   }
   return val;

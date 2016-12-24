@@ -57,12 +57,27 @@ gen_algo::operator()(generator& gen, const type& t) const
 }
 
 /// Generate an integer literal.
+///
+/// FIXME: Should we really handle integers > 64/128 bits in the language?
+/// Probably not.
 static cg::value 
 generate_int_expr(generator& gen, const int_expr& e)
 {
   int prec = get_precision(e.get_type());
+  
   llvm::Builder ir(gen.get_current_block());
-  return ir.getIntN(prec, e.get_value().get_integer());
+  cg::value val = ir.getIntN(prec, e.get_value().get_integer());
+  cg::type type = generate(gen, e.get_type());
+  if (type.is_direct()) {
+    return val;
+  } else {
+    // Large integers are passed indirectly, so allocate the temporary, store
+    // the computed value, and return the pointer.
+    llvm::Builder entry(gen.get_entry_block());
+    cg::value ptr = entry.CreateAlloca(type, nullptr, "temp");
+    ir.CreateStore(val, ptr);
+    return ptr;
+  }
 }
 
 /// Generate a floating point literal.

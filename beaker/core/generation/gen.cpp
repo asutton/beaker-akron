@@ -276,22 +276,14 @@ generate_ret_stmt(generator& gen, const ret_stmt& s)
 {
   cg::value ret = gen.get_return_value();
   
-  // Initialize the return value. Note that this will be null if the return
-  // value has direct type.
+  // Initialize the return value. No special cases are needed for void 
+  // returns.
   generator::init_guard guard(gen, ret);
-  cg::value val = generate(gen, s.get_return());
+  generate(gen, s.get_return());
   
+  // And jump to the exit block.
   llvm::Builder ir(gen.get_current_block());
-  if (!ret) {
-    // If the return value has direct type, then we didn't store a value,
-    // and we can simply return the value.
-    ir.CreateRet(val);
-  }
-  else {
-    // Otherwise, we stored the indirect return value, and we should jump to 
-    // the exit block, which will return void.
-    ir.CreateBr(gen.get_exit_block());
-  }
+  ir.CreateBr(gen.get_exit_block());
 }
 
 void

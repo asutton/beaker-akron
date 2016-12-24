@@ -16,8 +16,11 @@ adjust_return_parm(generator& gen, const type& t)
 {
   llvm::Function* fn = gen.get_function();
   arg_iterator ai = fn->arg_begin();
-  
-  if (is_object_type(t)) {
+ 
+  if (is_void_type(t))
+    return ai;
+
+ if (is_object_type(t)) {
     cg::type ret = generate(gen, t);
     if (ret.is_indirect()) {
       llvm::Argument& arg = *ai++;
@@ -28,8 +31,17 @@ adjust_return_parm(generator& gen, const type& t)
       // TODO: Is this actually valid on non-struct types?
       fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::StructRet);
 
-      // Make this object the return value.
+      // Set the return value.
       gen.set_return_value(&arg);
+    }
+    else {
+      // Allocate a local return value.
+      llvm::Builder ir(gen.get_entry_block());
+      cg::type ret = generate(gen, t);
+      cg::value ptr = ir.CreateAlloca(ret, nullptr, "retval");
+
+      // Set the return value.
+      gen.set_return_value(ptr);
     }
   }
   return ai;
@@ -59,7 +71,8 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
       // It should be dereferenceable.
       //
       // TODO: If the parameter is const, then we should be able to omit
-      // the copy, because the callee is not permitted to modify it.
+      // the copy, because the callee is not permitted to modify it. However,
+      // we don't have const types in core.
       fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::ByVal);
       fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::NonNull);
 
@@ -71,8 +84,9 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
       // need complex initialization because the argument is passed directly.
       llvm::Builder ir(gen.get_entry_block());
       std::stringstream ss;
-      llvm::Value* ptr = ir.CreateAlloca(type, nullptr, "var." + name);
-      ir.CreateStore(&arg, ptr);
+      cg::value ptr = ir.CreateAlloca(type, nullptr, "var." + name);
+      llvm::Builder cur(gen.get_current_block());
+      cur.CreateStore(&arg, ptr);
       
       // Bind the parameter to the automatic storage.
       gen.put_value(p, ptr);
@@ -108,10 +122,8 @@ generate_expr_def(generator& gen, const fn_decl& decl, const expr& def)
 {
   // FIXME: This is an initialization of the return value. We should be able to
   // replace the result of a temp expr with this object in the initializer.
-  generate(gen, def);
-
-  llvm::Builder ir(gen.get_current_block());
-  ir.CreateBr(gen.get_exit_block());
+  // generate(gen, def);
+  assert(false && "expression definitions not implemented");
 }
 
 // Generate a function definition that is a (block) statement.
@@ -150,33 +162,34 @@ generate_body(generator& gen, const fn_decl& d)
     assert(false && "unsupported definition");
 }
 
-// // Generate the final return from the function.
-// static void
-// generate_exit(generator& gen, const fn_decl& d)
-// {
-//   // If there's a return value.
-//   if (gen.get_return_value()) {
+// Generate the final return from the function.
+static void
+generate_exit(generator& gen, const fn_decl& d)
+{
+  llvm::Builder ir(gen.get_exit_block());    
 
-//   }
-
-//   llvm::Builder ir(gen.get_exit_block());    
-//   if (is<void_type>(d.get_return_type())) {
-//     // The function is void. Just return.
-//     ir.CreateRetVoid();
-//   }
-//   else if (is<var_decl>(d.get_return())) {
-//     // The function returns an object. If that object is returned in a 
-//     // register, load and return. Otherwise, the function is actually void.
-//     cg::fn_info& info = get_function_info(gen, d);
-//     if (!info.has_return_parameter()) {
-//       llvm::Value* ret = ir.CreateLoad(gen.get_return_value());
-//       ir.CreateRet(ret); 
-//     }
-//   }
-//   else {
-//     assert(false && "unsupported return value");
-//   }
-// }
+  const type& t = d.get_return_type();
+  if (is_void_type(t)) {
+    // For void returns, do nothing.
+    ir.CreateRetVoid();
+  }
+  else if (is_object_type(t)) {
+    // Return by value depends on whether the return is direct or indirect.
+    cg::type ret = generate(gen, t);
+    if (ret.is_direct()) {
+      // Load the value so it can be returned directly.
+      cg::value ret = ir.CreateLoad(gen.get_return_value());
+      ir.CreateRet(ret);
+    }
+    else {
+      // We've stored the return value in the caller's frame. Just exit.
+      ir.CreateRetVoid();
+    }
+  }
+  else {
+    assert(false && "return by reference not implemented");
+  }
+}
 
 // Generate a function definition.
 //
@@ -194,7 +207,7 @@ generate_fn_def(generator& gen, const fn_decl& d, llvm::Function* f)
   gen.define_function(f);
   generate_parms(gen, d);
   generate_body(gen, d);  
-  // generate_exit(gen, d);
+  generate_exit(gen, d);
   gen.end_function();
 }
 
