@@ -49,21 +49,24 @@ main(int argc, char* argv[])
 
   type& b = lb.get_bool_type();
   type& i32 = nb.get_int_type(32);
+  type& i1024 = nb.get_int_type(1024);
 
   expr& t = lb.get_true_expr();
   expr& z = nb.make_int_expr(i32, 42);
+  expr& big = nb.make_int_expr(i1024, 5);
 
   // Some declarations
   decl* vars[] {
     &cb.make_var_decl(cb.get_name("a"), i32),
     &cb.make_var_decl(cb.get_name("b"), b),
+    &cb.make_var_decl(cb.get_name("c"), i1024),
     &cb.make_var_decl(cb.get_name("r"), i32)
   };
 
   typed_decl* d1;
   { // f1 : (int32, bool) -> i32
-    decl_seq parms {vars[0], vars[1]};
-    decl& ret = *vars[2];
+    decl_seq parms {vars[0], vars[1], vars[2]};
+    decl& ret = *vars[3];
     type& type = cb.get_fn_type(parms, ret);
 
     // expr& val = nb.make_int_expr(i32, 3); // = 3
@@ -78,7 +81,8 @@ main(int argc, char* argv[])
   expr& f1 = cb.make_ref_expr(d1->get_type(), *d1);
   expr_seq args {
     &cb.make_copy_init(z),
-    &cb.make_copy_init(t)
+    &cb.make_copy_init(t),
+    &cb.make_copy_init(big)
   };
   expr& call = cb.make_call_expr(i32, f1, args);
 
@@ -90,7 +94,7 @@ main(int argc, char* argv[])
 
   // main : () -> int32
   decl_seq parms;
-  decl& ret = *vars[2];
+  decl& ret = *vars[3];
   type& type = cb.get_fn_type(parms, ret);
   decl& fn = cb.make_fn_decl(cb.get_name("main"), type, parms, ret, def);
   mod.add_declaration(fn);
