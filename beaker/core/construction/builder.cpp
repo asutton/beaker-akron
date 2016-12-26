@@ -35,18 +35,6 @@ builder::get_name()
   return make<internal_name>(current_id_++);
 }
 
-type&
-builder::get_decl_type(const decl& t)
-{
-  return get_decl_type(modifiable(t));
-}
-
-type&
-builder::get_decl_type(decl& t)
-{
-  return t.as_typed()->get_type();
-}
-
 /// Returns the canonical type `void`.
 void_type& 
 builder::get_void_type()
@@ -54,45 +42,43 @@ builder::get_void_type()
   return void_.get(); 
 }
 
+/// Returns the canonical type `t&`.
 ref_type&
 builder::get_ref_type(type& t)
 {
   return refs_.get(t);
 }
 
-in_type&
-builder::get_in_type(type& t)
-{
-  return ins_.get(t);
-}
-
-out_type&
-builder::get_out_type(type& t)
-{
-  return outs_.get(t);
-}
-
+/// Returns the canonical type `(p) -> r`. Note that `p` is a sequence of types.
 fn_type&
 builder::get_fn_type(const type_seq& p, type& r)
 {
   return fns_.get(p, r);
 }
 
+/// Returns the canonical type `(p) -> r`. Note that `p` is a sequence of types.
 fn_type&
 builder::get_fn_type(type_seq&& p, type& r)
 {
   return fns_.get(std::move(p), r);
 }
 
+/// Returns the canonical type `(a) -> b` where `a` is the sequence of types
+/// of the parameters in `p`, and `b` is the type of the return parameter `r`.
+/// This requires that each declaration in `p` is a parameter.
 fn_type&
-builder::get_fn_type(const decl_seq& p, decl& r)
+builder::get_fn_type(decl_seq& p, decl& r)
 {
   type_seq parms;
-  for (const decl& d : p)
-    parms.push_back(get_decl_type(d));
-  type& ret = get_decl_type(r);
+  for (decl& d : p) {
+    assert(is_parameter(d));
+    parms.push_back(get_declared_type(d));
+  }
+  assert(is_parameter(r));
+  type& ret = get_declared_type(r);
   return get_fn_type(std::move(parms), ret);
 }
+
 
 /// Returns a new expression `nop`.
 nop_expr&

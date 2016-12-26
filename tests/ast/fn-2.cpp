@@ -55,12 +55,12 @@ main(int argc, char* argv[])
   expr& z = nb.make_int_expr(i32, 42);
   expr& big = nb.make_int_expr(i1024, 5);
 
-  // Some declarations
+  // Some declarations.
   decl* vars[] {
-    &cb.make_var_decl(cb.get_name("a"), i32),
-    &cb.make_var_decl(cb.get_name("b"), b),
-    &cb.make_var_decl(cb.get_name("c"), i1024),
-    &cb.make_var_decl(cb.get_name("r"), i32)
+    &cb.make_parm_decl(cb.get_name("a"), i32),
+    &cb.make_parm_decl(cb.get_name("b"), b),
+    &cb.make_parm_decl(cb.get_name("c"), i1024),
+    &cb.make_parm_decl(cb.get_name("r"), i32)
   };
 
   typed_decl* d1;

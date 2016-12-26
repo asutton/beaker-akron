@@ -18,8 +18,6 @@ struct internal_name;
 
 struct void_type;
 struct ref_type;
-struct in_type;
-struct out_type;
 struct fn_type;
 
 struct nop_expr;
@@ -53,18 +51,12 @@ struct builder : basic_builder<core_lang>
   basic_name& get_name(const char*);
   internal_name& get_name();
 
-  // Declared types
-  type& get_decl_type(const decl&);
-  type& get_decl_type(decl&);
-
   // Canonical types
   void_type& get_void_type();
   ref_type& get_ref_type(type&);
-  in_type& get_in_type(type&);
-  out_type& get_out_type(type&);
   fn_type& get_fn_type(const type_seq&, type&);
   fn_type& get_fn_type(type_seq&&, type&);
-  fn_type& get_fn_type(const decl_seq&, decl&);
+  fn_type& get_fn_type(decl_seq&, decl&);
 
   // General types
   ref_type& make_ref_type(type&);
@@ -107,8 +99,6 @@ struct builder : basic_builder<core_lang>
   canonical_set<basic_name> names_;
   singleton_set<void_type> void_;
   canonical_set<ref_type> refs_;
-  canonical_set<in_type> ins_;
-  canonical_set<out_type> outs_;
   canonical_set<fn_type> fns_;
 };
 

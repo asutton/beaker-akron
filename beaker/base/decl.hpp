@@ -489,6 +489,41 @@ generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, decl_seq&& p, de
   : mapping_decl(K, n, t, std::move(p), r, s)
 { }
 
+
+// -------------------------------------------------------------------------- //
+// Operations
+
+/// Returns the declaration name for `d`. Requires that `d` is a named 
+/// declaration.
+inline const name&
+get_declaration_name(const decl& d)
+{
+  return d.as_named()->get_name();
+}
+
+/// Returns the declaration name for `d`. Requires that `d` is a named 
+/// declaration.
+inline name&
+get_declaration_name(decl& d)
+{
+  return d.as_named()->get_name();
+}
+
+/// Returns the declared type `d`. Requires that `d` is a typed declaration.
+inline const type&
+get_declared_type(const decl& d)
+{
+  return d.as_typed()->get_type();
+}
+
+/// Returns the declared type `d`. Requires that `d` is a typed declaration.
+inline type&
+get_declared_type(decl& d)
+{
+  return d.as_typed()->get_type();
+}
+
+
 } // namespace beaker
 
 

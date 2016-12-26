@@ -12,21 +12,20 @@ using arg_iterator = llvm::Function::arg_iterator;
 // If needed, adjust parameter information the return type. Returns an iterator
 // referring to the first non-parameter function.
 static arg_iterator
-adjust_return_parm(generator& gen, const type& t)
+adjust_return_parm(generator& gen, const decl& d)
 {
   llvm::Function* fn = gen.get_function();
   arg_iterator ai = fn->arg_begin();
  
-  if (is_void_type(t))
-    return ai;
-
- if (is_object_type(t)) {
+  const type& t = get_declared_type(d);
+  if (is_object_type(t)) {
     cg::type ret = generate(gen, t);
     if (ret.is_indirect()) {
       // If the return type is indirect, the first parameter is the caller's
-      // return object.
+      // return object. The first actual argument is past this return.
       llvm::Argument& arg = *ai++;
-      arg.setName("result");
+      std::string name = generate(gen, get_declaration_name(d));
+      arg.setName(name);
 
       // Indicate that the return value is a struct return. 
       //
@@ -43,7 +42,8 @@ adjust_return_parm(generator& gen, const type& t)
       // need to generate the object.
       llvm::Builder ir(gen.get_entry_block());
       cg::type ret = generate(gen, t);
-      cg::value ptr = ir.CreateAlloca(ret, nullptr, "retval");
+      std::string name = generate(gen, get_declaration_name(d));
+      cg::value ptr = ir.CreateAlloca(ret, nullptr, name);
 
       // Set the return value.
       gen.set_return_value(ptr);
@@ -55,16 +55,14 @@ adjust_return_parm(generator& gen, const type& t)
 static void
 adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
 {
-  const parm_decl& p = cast<parm_decl>(d);
-  const type& t = p.get_type();
-
   llvm::Function* fn = gen.get_function();
   llvm::Argument& arg = *ai;
 
   // Set the name of the argument and create a binding for it.
-  std::string name = generate(gen, p.get_name());
+  std::string name = generate(gen, get_declaration_name(d));
   arg.setName(name);
 
+  const type& t = get_declared_type(d);
   if (is_object_type(t)) {
     cg::type type = generate(gen, t);
     if (type.is_indirect()) {
@@ -82,7 +80,7 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
       fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::NonNull);
 
       // Bind the parameter directly to the argument.
-      gen.put_value(p, &arg);
+      gen.put_value(d, &arg);
     }
     else {
       // Create local storage for the parameter variable. Note that we don't 
@@ -94,7 +92,7 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
       cur.CreateStore(&arg, ptr);
       
       // Bind the parameter to the automatic storage.
-      gen.put_value(p, ptr);
+      gen.put_value(d, ptr);
     }
   }
   else if (is_reference_type(t)) {
@@ -111,7 +109,7 @@ static void
 generate_parms(generator& gen, const fn_decl& d)
 {
   // Adjust the return parameter if needed.
-  auto ai = adjust_return_parm(gen, d.get_return_type());
+  auto ai = adjust_return_parm(gen, d.get_return());
 
   // Generate/annotate each parameter in turn.
   for (const decl& parm : d.get_parameters())
@@ -243,7 +241,7 @@ generate_fn_decl(generator& gen, const fn_decl& d)
   );
   gen.put_value(d, fn);
 
-  // Emit a definition (if local).
+  // Emit the definition (if needed).
   generate_fn_def(gen, d, fn);
   return fn;
 }

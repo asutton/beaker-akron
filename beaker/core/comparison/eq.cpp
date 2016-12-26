@@ -47,10 +47,9 @@ eq_void_type(const void_type& a, const void_type& b)
   return true;
 }
 
-// Returns true if a and b have equivalent reference types.
-template<typename T>
+// Returns true if a and b have equivalent object types.
 static inline bool
-eq_reference_type(const T& a, const T& b)
+eq_ref_type(const ref_type& a, const ref_type& b)
 {
   return equivalent(a.get_object_type(), b.get_object_type());
 }
@@ -73,11 +72,7 @@ eq_algo::operator()(const type& a, const type& b) const
     case void_type_kind:
       return eq_void_type(cast<void_type>(a), cast<void_type>(b));
     case ref_type_kind:
-      return eq_reference_type(cast<ref_type>(a), cast<ref_type>(b));
-    case in_type_kind:
-      return eq_reference_type(cast<in_type>(a), cast<in_type>(b));
-    case out_type_kind:
-      return eq_reference_type(cast<out_type>(a), cast<out_type>(b));
+      return eq_ref_type(cast<ref_type>(a), cast<ref_type>(b));
     case fn_type_kind:
       return eq_fn_type(cast<fn_type>(a), cast<fn_type>(b));
     default:

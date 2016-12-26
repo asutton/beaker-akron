@@ -60,25 +60,7 @@ generate_ref_type(generator& gen, const ref_type& t)
   return llvm::PointerType::getUnqual(type);
 }
 
-/// An input parameter of indirect type is a pointer. An input parameter
-/// of direct type is simply that type.
-cg::type
-generate_in_type(generator& gen, const in_type& t)
-{
-  cg::type type = generate(gen, t.get_object_type());
-  if (type.is_direct())
-    return type;
-  return llvm::PointerType::getUnqual(type);
-}
-
-// An output parameter is always a pointer
-cg::type
-generate_out_type(generator& gen, const out_type& t)
-{
-  cg::type type = generate(gen, t.get_object_type());
-  return llvm::PointerType::getUnqual(type);
-}
-
+/// Generate the return type of a function type.
 static cg::type
 generate_return_type(generator& gen, const type& t, std::vector<llvm::Type*>& parms)
 {
@@ -95,11 +77,12 @@ generate_return_type(generator& gen, const type& t, std::vector<llvm::Type*>& pa
   return ret;
 }
 
+/// Generate a parameter type of a function type.
 static cg::type
 generate_parm_type(generator& gen, const type& t, std::vector<llvm::Type*>& parms)
 {
   cg::type parm = generate(gen, t);
-  if (is_object_type(t) || is<in_type>(t)) {
+  if (is_object_type(t)) {
     // Passing by value and passing require similar adjustments. If the 
     // parameter type is indirect, adjust the type to be passed indirectly.
     if (parm.is_indirect())
@@ -135,10 +118,6 @@ gen_algo::operator()(generator& gen, const type& t) const
       return generate_void_type(gen, cast<void_type>(t));
     case ref_type_kind:
       return generate_ref_type(gen, cast<ref_type>(t));
-    case in_type_kind:
-      return generate_in_type(gen, cast<in_type>(t));
-    case out_type_kind:
-      return generate_out_type(gen, cast<out_type>(t));
     case fn_type_kind:
       return generate_fn_type(gen, cast<fn_type>(t));
     default:
@@ -249,12 +228,15 @@ static cg::value generate_var_decl(generator&, const var_decl&);
 static cg::value generate_fn_decl(generator&, const fn_decl&);
 
 // Generate an LLVM declaration from the common declaration d.
+//
+// Note that parameter declarations can only appear in function declarations
+// and are generated explicitly in generate_fn_decl.
 cg::value
 gen_algo::operator()(generator& gen, const decl& d) const
 {
   switch (d.get_kind()) {
     case var_decl_kind:
-    return generate_var_decl(gen, cast<var_decl>(d));
+      return generate_var_decl(gen, cast<var_decl>(d));
     case fn_decl_kind:
       return generate_fn_decl(gen, cast<fn_decl>(d));
     default:

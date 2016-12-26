@@ -61,22 +61,6 @@ struct ref_type : basic_reference_type<ref_type_kind>
 };
 
 
-/// Represents the input parameter type `in t`. Input types describe parameters
-/// that accept read-only inputs for functions.
-struct in_type : basic_reference_type<in_type_kind>
-{
-  using basic_reference_type<in_type_kind>::basic_reference_type;
-};
-
-
-/// Represents the output parameter type `out t`. Output types describe
-/// parameters that accept uninitialized objects as outputs.
-struct out_type : basic_reference_type<out_type_kind>
-{
-  using basic_reference_type<out_type_kind>::basic_reference_type;
-};
-
-
 /// Represents function types `(t1, t2, ..., tn) -> t`. A function type 
 /// describes entities that map inputs to outputs.
 ///
@@ -157,7 +141,7 @@ is_function_type(const type& t)
 inline bool
 is_reference_type(const type& t)
 {
-  return t.get_kind() >= ref_type_kind && t.get_kind() <= out_type_kind;
+  return t.get_kind() == ref_type_kind;
 }
 
 /// Returns true if t is an object type. The object types are all types that 
@@ -176,10 +160,6 @@ get_object_type(const type& t)
 {
   if (const ref_type* ref = as<ref_type>(&t))
     return ref->get_object_type();
-  else if (const in_type* in = as<in_type>(&t))
-    return in->get_object_type();
-  else if (const out_type* out = as<out_type>(&t))
-    return out->get_object_type();
   return t;
 }
 
@@ -188,10 +168,6 @@ get_object_type(type& t)
 {
   if (ref_type* ref = as<ref_type>(&t))
     return ref->get_object_type();
-  else if (in_type* in = as<in_type>(&t))
-    return in->get_object_type();
-  else if (out_type* out = as<out_type>(&t))
-    return out->get_object_type();
   return t;
 }
 

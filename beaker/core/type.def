@@ -3,8 +3,6 @@
 
 def_type(void)
 def_type(ref)
-def_type(in)
-def_type(out)
 def_type(fn)
 
 #undef def_type

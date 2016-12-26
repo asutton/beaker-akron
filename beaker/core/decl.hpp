@@ -49,20 +49,42 @@ struct fn_decl : generic_mapping_decl<fn_decl_kind>
 };
 
 
-/// Represents the declaration of function parameter.
+/// Represents the declaration of (formal) function parameter.
 ///
 /// A parameter represent the way in which objects and references are passed
-/// to a function. Parameters are similar to variables except that they may
-/// not be directly associated with storage.
+/// to a function. In general, parameters are like variables in the sense that
+/// they are names that refer to local storage. However, that storage may be
+/// allocated by the calling function or the caller, depending on the type of
+/// the parameter.
 struct parm_decl : generic_value_decl<parm_decl_kind>
 {
   using generic_value_decl<parm_decl_kind>::generic_value_decl;
-
-  bool is_var_parm() const;
-  bool is_ref_parm() const;
-  bool is_in_parm() const;
-  bool is_out_parm() const;
 };
+
+
+// -------------------------------------------------------------------------- //
+// Operations
+
+/// Returns true if `d` is a variable.
+inline bool
+is_variable(const decl& d)
+{
+  return d.get_kind() == var_decl_kind;
+}
+
+/// Returns true if `d` is a function.
+inline bool
+is_function(const decl& d)
+{
+  return d.get_kind() == fn_decl_kind;
+}
+
+/// Returns true if `d` is a parameter.
+inline bool 
+is_parameter(const decl& d)
+{
+  return d.get_kind() == parm_decl_kind;
+}
 
 } // namespace core
 } // namespace beaker

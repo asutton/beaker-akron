@@ -55,10 +55,10 @@ main(int argc, char* argv[])
 
   // Some declarations
   decl* vars[] {
-    &cb.make_var_decl(cb.get_name("a"), i32),
-    &cb.make_var_decl(cb.get_name("b"), b),
-    &cb.make_var_decl(cb.get_name("c"), i1024),
-    &cb.make_var_decl(cb.get_name("r"), i32)
+    &cb.make_parm_decl(cb.get_name("a"), i32),
+    &cb.make_parm_decl(cb.get_name("b"), b),
+    &cb.make_parm_decl(cb.get_name("c"), i1024),
+    &cb.make_parm_decl(cb.get_name("r"), i32)
   };
 
   { // Beaker: f1(int32, bool, int1024) -> int32

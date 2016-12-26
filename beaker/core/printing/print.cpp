@@ -40,12 +40,11 @@ print_void_type(std::ostream& os, const void_type& t)
 }
 
 // Pretty print a reference type.
-template<typename T>
 static void
-print_reference_type(std::ostream& os, const T& t, const char* str)
+print_ref_type(std::ostream& os, const ref_type& t)
 {
-  os << str << ' ';
   print(os, t.get_object_type());
+  os << '&';
 }
 
 // Pretty print a function type.
@@ -72,11 +71,7 @@ print_algo::operator()(std::ostream& os, const type& t) const
     case void_type_kind:
       return print_void_type(os, cast<void_type>(t));
     case ref_type_kind:
-      return print_reference_type(os, cast<ref_type>(t), "ref");
-    case in_type_kind:
-      return print_reference_type(os, cast<in_type>(t), "in");
-    case out_type_kind:
-      return print_reference_type(os, cast<out_type>(t), "out");
+      return print_ref_type(os, cast<ref_type>(t));
     case fn_type_kind:
       return print_fn_type(os, cast<fn_type>(t));
     default:
@@ -138,16 +133,18 @@ print_algo::operator()(std::ostream& os, const expr& e) const
 
 
 // Pretty print a value declaration.
-template<typename T>
 static void
-print_value_decl(std::ostream& os, const T& d, const char* str)
+print_var_decl(std::ostream& os, const var_decl& d)
 {
-  os << str << ' ';
+  os << "var ";
   print(os, d.get_type());
   os << ' ';
   print(os, d.get_name());
-  if (d.has_initializer())
+  if (d.has_initializer()) {
+    os << ' ';
     print(os, d.get_initializer().template get_as<expr>());
+  }
+  os << ";\n";
 }
 
 // Pretty print a function declaration.
@@ -194,7 +191,7 @@ print_algo::operator()(std::ostream& os, const decl& d) const
 {
   switch (d.get_kind()) {
     case var_decl_kind:
-      return print_value_decl(os, cast<var_decl>(d), "var");
+      return print_var_decl(os, cast<var_decl>(d));
     case fn_decl_kind:
       return print_fn_decl(os, cast<fn_decl>(d));
     case parm_decl_kind:
@@ -219,7 +216,6 @@ static void
 print_decl_stmt(std::ostream& os, const decl_stmt& s)
 {
   print(os, s.get_declaration());
-  os << '\n';
 }
 
 static void
