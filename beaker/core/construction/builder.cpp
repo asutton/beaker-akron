@@ -82,18 +82,16 @@ builder::get_fn_type(decl_seq& p, decl& r)
 
 /// Returns a new expression `nop`.
 nop_expr&
-builder::make_nop_expr(type& t)
+builder::make_nop_expr()
 {
-  assert(is<void_type>(t));
-  return make<nop_expr>(t);
+  return make<nop_expr>(get_void_type());
 }
 
 /// Returns a new expression `void(e)`.
 void_expr&
-builder::make_void_expr(type& t, expr& e)
+builder::make_void_expr(expr& e)
 {
-  assert(is<void_type>(t));
-  return make<void_expr>(t, e);
+  return make<void_expr>(get_void_type(), e);
 }
 
 /// Returns a new express that refers to a declaration.
@@ -156,6 +154,13 @@ builder::make_copy_init(expr& e)
   return make<copy_init>(get_void_type(), e);
 }
 
+/// Returns a copy initializer for the expression e.
+ref_init& 
+builder::make_ref_init(expr& e)
+{
+  return make<ref_init>(get_void_type(), e);
+}
+
 /// Returns a call initializer for the function f and arguments a.
 call_init& 
 builder::make_call_init(decl& f, const expr_seq& a)
@@ -171,16 +176,36 @@ builder::make_call_init(decl& f, expr_seq&& a)
 }
 
 
+/// Returns a new variable `var t n`. The declaration is not defined.
+///
+/// FIXME: Does this mean the variable has external linkage?
 var_decl&
 builder::make_var_decl(name& n, type& t)
 {
   return make<var_decl>(n, t);
 }
 
+/// Returns a new variable `var t n`. The declaration is not defined.
+///
+/// FIXME: Does this mean the variable has external linkage?
+var_decl&
+builder::make_var_decl(const char* n, type& t)
+{
+  return make_var_decl(get_name(n), t);
+}
+
+/// Returns a new variable `var t n = e`.
 var_decl&
 builder::make_var_decl(name& n, type& t, expr& e)
 {
   return make<var_decl>(n, t, e);
+}
+
+/// Returns a new variable `var t n = e`.
+var_decl&
+builder::make_var_decl(const char* n, type& t, expr& e)
+{
+  return make_var_decl(get_name(n), t, e);
 }
 
 /// Returns a new function that has no definition.
@@ -232,6 +257,12 @@ builder::make_parm_decl(name& n, type& t)
   return make<parm_decl>(n, t);
 }
 
+/// Returns a new parameter `t n`.
+parm_decl&
+builder::make_parm_decl(const char* n, type& t)
+{
+  return make_parm_decl(get_name(n), t);
+}
 
 /// Returns a new block statement with statements s.
 block_stmt& 

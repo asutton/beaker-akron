@@ -45,11 +45,6 @@ generate_call_expr(generator& gen, const call_expr& e)
   auto ai = args.begin(), ae = args.end();
   auto pi = parms.begin(), pe = parms.end();
   while (ai != ae && pi != pe) {
-    print(std::cout, *ai);
-    std::cout << " ==> ";
-    print(std::cout, *pi);
-    std::cout << '\n';
-
     const expr& arg = *ai;
     const type& parm = * pi;
     cg::type ptype = generate(gen, parm);

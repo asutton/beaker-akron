@@ -55,8 +55,29 @@ generate_copy_init(generator& gen, const copy_init& e)
     }
     return ptr;
   } else {
-    // When there is no initialized object, just return the value since it
-    // will be used to 
+    // When there is no initialized object, just return the value. This
+    // typically happens when directly initializing a function argument.
+    return val;
+  }
+}
+
+// Generate the object referred to by e and use its address to initialize
+// an object or argument.
+//
+// References are simply pointers and, as such, always passed directly.
+static cg::value
+generate_ref_init(generator& gen, const ref_init& e)
+{
+  cg::value val = generate(gen, e.get_operand());
+  if (cg::value ptr = gen.get_initialized_object()) {
+    // Store the pointer value and return the address of the stored object.
+    llvm::Builder ir(gen.get_current_block());
+    ir.CreateStore(val, ptr);
+    return ptr;
+  }
+  else {
+    // When there is no initialized object, just return the value. This
+    // typically happens when directly initializing a function argument.
     return val;
   }
 }

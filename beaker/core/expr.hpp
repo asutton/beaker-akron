@@ -177,7 +177,6 @@ struct deref_expr : conversion_expr<deref_expr_kind>
 // -------------------------------------------------------------------------- //
 // Initializers
 
-
 /// Represents the zero initialization of an object.
 ///
 /// The type of the initialization is void.
@@ -187,12 +186,20 @@ struct zero_init : generic_nullary_expr<zero_init_kind>
 };
 
 
-/// Represents the copy initialization of an object.
+/// Represents the initialization of an object by a value.
 ///
 /// The type of the initialization is void.
 struct copy_init : generic_unary_expr<copy_init_kind>
 {
   using generic_unary_expr<copy_init_kind>::generic_unary_expr;
+};
+
+/// Represents the initialization of a reference by an object.
+///
+/// The type of the initialization is void.
+struct ref_init : generic_unary_expr<ref_init_kind>
+{
+  using generic_unary_expr<ref_init_kind>::generic_unary_expr;
 };
 
 

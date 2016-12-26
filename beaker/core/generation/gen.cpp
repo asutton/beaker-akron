@@ -147,28 +147,12 @@ generate_void_expr(generator& gen, const void_expr& e)
   return nullptr;
 }
 
-// Generates the value at a given address.
+// Generates the the address of a declaration.
 static cg::value
 generate_ref_expr(generator& gen, const ref_expr& e)
 {
   llvm::Builder ir(gen.get_current_block());
-  cg::value ref = gen.get_value(e.get_declaration());
-
-  const type& tref = e.get_type();
-  const type& tobj = get_object_type(tref);
-  
-  if (is_function_type(tobj))
-    // Dereferencing a pointer is not meaningful.
-    return ref;
-  else {
-    // The value of an indirect type is always its address. The value of a
-    // direct type must be loaded from its address.
-    cg::type type = generate(gen, tobj);
-    if (type.is_indirect())
-      return ref;
-    else
-      return ir.CreateLoad(ref);
-  }
+  return gen.get_value(e.get_declaration());
 }
 
 static cg::value
@@ -191,18 +175,27 @@ generate_copy_expr(generator& gen, const copy_expr& e)
 }
 
 
-/// Generates a load of a reference.
+/// Generates a load of a reference. 
 static cg::value
 generate_deref_expr(generator& gen, const deref_expr& e)
 {
-  llvm::Builder ir(gen.get_current_block());
-  cg::value v = generate(gen, e.get_source());
-  return ir.CreateLoad(v);
+  assert(is_reference_type(e.get_source().get_type()));
+
+  cg::value ref = generate(gen, e.get_source());
+  cg::type type = generate(gen, e.get_type());
+  if (type.is_direct()) {
+    // We only need a load when the result type of the expression direct. 
+    // Otherwise, we are simply using the reference as the value.
+    llvm::Builder ir(gen.get_current_block());
+    ref = ir.CreateLoad(ref);
+  }
+  return ref;
 }
 
 static cg::value generate_call_expr(generator& gen, const call_expr&);
 static cg::value generate_zero_init(generator& gen, const zero_init&);
 static cg::value generate_copy_init(generator& gen, const copy_init&);
+static cg::value generate_ref_init(generator& gen, const ref_init&);
 static cg::value generate_call_init(generator& gen, const call_init&);
 
 // Generate an LLVM instruction for the common expression e.

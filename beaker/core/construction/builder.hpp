@@ -30,6 +30,7 @@ struct deref_expr;
 
 struct zero_init;
 struct copy_init;
+struct ref_init;
 struct call_init;
 
 struct var_decl;
@@ -63,8 +64,8 @@ struct builder : basic_builder<core_lang>
   fn_type& make_fn_type(type&);
 
   // Expressions
-  nop_expr& make_nop_expr(type&);
-  void_expr& make_void_expr(type&, expr&);
+  nop_expr& make_nop_expr();
+  void_expr& make_void_expr(expr&);
   ref_expr& make_ref_expr(type&, decl&);
   temp_expr& make_temp_expr(type&);
   copy_expr& make_copy_expr(type&, expr&, expr&);
@@ -74,12 +75,15 @@ struct builder : basic_builder<core_lang>
 
   zero_init& make_zero_init();
   copy_init& make_copy_init(expr&);
+  ref_init& make_ref_init(expr&);
   call_init& make_call_init(decl&, const expr_seq&);
   call_init& make_call_init(decl&, expr_seq&&);
 
   // Declarations
   var_decl& make_var_decl(name&, type&);
+  var_decl& make_var_decl(const char*, type&);
   var_decl& make_var_decl(name&, type&, expr&);
+  var_decl& make_var_decl(const char*, type&, expr&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, expr&);
@@ -87,6 +91,7 @@ struct builder : basic_builder<core_lang>
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
   parm_decl& make_parm_decl(name&, type&);
+  parm_decl& make_parm_decl(const char*, type&);
 
   // Statements
   block_stmt& make_block_stmt(const stmt_seq&);

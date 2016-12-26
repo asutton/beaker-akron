@@ -70,7 +70,8 @@ main(int argc, char* argv[])
     type& type = cb.get_fn_type(parms, ret);
 
     // expr& val = nb.make_int_expr(i32, 3); // = 3
-    expr& val = cb.make_ref_expr(cb.get_ref_type(i32), parms[0]); // = ref a
+    expr& ref = cb.make_ref_expr(cb.get_ref_type(i32), parms[0]); // = ref a
+    expr& val = cb.make_deref_expr(i32, ref);
     expr& def = cb.make_copy_init(val);
     
     d1 = &cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, def);

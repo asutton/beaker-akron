@@ -80,6 +80,13 @@ print_algo::operator()(std::ostream& os, const type& t) const
   assert(false && "not a core type");
 }
 
+static void
+print_void_expr(std::ostream& os, const void_expr& e)
+{
+  os << "void(";
+  print(os, e.get_operand());
+  os << ')';
+}
 
 static void
 print_call_expr(std::ostream& os, const call_expr& e)
@@ -96,6 +103,14 @@ print_call_expr(std::ostream& os, const call_expr& e)
 }
 
 static void
+print_deref_expr(std::ostream& os, const deref_expr& e)
+{
+  os << "deref(";
+  print(os, e.get_source());
+  os << ')';
+}
+
+static void
 print_zero_init(std::ostream& os, const zero_init& e)
 {
   os << "= zero";
@@ -104,7 +119,14 @@ print_zero_init(std::ostream& os, const zero_init& e)
 static void
 print_copy_init(std::ostream& os, const copy_init& e)
 {
-  os << "= " << "copy ";
+  os << "= copy ";
+  print(os, e.get_operand());
+}
+
+static void
+print_ref_init(std::ostream& os, const ref_init& e)
+{
+  os << "= ref ";
   print(os, e.get_operand());
 }
 
@@ -116,15 +138,21 @@ print_algo::operator()(std::ostream& os, const expr& e) const
     case nop_expr_kind:
       os << "nop";
       return;
+    case void_expr_kind:
+      return print_void_expr(os, cast<void_expr>(e));
     case ref_expr_kind:
       return print(os, cast<ref_expr>(e).get_name());
     case call_expr_kind:
       return print_call_expr(os, cast<call_expr>(e));
+    case deref_expr_kind:
+      return print_deref_expr(os, cast<deref_expr>(e));
 
     case zero_init_kind:
       return print_zero_init(os, cast<zero_init>(e));
     case copy_init_kind:
       return print_copy_init(os, cast<copy_init>(e));
+    case ref_init_kind:
+      return print_ref_init(os, cast<ref_init>(e));
     default:
       break;
   }
