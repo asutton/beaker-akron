@@ -100,6 +100,9 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
     //
     // TODO: See above. This is also dereferenceable.
     fn->addAttribute(arg.getArgNo() + 1, llvm::Attribute::NonNull);
+
+    // Bind the parameter directly to the argument.
+    gen.put_value(d, &arg);
   }
 }
 
