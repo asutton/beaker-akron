@@ -46,22 +46,23 @@ main(int argc, char* argv[])
   type& ri1024 = cb.get_ref_type(i1024);
 
   expr& z1 = nb.make_int_expr(i32, 42);
+  expr& z2 = nb.make_int_expr(i1024, 17);
 
   // Make some variables and their initializers.
   decl_seq vars {
-    &cb.make_var_decl("z1", i32, cb.make_zero_init(i32)), // var int32 z1 = zero
-    &cb.make_var_decl("z2", i32, cb.make_copy_init(z1)), // var int32 z2 = 42
+    &cb.make_var_decl("a", i32, cb.make_nop_init(i32)), // var int32 z1;
+    &cb.make_var_decl("b", i32, cb.make_copy_init(z1)), // var int32 z2 = 42
 
-    &cb.make_var_decl("z3", i1024, cb.make_zero_init(i1024)), // var int1024 z3 = zero
-    &cb.make_var_decl("z4", i1024, cb.make_copy_init(z1)), // var int1024 z4 = 42
+    &cb.make_var_decl("c", i1024, cb.make_nop_init(i1024)), // var int1024 z3;
+    &cb.make_var_decl("d", i1024, cb.make_copy_init(z2)), // var int1024 z4 = 17
   };
 
   // References to variables.
   expr_seq vnames {
     &cb.make_ref_expr(ri32, vars[0]),
     &cb.make_ref_expr(ri32, vars[1]),
-    &cb.make_ref_expr(ri32, vars[2]),
-    &cb.make_ref_expr(ri32, vars[3]),
+    &cb.make_ref_expr(ri1024, vars[2]),
+    &cb.make_ref_expr(ri1024, vars[3]),
   };
 
   stmt_seq stmts {
@@ -74,7 +75,7 @@ main(int argc, char* argv[])
         vnames[0], 
         cb.make_deref_expr(i32, vnames[1])
       )
-    ), 
+    ),
     &cb.make_ret_stmt( // return = copy deref ref z1
       cb.make_copy_init(
         cb.make_deref_expr(i32, vnames[0])
