@@ -4,20 +4,42 @@
 namespace beaker {
 namespace core {
 
-// Initialize the current object with zero.
+/// Trivially initialize an object. This simply returns the address of the
+/// initialized object, without performing initialization.
+static cg::value
+generate_nop_init(generator& gen, const nop_init& e)
+{
+  return gen.get_initialized_object(); 
+}
+
+/// Initialize the current object with zero values. This returns the address
+/// of the initialized object.
 static cg::value
 generate_zero_init(generator& gen, const zero_init& e)
 {
+  llvm::Builder ir(gen.get_current_block());
+
   // Get the initialized object. There must be an initialization context.
   cg::value ptr = gen.get_initialized_object();
   assert(ptr);
-  
-  // The zero value depends on the type of the object.
-  cg::type type = ptr->getType()->getPointerElementType();
-  cg::value zero = llvm::Constant::getNullValue(type);
-  llvm::Builder ir(gen.get_current_block());
-  ir.CreateStore(zero, ptr);
-  return zero;
+
+  // Get the type of object being initialized.
+  cg::type type = generate(gen, e.get_object_type());
+  if (type.is_direct()) {
+    // When the type is direct, we can simply store a null value.
+    cg::value zero = llvm::Constant::getNullValue(type);
+    ir.CreateStore(zero, ptr);
+  }
+  else {
+    // When the type is indirect, we need to use memset.
+    //
+    // TODO: See notes in generate_copy_init about the size and alignment
+    // of types.
+    cg::value zero = ir.getInt8(0);
+    llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
+    ir.CreateMemSet(ptr, zero, size, 0);
+  }
+  return ptr;
 }
 
 // Generate the value of e and store the result in the current initialization
@@ -30,12 +52,12 @@ generate_zero_init(generator& gen, const zero_init& e)
 static cg::value
 generate_copy_init(generator& gen, const copy_init& e)
 {
-  cg::value val = generate(gen, e.get_operand());
+  cg::value val = generate(gen, e.get_expression());
   if (cg::value ptr = gen.get_initialized_object()) {
     // Copying the value depends on whether the is direct or indirect.
     // Note that the copy initializer operand must have the same type as
     // the initialized object.
-    cg::type type = generate(gen, e.get_operand().get_type());
+    cg::type type = generate(gen, e.get_object_type());
     llvm::Builder ir(gen.get_current_block());
     if (type.is_direct()) {
       // For direct values, we always need to store.
@@ -73,7 +95,7 @@ generate_copy_init(generator& gen, const copy_init& e)
 static cg::value
 generate_ref_init(generator& gen, const ref_init& e)
 {
-  cg::value val = generate(gen, e.get_operand());
+  cg::value val = generate(gen, e.get_expression());
   if (cg::value ptr = gen.get_initialized_object()) {
     // Store the pointer value and return the address of the stored object.
     llvm::Builder ir(gen.get_current_block());

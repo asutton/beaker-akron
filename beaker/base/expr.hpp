@@ -266,6 +266,106 @@ generic_binary_expr<K>::generic_binary_expr(type& t, expr& e1, expr& e2)
 
 
 // -------------------------------------------------------------------------- //
+// Initializers
+
+/// Represents the initialization of an object of a given type from some 
+/// intrinsic value.
+///
+/// Initializers do not produce values in the usual way; they are ostensibly
+/// void expressions. An algorithm may, however, associate a value with an 
+/// initializer as needed.
+struct nullary_init : expr
+{
+  nullary_init(int, type&);
+
+  const type& get_object_type() const;
+  type& get_object_type();
+};
+
+inline
+nullary_init::nullary_init(int k, type& t)
+  : expr(k, t)
+{ }
+
+/// Returns the type of object initialized by the expression. This is 
+/// same as the type of the expression.
+inline const type&
+nullary_init::get_object_type() const { return get_type(); }
+
+/// Returns the type of object initialized by the expression. This is 
+/// same as the type of the expression.
+inline type&
+nullary_init::get_object_type() { return get_type(); }
+
+
+/// A helper for creating initializers.
+template<int K>
+struct generic_nullary_init : nullary_init
+{
+  generic_nullary_init(type&);
+};
+
+template<int K>
+inline
+generic_nullary_init<K>::generic_nullary_init(type& t)
+  : nullary_init(K, t)
+{ }
+
+
+/// Represents then initialization an object by an expression.
+///
+/// Initializers do not produce values in the usual way; they are ostensibly
+/// void expressions. An algorithm may, however, associate a value with an 
+/// initializer as needed.
+struct unary_init : expr
+{
+  unary_init(int, type&, expr&);
+
+  const type& get_object_type() const;
+  type& get_object_type();
+
+  const expr& get_expression() const;
+  expr& get_expression();
+
+  expr* val_;
+};
+
+inline
+unary_init::unary_init(int k, type& t, expr& e)
+  : expr(k, t), val_(&e)
+{ }
+
+/// Returns the type of object initialized by the expression. This is 
+/// same as the type of the expression.
+inline const type& unary_init::get_object_type() const { return get_type(); }
+
+/// Returns the type of object initialized by the expression. This is 
+/// same as the type of the expression.
+inline type& unary_init::get_object_type() { return get_type(); }
+
+/// Returns the expression that initializes the object.
+inline const expr& unary_init::get_expression() const { return *val_; }
+
+/// Returns the expression that initializes the object.
+inline expr& unary_init::get_expression() { return *val_; }
+
+
+/// A helper for creating initializers.
+template<int K>
+struct generic_unary_init : unary_init
+{
+  generic_unary_init(type&, expr&);
+};
+
+template<int K>
+inline
+generic_unary_init<K>::generic_unary_init(type& t, expr& e)
+  : unary_init(K, t, e)
+{ }
+
+
+
+// -------------------------------------------------------------------------- //
 // Conversions
 
 // Represents an expression that performs a conversion.

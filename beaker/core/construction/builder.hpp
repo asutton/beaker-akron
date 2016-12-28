@@ -23,11 +23,12 @@ struct fn_type;
 struct nop_expr;
 struct void_expr;
 struct ref_expr;
-struct temp_expr;
-struct copy_expr;
-struct call_expr;
 struct deref_expr;
+struct assign_expr;
+struct temp_expr;
+struct call_expr;
 
+struct nop_init;
 struct zero_init;
 struct copy_init;
 struct ref_init;
@@ -67,13 +68,14 @@ struct builder : basic_builder<core_lang>
   nop_expr& make_nop_expr();
   void_expr& make_void_expr(expr&);
   ref_expr& make_ref_expr(type&, decl&);
-  temp_expr& make_temp_expr(type&);
-  copy_expr& make_copy_expr(type&, expr&, expr&);
+  deref_expr& make_deref_expr(type&, expr&);
+  assign_expr& make_assign_expr(expr&, expr&);
   call_expr& make_call_expr(type&, expr&, const expr_seq&);
   call_expr& make_call_expr(type&, expr&, expr_seq&&);
-  deref_expr& make_deref_expr(type&, expr&);
+  temp_expr& make_temp_expr(type&);
 
-  zero_init& make_zero_init();
+  nop_init& make_nop_init(type&);
+  zero_init& make_zero_init(type&);
   copy_init& make_copy_init(expr&);
   ref_init& make_ref_init(expr&);
   call_init& make_call_init(decl&, const expr_seq&);

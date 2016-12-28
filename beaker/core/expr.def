@@ -6,13 +6,13 @@ def_expr(void)
 def_expr(ref)
 
 def_expr(deref)
+def_expr(assign)
 def_expr(call)
 
-// FIXME: Do I actually need these? 
-// Note that copy is essentially assignment.
+// FIXME: Do I actually want this?
 def_expr(temp)
-def_expr(copy)
 
+def_init(nop)
 def_init(zero)
 def_init(copy)
 def_init(ref)

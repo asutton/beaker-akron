@@ -76,10 +76,26 @@ ref_expr::ref_expr(type& t, decl& d)
 { }
 
 
+/// Represents the expression `e1 = e2`.
+///
+/// Copies the value of `e2` in the object denoted by `e1`. The type of `e1`
+/// shall be a reference to the type of `e2`, and `e2` shall be scalar. The 
+/// result of the expression is the reference `e1`. 
+///
+/// This is a copy constructor for scalar types.
+struct assign_expr : generic_binary_expr<assign_expr_kind>
+{
+  using generic_binary_expr<assign_expr_kind>::generic_binary_expr;
+};
+
+
 /// Represents the expression `temp(t)`.
 ///
 /// This materializes a temporary of type `t`, yielding a reference to that
 /// object.
+///
+/// TODO: Do I really want this expression, or can I deal with materialization
+/// inside codegen.
 struct temp_expr : generic_nullary_expr<temp_expr_kind>
 {
   temp_expr(type&, type&);
@@ -100,19 +116,6 @@ inline const type& temp_expr::get_soure_type() const { return *src_; }
 
 /// Returns the source type of the expression.
 inline type& temp_expr::get_soure_type() { return *src_; }
-
-
-/// Represents the expression `e1 <- e2`.
-///
-/// Copies the value of `e2` in the object denoted by `e1`. The type of `e1`
-/// shall be a reference to the type of `e2`, and `e2` shall be scalar. The 
-/// result of the expression is the reference `e1`. 
-///
-/// This is a copy constructor for scalar types.
-struct copy_expr : generic_binary_expr<copy_expr_kind>
-{
-  using generic_binary_expr<copy_expr_kind>::generic_binary_expr;
-};
 
 
 // Represents the evaluation of a function, given arguments.
@@ -177,29 +180,42 @@ struct deref_expr : conversion_expr<deref_expr_kind>
 // -------------------------------------------------------------------------- //
 // Initializers
 
+/// Represents the trivial initialization of an object. Trivial initialization
+/// leaves an object partially formed (i.e., with indeterminate value).
+struct nop_init : generic_nullary_init<nop_init_kind>
+{
+  using generic_nullary_init<nop_init_kind>::generic_nullary_init;
+};
+
+
 /// Represents the zero initialization of an object.
 ///
-/// The type of the initialization is void.
-struct zero_init : generic_nullary_expr<zero_init_kind>
+/// Note that we can produce a reasonable zero value for all types.
+struct zero_init : generic_nullary_init<zero_init_kind>
 {
-  using generic_nullary_expr<zero_init_kind>::generic_nullary_expr;
+  using generic_nullary_init<zero_init_kind>::generic_nullary_init;
 };
 
 
 /// Represents the initialization of an object by a value.
 ///
-/// The type of the initialization is void.
-struct copy_init : generic_unary_expr<copy_init_kind>
+/// Copy initialization transfers the contents in the initializing expression
+/// to the initialized object. The type of the expression shall be the same as 
+/// that of the object being initialized.
+struct copy_init : generic_unary_init<copy_init_kind>
 {
-  using generic_unary_expr<copy_init_kind>::generic_unary_expr;
+  using generic_unary_init<copy_init_kind>::generic_unary_init;
 };
+
 
 /// Represents the initialization of a reference by an object.
 ///
-/// The type of the initialization is void.
-struct ref_init : generic_unary_expr<ref_init_kind>
+/// Reference initialization binds the initialized reference to the initializing
+/// expression (i.e., the address computed by that expression). The type of the 
+/// expression shall be the same as that of the object being initialized.
+struct ref_init : generic_unary_init<ref_init_kind>
 {
-  using generic_unary_expr<ref_init_kind>::generic_unary_expr;
+  using generic_unary_init<ref_init_kind>::generic_unary_init;
 };
 
 
@@ -209,7 +225,8 @@ struct ref_init : generic_unary_expr<ref_init_kind>
 /// directly, and the argument list is "incomplete". The first argument is 
 /// implicitly the object being initialized.
 ///
-/// The type of the initialization is void.
+/// FIXME: Do we need this in core? Also, this should follow the pattern
+/// of the other initializers.
 struct call_init : expr 
 {
   static constexpr int node_kind = call_init_kind;
@@ -255,6 +272,7 @@ inline expr_seq& call_init::get_arguments() { return args_; }
 
 bool is_void_expression(const expr&);
 bool is_object_expression(const expr&);
+bool is_reference_expression(const expr&);
 
 } // namespace core
 } // namespace beaker

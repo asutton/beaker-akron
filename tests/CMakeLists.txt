@@ -8,14 +8,4 @@ macro(add_beaker_test target)
   target_link_libraries(${target} beaker)
 endmacro()
 
-
-# Unit tests
-add_beaker_test(test-ast-var-2 ast/var-1.cpp)
-add_beaker_test(test-ast-var-1 ast/var-2.cpp)
-add_beaker_test(test-ast-fn-1 ast/fn-1.cpp)
-add_beaker_test(test-ast-fn-2 ast/fn-2.cpp)
-add_beaker_test(test-ast-fn-3 ast/fn-3.cpp)
-
-
-# add_beaker_test(test-ast-logic-1 ast/logic-1.cpp)
-# add_beaker_test(test-ast-numeric-1 ast/numeric-1.cpp)
+add_subdirectory(ast)

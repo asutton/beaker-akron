@@ -111,6 +111,12 @@ print_deref_expr(std::ostream& os, const deref_expr& e)
 }
 
 static void
+print_nop_init(std::ostream& os, const nop_init& e)
+{
+  os << "= nop";
+}
+
+static void
 print_zero_init(std::ostream& os, const zero_init& e)
 {
   os << "= zero";
@@ -120,14 +126,14 @@ static void
 print_copy_init(std::ostream& os, const copy_init& e)
 {
   os << "= copy ";
-  print(os, e.get_operand());
+  print(os, e.get_expression());
 }
 
 static void
 print_ref_init(std::ostream& os, const ref_init& e)
 {
   os << "= ref ";
-  print(os, e.get_operand());
+  print(os, e.get_expression());
 }
 
 // FIXME: This is incomplete.
@@ -142,11 +148,15 @@ print_algo::operator()(std::ostream& os, const expr& e) const
       return print_void_expr(os, cast<void_expr>(e));
     case ref_expr_kind:
       return print(os, cast<ref_expr>(e).get_name());
-    case call_expr_kind:
-      return print_call_expr(os, cast<call_expr>(e));
     case deref_expr_kind:
       return print_deref_expr(os, cast<deref_expr>(e));
+    case assign_expr_kind:
+      return print_infix_expr(os, cast<assign_expr>(e), "=");
+    case call_expr_kind:
+      return print_call_expr(os, cast<call_expr>(e));
 
+    case nop_init_kind:
+      return print_nop_init(os, cast<nop_init>(e));
     case zero_init_kind:
       return print_zero_init(os, cast<zero_init>(e));
     case copy_init_kind:

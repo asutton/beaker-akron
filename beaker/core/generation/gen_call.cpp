@@ -1,9 +1,6 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#include <beaker/base/printing/print.hpp>
-#include <iostream>
-
 namespace beaker {
 namespace core {
 

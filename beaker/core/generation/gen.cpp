@@ -9,6 +9,9 @@
 #include <beaker/core/stmt.hpp>
 #include <beaker/util/symbol.hpp>
 
+#include <beaker/base/printing/print.hpp>
+#include <iostream>
+
 #include <sstream>
 
 
@@ -161,16 +164,28 @@ generate_temp_expr(generator& gen, const temp_expr& e)
   assert(false && "not implemented");
 }
 
-/// Generates the initialization of an object by a value.
-///
-/// Returns the address of the initialized object.
+/// Assigns the value of the LHS to the object referenced by the RHS.
 static cg::value
-generate_copy_expr(generator& gen, const copy_expr& e)
+generate_assign_expr(generator& gen, const assign_expr& e)
 {
   llvm::Builder ir(gen.get_current_block());
   cg::value ptr = generate(gen, e.get_lhs());
   cg::value val = generate(gen, e.get_rhs());
-  ir.CreateStore(val, ptr);
+
+  cg::type type = generate(gen, e.get_rhs().get_type());
+  if (type.is_direct()) {
+    // Assigning direct types is easy. Just store the value at the address.
+    ir.CreateStore(val, ptr);
+  }
+  else {
+    // Assigning indirect types requires a memcpy.
+    //
+    // TODO: See notes in generate_copy_init() on mem copies. We probably
+    // want to know the size and alignment of types ahead of time (although
+    // this works for now).
+    llvm::Constant* size = llvm::ConstantExpr::getSizeOf(type);
+    ir.CreateMemCpy(ptr, val, size, 0);
+  }
   return ptr;
 }
 
@@ -193,6 +208,7 @@ generate_deref_expr(generator& gen, const deref_expr& e)
 }
 
 static cg::value generate_call_expr(generator& gen, const call_expr&);
+static cg::value generate_nop_init(generator& gen, const nop_init&);
 static cg::value generate_zero_init(generator& gen, const zero_init&);
 static cg::value generate_copy_init(generator& gen, const copy_init&);
 static cg::value generate_ref_init(generator& gen, const ref_init&);

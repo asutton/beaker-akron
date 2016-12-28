@@ -101,22 +101,32 @@ builder::make_ref_expr(type& t, decl& d)
   return make<ref_expr>(t, d);
 }
 
+/// Returns a new expression `deref(t)`.
+deref_expr&
+builder::make_deref_expr(type& t, expr& e)
+{
+  assert(is_reference_expression(e));
+  assert(equivalent(get_object_type(e.get_type()), t));
+  return make<deref_expr>(t, e);
+}
+
+/// Returns a copy expression. The type of the expression is the same as the
+/// type of e1.
+assign_expr&
+builder::make_assign_expr(expr& e1, expr& e2)
+{
+  assert(is_reference_expression(e1));
+  assert(is_object_expression(e2));
+  assert(equivalent(get_object_type(e1.get_type()), e2.get_type()));
+  return make<assign_expr>(e1.get_type(), e1, e2);
+}
+
 /// Returns a new temporary expression.
 temp_expr&
 builder::make_temp_expr(type& t)
 {
   assert(is_object_type(t));
   return make<temp_expr>(get_ref_type(t), t);
-}
-
-/// Returns a copy expression.
-copy_expr&
-builder::make_copy_expr(type& t, expr& e1, expr& e2)
-{
-  assert(is<ref_type>(e1.get_type()));
-  assert(equivalent(get_object_type(e1.get_type()), e2.get_type()));
-  assert(equivalent(e1.get_type(), t));
-  return make<copy_expr>(t, e1, e2);
 }
 
 call_expr&
@@ -131,34 +141,34 @@ builder::make_call_expr(type& t, expr& f, expr_seq&& a)
   return make<call_expr>(t, f, std::move(a));
 }
 
-/// Returns a new expression `deref(t)`.
-deref_expr&
-builder::make_deref_expr(type& t, expr& e)
+/// Returns a trivial initializer for `t`.
+nop_init&
+builder::make_nop_init(type& t)
 {
-  assert(is<ref_type>(e.get_type()));
-  assert(equivalent(get_object_type(e.get_type()), t));
-  return make<deref_expr>(t, e);
+  return make<nop_init>(t);
 }
 
-/// Returns a zero initializer for the boolean type.
+/// Returns a zero initializer for `t`.
 zero_init&
-builder::make_zero_init()
+builder::make_zero_init(type& t)
 {
-  return make<zero_init>(get_void_type());
+  return make<zero_init>(t);
 }
 
-/// Returns a copy initializer for the expression e.
+/// Returns a copy initializer for the expression `e`. This assumes that
+/// the type of the initialized object is the same as the type of `e`.
 copy_init& 
 builder::make_copy_init(expr& e)
 {
-  return make<copy_init>(get_void_type(), e);
+  return make<copy_init>(e.get_type(), e);
 }
 
-/// Returns a copy initializer for the expression e.
+/// Returns a reference initializer for the expression `e`. This assumes that
+/// the type of the initialized references is the same as the type of `e`.
 ref_init& 
 builder::make_ref_init(expr& e)
 {
-  return make<ref_init>(get_void_type(), e);
+  return make<ref_init>(e.get_type(), e);
 }
 
 /// Returns a call initializer for the function f and arguments a.

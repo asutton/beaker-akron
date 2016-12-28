@@ -8,11 +8,6 @@
 #include <beaker/base/generation/generation.hpp>
 #include <beaker/base/printing/print.hpp>
 
-#include <beaker/logic/lang.hpp>
-#include <beaker/logic/type.hpp>
-#include <beaker/logic/expr.hpp>
-#include <beaker/logic/construction/builder.hpp>
-
 #include <beaker/numeric/lang.hpp>
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
@@ -39,31 +34,34 @@ main(int argc, char* argv[])
 {
   language lang;
   lang.add_feature<core::feature>();
-  lang.add_feature<logic::feature>();
   lang.add_feature<numeric::feature>();
 
   module mod;
   core::builder& cb = mod.get_builder<core::builder>();
-  logic::builder& lb = mod.get_builder<logic::builder>();
   numeric::builder& nb = mod.get_builder<numeric::builder>();
 
-  type& b = lb.get_bool_type();
   type& i32 = nb.get_int32_type();
   type& i1024 = nb.get_int_type(1024);
+  type& ri32 = cb.get_ref_type(i32);
+  type& ri1024 = cb.get_ref_type(i1024);
 
-  expr& t = lb.get_true_expr();
-  expr& f = lb.get_false_expr();
-  expr& z1 = nb.make_int_expr(i32, 5);
-  expr& z2 = nb.make_int_expr(i1024, 42);
+  expr& z1 = nb.make_int_expr(i32, 42);
 
   // Make some variables and their initializers.
   decl_seq vars {
-    &cb.make_var_decl(cb.get_name("b1"), b, cb.make_zero_init(b)),
-    &cb.make_var_decl(cb.get_name("b2"), b, cb.make_copy_init(t)),
-    &cb.make_var_decl(cb.get_name("z1"), i32, cb.make_copy_init(z1)),
-    &cb.make_var_decl(cb.get_name("z2"), i1024, cb.make_copy_init(z2)),
-    // &cb.make_var_decl(cb.get_name("z"), i32),
-    // &cb.make_var_decl(cb.get_name("x"), i1024),
+    &cb.make_var_decl("z1", i32, cb.make_zero_init(i32)), // var int32 z1 = zero
+    &cb.make_var_decl("z2", i32, cb.make_copy_init(z1)), // var int32 z2 = 42
+
+    &cb.make_var_decl("z3", i1024, cb.make_zero_init(i1024)), // var int1024 z3 = zero
+    &cb.make_var_decl("z4", i1024, cb.make_copy_init(z1)), // var int1024 z4 = 42
+  };
+
+  // References to variables.
+  expr_seq vnames {
+    &cb.make_ref_expr(ri32, vars[0]),
+    &cb.make_ref_expr(ri32, vars[1]),
+    &cb.make_ref_expr(ri32, vars[2]),
+    &cb.make_ref_expr(ri32, vars[3]),
   };
 
   stmt_seq stmts {
@@ -71,19 +69,29 @@ main(int argc, char* argv[])
     &cb.make_decl_stmt(vars[1]),
     &cb.make_decl_stmt(vars[2]),
     &cb.make_decl_stmt(vars[3]),
-    &cb.make_ret_stmt(cb.make_copy_init(f)),
+    &cb.make_expr_stmt( // z1 = z2  ~> ref z1 = deref ref 2
+      cb.make_assign_expr(
+        vnames[0], 
+        cb.make_deref_expr(i32, vnames[1])
+      )
+    ), 
+    &cb.make_ret_stmt( // return = copy deref ref z1
+      cb.make_copy_init(
+        cb.make_deref_expr(i32, vnames[0])
+      )
+    )
   };
   stmt& block = cb.make_block_stmt(stmts);
 
 
   // Build a wrapper function.
   decl_seq parms;
-  decl& ret = cb.make_parm_decl(cb.get_name("ret"), b);
+  decl& ret = cb.make_parm_decl(cb.get_name("ret"), i32);
   type& ftype = cb.get_fn_type(parms, ret);
-  decl& fn = cb.make_fn_decl(cb.get_name("f1"), ftype, parms, ret, block);
-  print(fn);
-
+  decl& fn = cb.make_fn_decl("main", ftype, parms, ret, block);
   mod.add_declaration(fn);
+
+  print(fn);
 
   // Emit LLVM.
   generator gen("out.ll");
