@@ -8,8 +8,13 @@ namespace core {
 static cg::value
 generate_zero_init(generator& gen, const zero_init& e)
 {
+  // Get the initialized object. There must be an initialization context.
   cg::value ptr = gen.get_initialized_object();
-  cg::value zero = llvm::Constant::getNullValue(ptr->getType());
+  assert(ptr);
+  
+  // The zero value depends on the type of the object.
+  cg::type type = ptr->getType()->getPointerElementType();
+  cg::value zero = llvm::Constant::getNullValue(type);
   llvm::Builder ir(gen.get_current_block());
   ir.CreateStore(zero, ptr);
   return zero;
