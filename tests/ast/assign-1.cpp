@@ -42,8 +42,6 @@ main(int argc, char* argv[])
 
   type& i32 = nb.get_int32_type();
   type& i1024 = nb.get_int_type(1024);
-  type& ri32 = cb.get_ref_type(i32);
-  type& ri1024 = cb.get_ref_type(i1024);
 
   expr& z1 = nb.make_int_expr(i32, 42);
   expr& z2 = nb.make_int_expr(i1024, 17);
@@ -59,10 +57,10 @@ main(int argc, char* argv[])
 
   // References to variables.
   expr_seq vnames {
-    &cb.make_ref_expr(ri32, vars[0]),
-    &cb.make_ref_expr(ri32, vars[1]),
-    &cb.make_ref_expr(ri1024, vars[2]),
-    &cb.make_ref_expr(ri1024, vars[3]),
+    &cb.make_ref_expr(vars[0]),
+    &cb.make_ref_expr(vars[1]),
+    &cb.make_ref_expr(vars[2]),
+    &cb.make_ref_expr(vars[3]),
   };
 
   stmt_seq stmts {
@@ -73,12 +71,12 @@ main(int argc, char* argv[])
     &cb.make_expr_stmt( // z1 = z2  ~> ref z1 = deref ref 2
       cb.make_assign_expr(
         vnames[0], 
-        cb.make_deref_expr(i32, vnames[1])
+        cb.make_deref_expr(vnames[1])
       )
     ),
     &cb.make_ret_stmt( // return = copy deref ref z1
       cb.make_copy_init(
-        cb.make_deref_expr(i32, vnames[0])
+        cb.make_deref_expr(vnames[0])
       )
     )
   };

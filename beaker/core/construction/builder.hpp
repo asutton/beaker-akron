@@ -67,8 +67,8 @@ struct builder : basic_builder<core_lang>
   // Expressions
   nop_expr& make_nop_expr();
   void_expr& make_void_expr(expr&);
-  ref_expr& make_ref_expr(type&, decl&);
-  deref_expr& make_deref_expr(type&, expr&);
+  ref_expr& make_ref_expr(decl&);
+  deref_expr& make_deref_expr(expr&);
   assign_expr& make_assign_expr(expr&, expr&);
   call_expr& make_call_expr(type&, expr&, const expr_seq&);
   call_expr& make_call_expr(type&, expr&, expr_seq&&);

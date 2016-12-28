@@ -44,17 +44,21 @@ struct void_expr : generic_unary_expr<void_expr_kind>
 };
 
 
-// Represents a reference to a declared name.
-//
-// A reference to a variable or reference declaration has reference type. A 
-// reference to register or constant has non-reference type. A reference to
-// a function has function type.
-//
-// TODO: Does a reference to a function not have reference-to-function type?
-//
-// TODO: Extend this class so that it can support unresolved declarations
-// as well. It should have a union combining a name, a declaration, and
-// possibly an overload set (when we get those).
+/// Represents the use of a declared variable or function as a value.
+///
+/// A reference to a variable has reference type. Note that reference variables
+/// already have reference type.
+///
+/// A reference to a function has function type (functions are always passed
+/// indirectly).
+///
+/// The value of a reference expression is the address of the referred to 
+/// object. Note that using the value of a reference requires a dereference
+/// operation.
+///
+/// TODO: Extend this class so that it can support unresolved declarations
+/// as well. It should have a union combining a name, a declaration, and
+/// possibly an overload set (when we get those).
 struct ref_expr : expr 
 {
   static constexpr int node_kind = ref_expr_kind;

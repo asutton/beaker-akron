@@ -71,9 +71,9 @@ main(int argc, char* argv[])
 
   // For convenience... the names declared variables
   expr_seq vnames {
-    &cb.make_ref_expr(rb, vars[0]), // ref b
-    &cb.make_ref_expr(rb, vars[1]), // ref z1
-    &cb.make_ref_expr(rb, vars[2]) // ref z2
+    &cb.make_ref_expr(vars[0]), // ref b
+    &cb.make_ref_expr(vars[1]), // ref z1
+    &cb.make_ref_expr(vars[2]) // ref z2
   };
 
   // Make some references and their initializers.
@@ -85,16 +85,16 @@ main(int argc, char* argv[])
 
   // For convenience... the names of references.
   expr_seq rnames {
-    &cb.make_ref_expr(rb, refs[0]), // ref rb
-    &cb.make_ref_expr(ri32, refs[1]), // ref rz1
-    &cb.make_ref_expr(ri1024, refs[2]) // ref rz2
+    &cb.make_ref_expr(refs[0]), // ref rb
+    &cb.make_ref_expr(refs[1]), // ref rz1
+    &cb.make_ref_expr(refs[2]) // ref rz2
   };
 
   // Generate the values of references.
   expr_seq exprs {
-    &cb.make_deref_expr(b, rnames[0]), // deref ref rb
-    &cb.make_deref_expr(i32, rnames[1]), // deref ref rz1
-    &cb.make_deref_expr(i1024, rnames[2]) // deref ref rz2
+    &cb.make_deref_expr(rnames[0]), // deref ref rb
+    &cb.make_deref_expr(rnames[1]), // deref ref rz1
+    &cb.make_deref_expr(rnames[2]) // deref ref rz2
   };
 
   stmt_seq stmts {

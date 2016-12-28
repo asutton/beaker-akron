@@ -26,13 +26,12 @@ struct void_type : base_type<void_type_kind>
 };
 
 
-/// A helper class for defining reference types.
-template<int K>
-struct basic_reference_type : type
+/// Represents the type `ref t`. A reference refers to an object.
+struct ref_type : type
 {
-  static constexpr int node_kind = K;
+  static constexpr int node_kind = ref_type_kind;
 
-  basic_reference_type(type& t);
+  ref_type(type& t);
 
   const type& get_object_type() const;
   type& get_object_type();
@@ -40,25 +39,14 @@ struct basic_reference_type : type
   type* type_;
 };
 
-template<int K>
-basic_reference_type<K>::basic_reference_type(type& t)
-  : type(K), type_(&t)
-{ }
+/// Construct the type `t&`.
+inline ref_type::ref_type(type& t) : type(ref_type_kind), type_(&t) { }
 
 /// Returns the type of the referenced object.
-template<int K>
-inline const type& basic_reference_type<K>::get_object_type() const { return *type_; }
+inline const type& ref_type::get_object_type() const { return *type_; }
 
 /// Returns the type of the referenced object.
-template<int K>
-inline type& basic_reference_type<K>::get_object_type() { return *type_; }
-
-
-/// Represents the type `ref t`. A reference refers to an object.
-struct ref_type : basic_reference_type<ref_type_kind>
-{
-  using basic_reference_type<ref_type_kind>::basic_reference_type;
-};
+inline type& ref_type::get_object_type() { return *type_; }
 
 
 /// Represents function types `(t1, t2, ..., tn) -> t`. A function type 

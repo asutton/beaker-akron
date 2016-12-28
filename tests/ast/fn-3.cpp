@@ -76,8 +76,8 @@ main(int argc, char* argv[])
     decl& ret = *vars[3];
     type& type = cb.get_fn_type(parms, ret);
 
-    expr& ref = cb.make_ref_expr(ri32, parms[1]); // ref a
-    expr& val = cb.make_deref_expr(i32, ref); // deref ref a
+    expr& ref = cb.make_ref_expr(parms[1]); // ref a
+    expr& val = cb.make_deref_expr(ref); // deref ref a
     expr& def = cb.make_copy_init(val); // = copy deref ref a
     
     d1 = &cb.make_fn_decl(cb.get_name("f1"), type, parms, ret, def);
@@ -96,10 +96,10 @@ main(int argc, char* argv[])
   };
 
   // Generate a call expression to f1.
-  expr& f1 = cb.make_ref_expr(d1->get_type(), *d1);
+  expr& f1 = cb.make_ref_expr(*d1);
   expr_seq args {
-    &cb.make_ref_init(cb.make_ref_expr(rb, vars[0])),
-    &cb.make_ref_init(cb.make_ref_expr(ri32, vars[1]))
+    &cb.make_ref_init(cb.make_ref_expr(vars[0])),
+    &cb.make_ref_init(cb.make_ref_expr(vars[1]))
   };
   expr& call = cb.make_call_expr(i32, f1, args);
 

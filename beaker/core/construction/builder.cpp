@@ -96,18 +96,35 @@ builder::make_void_expr(expr& e)
 
 /// Returns a new express that refers to a declaration.
 ref_expr&
-builder::make_ref_expr(type& t, decl& d)
+builder::make_ref_expr(decl& d)
 {
-  return make<ref_expr>(t, d);
+  type& t = get_declared_type(d);
+  if (is_object_type(t))
+    // References to objects have reference types.
+    return make<ref_expr>(get_ref_type(t), d);
+  else if (is_reference_type(t))
+    // References to references simply collapse.
+    return make<ref_expr>(t, d);
+  else if (is_function_type(t))
+    // References to functions are simply functions.
+    return make<ref_expr>(t, d);
+  else
+    assert(false && "reference to unknown type category");
 }
 
 /// Returns a new expression `deref(t)`.
 deref_expr&
-builder::make_deref_expr(type& t, expr& e)
+builder::make_deref_expr(expr& e)
 {
-  assert(is_reference_expression(e));
-  assert(equivalent(get_object_type(e.get_type()), t));
-  return make<deref_expr>(t, e);
+  type& t = e.get_type();
+  if (ref_type* ref = as<ref_type>(&t))
+    // Dereferencing a reference yields an object type.
+    return make<deref_expr>(ref->get_object_type(), e);
+  else if (is_function_type(t))
+    // Dereferencing a function is a no-op.
+    return make<deref_expr>(t, e);
+  else
+    assert(false && "dereference of unknown type category");
 }
 
 /// Returns a copy expression. The type of the expression is the same as the
