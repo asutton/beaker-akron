@@ -85,11 +85,17 @@ struct builder : basic_builder<core_lang>
   var_decl& make_var_decl(name&, type&, expr&);
   var_decl& make_var_decl(const char*, type&, expr&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&);
+  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&);
+  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, expr&);
+  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, expr&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, expr&);
+  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, expr&);
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
+  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
+  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, stmt&);
   parm_decl& make_parm_decl(name&, type&);
   parm_decl& make_parm_decl(const char*, type&);
 

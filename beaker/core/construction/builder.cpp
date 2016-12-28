@@ -209,6 +209,8 @@ builder::make_var_decl(const char* n, type& t, expr& e)
 }
 
 /// Returns a new function that has no definition.
+///
+/// TODO: Should this have external linkage by default?
 fn_decl&
 builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r)
 {
@@ -217,9 +219,25 @@ builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r)
 
 /// Returns a new function that has no definition.
 fn_decl&
+builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r)
+{
+  return make_fn_decl(get_name(n), t, p, r);
+}
+
+/// Returns a new function that has no definition.
+///
+/// TODO: Should this have external linkage by default?
+fn_decl&
 builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r)
 {
   return make<fn_decl>(n, t, std::move(p), r);
+}
+
+/// Returns a new function that has no definition.
+fn_decl&
+builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r)
+{
+  return make_fn_decl(get_name(n), t, std::move(p), r);
 }
 
 /// Returns a new function defined by an expression e.
@@ -231,9 +249,23 @@ builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r, expr& e)
 
 /// Returns a new function defined by an expression e.
 fn_decl&
+builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r, expr& e)
+{
+  return make_fn_decl(get_name(n), t, p, r, e);
+}
+
+/// Returns a new function defined by an expression e.
+fn_decl&
 builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r, expr& e)
 {
   return make<fn_decl>(n, t, std::move(p), r, e);
+}
+
+/// Returns a new function defined by an expression e.
+fn_decl&
+builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r, expr& e)
+{
+  return make_fn_decl(get_name(n), t, std::move(p), r, e);
 }
 
 /// Returns a new function defined by a block statement s.
@@ -245,9 +277,23 @@ builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r, stmt& s)
 
 /// Returns a new function defined by a block statement s.
 fn_decl&
+builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r, stmt& s)
+{
+  return make_fn_decl(get_name(n), t, p, r, s);
+}
+
+/// Returns a new function defined by a block statement s.
+fn_decl&
 builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
   return make<fn_decl>(n, t, std::move(p), r, s);
+}
+
+/// Returns a new function defined by a block statement s.
+fn_decl&
+builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r, stmt& s)
+{
+  return make_fn_decl(get_name(n), t, std::move(p), r, s);
 }
 
 /// Returns a new parameter.
