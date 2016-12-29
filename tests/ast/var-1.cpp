@@ -52,18 +52,15 @@ main(int argc, char* argv[])
   type& i1024 = nb.get_int_type(1024);
 
   expr& t = lb.get_true_expr();
-  expr& f = lb.get_false_expr();
   expr& z1 = nb.make_int_expr(i32, 5);
   expr& z2 = nb.make_int_expr(i1024, 42);
 
   // Make some variables and their initializers.
   decl_seq vars {
-    &cb.make_var_decl(cb.get_name("b1"), b, cb.make_zero_init(b)),
-    &cb.make_var_decl(cb.get_name("b2"), b, cb.make_copy_init(t)),
-    &cb.make_var_decl(cb.get_name("z1"), i32, cb.make_copy_init(z1)),
-    &cb.make_var_decl(cb.get_name("z2"), i1024, cb.make_copy_init(z2)),
-    // &cb.make_var_decl(cb.get_name("z"), i32),
-    // &cb.make_var_decl(cb.get_name("x"), i1024),
+    &cb.make_var_decl("b1", b, cb.make_zero_init(b)),
+    &cb.make_var_decl("b2", b, t),
+    &cb.make_var_decl("z1", i32, z1),
+    &cb.make_var_decl("z2", i1024, z2),
   };
 
   stmt_seq stmts {
@@ -71,16 +68,15 @@ main(int argc, char* argv[])
     &cb.make_decl_stmt(vars[1]),
     &cb.make_decl_stmt(vars[2]),
     &cb.make_decl_stmt(vars[3]),
-    &cb.make_ret_stmt(cb.make_copy_init(f)),
+    &cb.make_ret_stmt(z1),
   };
-  stmt& block = cb.make_block_stmt(stmts);
-
+  stmt& def = cb.make_block_stmt(stmts);
 
   // Build a wrapper function.
   decl_seq parms;
-  decl& ret = cb.make_parm_decl(cb.get_name("ret"), b);
+  decl& ret = cb.make_parm_decl("ret", i32);
   type& ftype = cb.get_fn_type(parms, ret);
-  decl& fn = cb.make_fn_decl(cb.get_name("f1"), ftype, parms, ret, block);
+  decl& fn = cb.make_fn_decl("main", ftype, parms, ret, def);
   print(fn);
 
   mod.add_declaration(fn);

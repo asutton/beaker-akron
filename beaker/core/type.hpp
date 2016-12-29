@@ -26,7 +26,14 @@ struct void_type : base_type<void_type_kind>
 };
 
 
-/// Represents the type `ref t`. A reference refers to an object.
+/// Represents the type `ref t`.
+///
+/// The type `t` is required to be an object type. References to `void`, other
+/// references, and functions are not allowed.
+///
+/// Note that "reference collapsing" is a feature of type aliasing and type 
+/// substitution. Those rules may select how references compose in those
+/// contexts. Those rules are not present in the core language (yet).
 struct ref_type : type
 {
   static constexpr int node_kind = ref_type_kind;
@@ -54,6 +61,8 @@ inline type& ref_type::get_object_type() { return *type_; }
 ///
 /// A variadic function type accepts a variadic argument list after its
 /// last declared parameter.
+///
+/// A noexcept function type does not propagate exceptions.
 struct fn_type : type
 {
   static constexpr int node_kind = fn_type_kind;
@@ -157,6 +166,21 @@ get_object_type(type& t)
   if (ref_type* ref = as<ref_type>(&t))
     return ref->get_object_type();
   return t;
+}
+
+/// Returns the return type of t, where t is required to be a function type.
+inline const type&
+get_return_type(const type& t)
+{
+  assert(is_function_type(t));
+  return cast<fn_type>(t).get_return_type();
+}
+
+inline type&
+get_return_type(type& t)
+{
+  assert(is_function_type(t));
+  return cast<fn_type>(t).get_return_type();
 }
 
 } // namespace core

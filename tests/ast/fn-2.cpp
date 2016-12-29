@@ -85,7 +85,7 @@ main(int argc, char* argv[])
     &cb.make_copy_init(t),
     &cb.make_copy_init(big)
   };
-  expr& call = cb.make_call_expr(i32, f1, args);
+  expr& call = cb.make_call_expr(f1, args);
 
   // Generate the function definition (note that copy of the call).
   stmt_seq stmts {

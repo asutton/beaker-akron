@@ -70,8 +70,11 @@ struct builder : basic_builder<core_lang>
   ref_expr& make_ref_expr(decl&);
   deref_expr& make_deref_expr(expr&);
   assign_expr& make_assign_expr(expr&, expr&);
-  call_expr& make_call_expr(type&, expr&, const expr_seq&);
-  call_expr& make_call_expr(type&, expr&, expr_seq&&);
+  assign_expr& make_assign_expr(decl&, decl&);
+  assign_expr& make_assign_expr(decl&, expr&);
+  assign_expr& make_assign_expr(expr&, decl&);
+  call_expr& make_call_expr(expr&, const expr_seq&);
+  call_expr& make_call_expr(expr&, expr_seq&&);
   temp_expr& make_temp_expr(type&);
 
   nop_init& make_nop_init(type&);
@@ -86,6 +89,7 @@ struct builder : basic_builder<core_lang>
   var_decl& make_var_decl(const char*, type&);
   var_decl& make_var_decl(name&, type&, expr&);
   var_decl& make_var_decl(const char*, type&, expr&);
+  
   fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&);
@@ -98,6 +102,7 @@ struct builder : basic_builder<core_lang>
   fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
   fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, stmt&);
+  
   parm_decl& make_parm_decl(name&, type&);
   parm_decl& make_parm_decl(const char*, type&);
 

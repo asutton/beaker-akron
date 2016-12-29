@@ -46,13 +46,22 @@ builder::get_void_type()
 ref_type&
 builder::get_ref_type(type& t)
 {
+  assert(is_object_type(t));
   return refs_.get(t);
+}
+
+// Check that no parameters have void type.
+static inline bool
+has_void_parm(const type_seq& ts)
+{
+  return std::any_of(ts.begin(), ts.end(), is_void_type);
 }
 
 /// Returns the canonical type `(p) -> r`. Note that `p` is a sequence of types.
 fn_type&
 builder::get_fn_type(const type_seq& p, type& r)
 {
+  assert(!has_void_parm(p));
   return fns_.get(p, r);
 }
 
@@ -60,6 +69,7 @@ builder::get_fn_type(const type_seq& p, type& r)
 fn_type&
 builder::get_fn_type(type_seq&& p, type& r)
 {
+  assert(!has_void_parm(p));
   return fns_.get(std::move(p), r);
 }
 
@@ -123,6 +133,9 @@ builder::make_deref_expr(expr& e)
   else if (is_function_type(t))
     // Dereferencing a function is a no-op.
     return make<deref_expr>(t, e);
+  else if (is_void_type(t))
+    // Can't dereference voids.
+    assert(false && "dereference of void expression");
   else
     assert(false && "dereference of unknown type category");
 }
@@ -138,6 +151,31 @@ builder::make_assign_expr(expr& e1, expr& e2)
   return make<assign_expr>(e1.get_type(), e1, e2);
 }
 
+/// Assign the value of d2 to the variable d1. 
+///
+/// Note that d2 may be a function and d1 a function variable.
+assign_expr&
+builder::make_assign_expr(decl& d1, decl& d2)
+{
+  assert(is_variable(d1));
+  return make_assign_expr(make_ref_expr(d1), make_deref_expr(make_ref_expr(d2)));
+}
+
+/// Assign the value of `e` to the variable `d`.
+assign_expr&
+builder::make_assign_expr(decl& d, expr& e)
+{
+  assert(is_variable(d));
+  return make_assign_expr(make_ref_expr(d), e);
+}
+
+/// Assign the value of `d` to the object referenced by `e`.
+assign_expr&
+builder::make_assign_expr(expr& e, decl& d)
+{
+  return make_assign_expr(e, make_deref_expr(make_ref_expr(d)));
+}
+
 /// Returns a new temporary expression.
 temp_expr&
 builder::make_temp_expr(type& t)
@@ -147,15 +185,17 @@ builder::make_temp_expr(type& t)
 }
 
 call_expr&
-builder::make_call_expr(type& t, expr& f, const expr_seq& a)
+builder::make_call_expr(expr& f, const expr_seq& a)
 {
-  return make<call_expr>(t, f, a);
+  type& t = f.get_type();
+  return make<call_expr>(get_return_type(t), f, a);
 }
 
 call_expr&
-builder::make_call_expr(type& t, expr& f, expr_seq&& a)
+builder::make_call_expr(expr& f, expr_seq&& a)
 {
-  return make<call_expr>(t, f, std::move(a));
+  type& t = f.get_type();
+  return make<call_expr>(get_return_type(t), f, std::move(a));
 }
 
 /// Returns a trivial initializer for `t`.
@@ -177,6 +217,7 @@ builder::make_zero_init(type& t)
 copy_init& 
 builder::make_copy_init(expr& e)
 {
+  assert(is_object_type(e.get_type()));
   return make<copy_init>(e.get_type(), e);
 }
 
@@ -185,6 +226,7 @@ builder::make_copy_init(expr& e)
 ref_init& 
 builder::make_ref_init(expr& e)
 {
+  assert(is_reference_type(e.get_type()));
   return make<ref_init>(e.get_type(), e);
 }
 
@@ -222,10 +264,33 @@ builder::make_var_decl(const char* n, type& t)
 }
 
 /// Returns a new variable `var t n = e`.
+///
+/// If e is not an initializer and we can infer which initialization would be
+/// required, a proper initializer is created.
 var_decl&
 builder::make_var_decl(name& n, type& t, expr& e)
 {
-  return make<var_decl>(n, t, e);
+  assert(equivalent(t, e.get_type()));
+  if (is_object_type(t)) {
+    // Initializing an object requires copy initialization.
+    if (is<copy_init>(e))
+      return make<var_decl>(n, t, e);
+    else
+      return make<var_decl>(n, t, make_copy_init(e));
+  }
+  else if(is_reference_type(t)) {
+    // Initializing a reference requires reference initialization.
+    if (is<ref_init>(e))
+      return make<var_decl>(n, t, e);
+    else
+      return make<var_decl>(n, t, make_ref_init(e));
+  }
+  else if (is_function_type(t)) {
+    assert(false && "function variable initialization not implemented");
+  }
+  else {
+    assert(false && "variable of unknown category");
+  }
 }
 
 /// Returns a new variable `var t n = e`.
@@ -365,12 +430,41 @@ builder::make_decl_stmt(decl& d)
   return make<decl_stmt>(d);
 }
 
-/// \todo Verify that `e` is either an initializer or a `nop`. For now,
-/// a simple check for void expressions will help.
+/// Returns a new statement `return e`.
+///
+/// This function will insert an initializer if one is needed.
+///
+/// Note that type of the returned expression must match the return type of 
+/// the function. Failure to do so will result in undefined behavior, which
+/// could happen at compile time or runtime.
 ret_stmt& 
 builder::make_ret_stmt(expr& e)
 {
-  return make<ret_stmt>(e);
+  type& t = e.get_type();
+  if (is_void_type(t)) {
+    // Void returns do not initialize a return value.
+    return make<ret_stmt>(e);
+  }
+  else if (is_object_type(t)) {
+    // Returning a value requires copy initialization.
+    if (is<copy_init>(e))
+      return make<ret_stmt>(e);
+    else
+      return make<ret_stmt>(make_copy_init(e));
+  }
+  else if(is_reference_type(t)) {
+    // Returning a reference requires reference initialization.
+    if (is<ref_init>(e))
+      return make<ret_stmt>(e);
+    else
+      return make<ret_stmt>(make_ref_init(e));
+  }
+  else if (is_function_type(t)) {
+    assert(false && "function return types not implemented");
+  }
+  else {
+    assert(false && "unknown return category");
+  }
 }
 
 } // namespace core

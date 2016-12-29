@@ -64,9 +64,9 @@ main(int argc, char* argv[])
 
   // Make some variables and their initializers.
   decl_seq vars {
-    &cb.make_var_decl("b", b, cb.make_copy_init(t)), // var bool b = copy true
-    &cb.make_var_decl("z1", i32, cb.make_copy_init(z1)), // var int32 z1 = copy 5
-    &cb.make_var_decl("z2", i1024, cb.make_copy_init(z2)), // var in1024 z2 = copy 42
+    &cb.make_var_decl("b", b, t), // var bool b = copy true
+    &cb.make_var_decl("z1", i32, z1), // var int32 z1 = copy 5
+    &cb.make_var_decl("z2", i1024, z2), // var in1024 z2 = copy 42
   };
 
   // For convenience... the names declared variables
@@ -77,10 +77,13 @@ main(int argc, char* argv[])
   };
 
   // Make some references and their initializers.
+  //
+  // FIXME: Can I get rid of the vnames array by inferring reference from
+  // a declaration (probably yes).
   decl_seq refs {
-    &cb.make_var_decl("rb", rb, cb.make_ref_init(vnames[0])), // var bool& rb = ref b
-    &cb.make_var_decl("rz1", ri32, cb.make_ref_init(vnames[1])), // var int32& rz1 = ref z1
-    &cb.make_var_decl("rz2", ri1024, cb.make_ref_init(vnames[2])) // var int1024& rz2 = ref z2
+    &cb.make_var_decl("rb", rb, vnames[0]), // var bool& rb = ref b
+    &cb.make_var_decl("rz1", ri32, vnames[1]), // var int32& rz1 = ref z1
+    &cb.make_var_decl("rz2", ri1024, vnames[2]) // var int1024& rz2 = ref z2
   };
 
   // For convenience... the names of references.
@@ -111,9 +114,7 @@ main(int argc, char* argv[])
     &cb.make_expr_stmt(exprs[2]),
 
     &cb.make_decl_stmt(
-      cb.make_var_decl(
-        "x", i1024, cb.make_copy_init(exprs[2]) // var int1024 x = copy deref ref rz2
-      )
+      cb.make_var_decl("x", i1024, exprs[2]) // var int1024 x = copy deref ref rz2
     )
   };
   stmt& def = cb.make_block_stmt(stmts);
@@ -123,7 +124,7 @@ main(int argc, char* argv[])
   decl_seq parms;
   decl& ret = cb.make_parm_decl("ret", cb.get_void_type());
   type& ftype = cb.get_fn_type(parms, ret);
-  decl& fn = cb.make_fn_decl(cb.get_name("f1"), ftype, parms, ret, def);
+  decl& fn = cb.make_fn_decl("main", ftype, parms, ret, def);
   mod.add_declaration(fn);
 
   print(fn);

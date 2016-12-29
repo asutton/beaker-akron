@@ -65,11 +65,14 @@ struct parm_decl : generic_value_decl<parm_decl_kind>
 // -------------------------------------------------------------------------- //
 // Operations
 
-/// Returns true if `d` is a variable.
+/// Returns true if `d` is a variable or parameter.
+///
+/// For most analyses, variables and function parameters are treated the
+/// same, except that a return parameter can be void.
 inline bool
 is_variable(const decl& d)
 {
-  return d.get_kind() == var_decl_kind;
+  return d.get_kind() == var_decl_kind || d.get_kind() == parm_decl_kind;
 }
 
 /// Returns true if `d` is a function.

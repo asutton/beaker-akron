@@ -302,6 +302,8 @@ nullary_init::get_object_type() { return get_type(); }
 template<int K>
 struct generic_nullary_init : nullary_init
 {
+  static constexpr int node_kind = K;
+
   generic_nullary_init(type&);
 };
 
@@ -354,6 +356,8 @@ inline expr& unary_init::get_expression() { return *val_; }
 template<int K>
 struct generic_unary_init : unary_init
 {
+  static constexpr int node_kind = K;
+
   generic_unary_init(type&, expr&);
 };
 
