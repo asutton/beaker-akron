@@ -61,7 +61,6 @@ struct parm_decl : generic_value_decl<parm_decl_kind>
   using generic_value_decl<parm_decl_kind>::generic_value_decl;
 };
 
-
 // -------------------------------------------------------------------------- //
 // Operations
 

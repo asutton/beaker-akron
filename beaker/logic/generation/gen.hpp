@@ -14,6 +14,7 @@ struct gen_algo : generate_algorithm
 {
   cg::type operator()(generator&, const type&) const;
   cg::value operator()(generator&, const expr&) const;
+  cg::value operator()(generator&, const decl&) const;
 };
 
 } // namespace logic

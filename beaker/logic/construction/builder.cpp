@@ -4,6 +4,7 @@
 #include "builder.hpp"
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
+#include <beaker/logic/decl.hpp>
 #include <beaker/base/module.hpp>
 
 namespace beaker {
@@ -74,12 +75,11 @@ builder::make_bool_expr(const value& v)
 // The operands `e1` and `e2` shall have type `bool`. The type of a the
 // expression is `bool`.
 and_expr&
-builder::make_and_expr(type& t, expr& e1, expr& e2)
+builder::make_and_expr(expr& e1, expr& e2)
 {
-  assert(is_boolean_type(t));
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
-  return make<and_expr>(t, e1, e2);
+  return make<and_expr>(get_bool_type(), e1, e2);
 }
 
 // Returns a new expression `e1 || e2`.
@@ -87,12 +87,11 @@ builder::make_and_expr(type& t, expr& e1, expr& e2)
 // The operands `e1` and `e2` shall have type `bool`. The type of a the
 // expression is `bool`.
 or_expr&
-builder::make_or_expr(type& t, expr& e1, expr& e2)
+builder::make_or_expr(expr& e1, expr& e2)
 {
-  assert(is_boolean_type(t));
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
-  return make<or_expr>(t, e1, e2);
+  return make<or_expr>(get_bool_type(), e1, e2);
 }
 
 // Returns a new expression `!e`
@@ -100,11 +99,10 @@ builder::make_or_expr(type& t, expr& e1, expr& e2)
 // The operand `e` shall have type `bool`. The type of a the expression 
 // is `bool`.
 not_expr&
-builder::make_not_expr(type& t, expr& e)
+builder::make_not_expr(expr& e)
 {
-  assert(is_boolean_type(t));
   assert(is_boolean_expression(e));
-  return make<not_expr>(t, e);
+  return make<not_expr>(get_bool_type(), e);
 }
 
 // Returns a new expression `e1 => e2`.
@@ -112,12 +110,11 @@ builder::make_not_expr(type& t, expr& e)
 // The operands `e1` and `e2` shall have type `bool`. The type of a the
 // expression is `bool`.
 imp_expr&
-builder::make_imp_expr(type&t , expr& e1, expr& e2)
+builder::make_imp_expr(expr& e1, expr& e2)
 {
-  assert(is_boolean_type(t));
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
-  return make<imp_expr>(t, e1, e2);
+  return make<imp_expr>(get_bool_type(), e1, e2);
 }
 
 // Returns a new expression `e1 <=> e2`.
@@ -125,12 +122,19 @@ builder::make_imp_expr(type&t , expr& e1, expr& e2)
 // The operands `e1` and `e2` shall have type `bool`. The type of a the
 // expression is `bool`.
 eq_expr&
-builder::make_eq_expr(type&t , expr& e1, expr& e2)
+builder::make_eq_expr(expr& e1, expr& e2)
 {
-  assert(is_boolean_type(t));
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
-  return make<eq_expr>(t, e1, e2);
+  return make<eq_expr>(get_bool_type(), e1, e2);
+}
+
+/// Returns the declaration `assert e`.
+assert_decl&
+builder::make_assert_decl(expr& e)
+{
+  assert(is_boolean_expression(e));
+  return make<assert_decl>(e);
 }
 
 } // namespace logic

@@ -14,6 +14,7 @@ struct print_algo : print_algorithm
 {
   void operator()(std::ostream&, const type&) const;
   void operator()(std::ostream&, const expr&) const;
+  void operator()(std::ostream&, const decl&) const;
 };
 
 } // namespace logic

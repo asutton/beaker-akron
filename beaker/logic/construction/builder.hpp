@@ -25,6 +25,8 @@ struct not_expr;
 struct imp_expr;
 struct eq_expr;
 
+struct assert_decl;
+
 /// Provides access to resources needed to construct, validate, and
 /// evaluate logical terms.
 struct builder : basic_builder<logic_lang>
@@ -47,11 +49,14 @@ struct builder : basic_builder<logic_lang>
   bool_expr& make_false_expr();
   bool_expr& make_bool_expr(const value&);
   bool_expr& make_bool_expr(value&&);
-  and_expr& make_and_expr(type&, expr&, expr&);
-  or_expr& make_or_expr(type&, expr&, expr&);
-  not_expr& make_not_expr(type&, expr&);
-  imp_expr& make_imp_expr(type&, expr&, expr&);
-  eq_expr& make_eq_expr(type&, expr&, expr&);
+  and_expr& make_and_expr(expr&, expr&);
+  or_expr& make_or_expr(expr&, expr&);
+  not_expr& make_not_expr(expr&);
+  imp_expr& make_imp_expr(expr&, expr&);
+  eq_expr& make_eq_expr(expr&, expr&);
+
+  // Declarations
+  assert_decl& make_assert_decl(expr&);
 
   module* mod_;
   bool_type* bool_;

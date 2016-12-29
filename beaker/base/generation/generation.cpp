@@ -157,8 +157,12 @@ generator::define_function(llvm::Function* f)
   assert(!fn_);
   enter_decl_context();
   fn_ = f;
+  // Create the entry block as the first block of the function.
   entry_ = llvm::BasicBlock::Create(*cxt_, "entry", fn_);
-  exit_ = llvm::BasicBlock::Create(*cxt_, "exit", fn_);
+  
+  // Create the exit block, but don't attach it to the function. We'll do
+  // that when the function is complete.
+  exit_ = llvm::BasicBlock::Create(*cxt_, "exit");
   block_ = entry_;
 }
 
@@ -168,6 +172,10 @@ void
 generator::end_function()
 {
   assert(fn_);
+
+  // Link the exit block into the function.
+  exit_->insertInto(fn_);
+
   fn_ = nullptr;
   entry_ = nullptr;
   exit_ = nullptr;

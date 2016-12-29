@@ -4,6 +4,7 @@
 #include <beaker/logic/printing/print.hpp>
 #include <beaker/logic/type.hpp>
 #include <beaker/logic/expr.hpp>
+#include <beaker/logic/decl.hpp>
 
 #include <iostream>
 
@@ -76,6 +77,22 @@ print_algo::operator()(std::ostream& os, const expr& e) const
       break;
   }
   assert(false && "not a logic expression");
+}
+
+
+static void
+print_assert_decl(std::ostream& os, const assert_decl& d)
+{
+  os << "assert ";
+  print(os, d.get_assertion());
+  os << ';' << '\n';
+}
+
+void
+print_algo::operator()(std::ostream& os, const decl& d) const
+{
+  assert(is<assert_decl>(d));
+  print_assert_decl(os, cast<assert_decl>(d));
 }
 
 } // namespace logic
