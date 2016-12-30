@@ -70,9 +70,6 @@ struct builder : basic_builder<core_lang>
   ref_expr& make_ref_expr(decl&);
   deref_expr& make_deref_expr(expr&);
   assign_expr& make_assign_expr(expr&, expr&);
-  assign_expr& make_assign_expr(decl&, decl&);
-  assign_expr& make_assign_expr(decl&, expr&);
-  assign_expr& make_assign_expr(expr&, decl&);
   call_expr& make_call_expr(expr&, const expr_seq&);
   call_expr& make_call_expr(expr&, expr_seq&&);
   temp_expr& make_temp_expr(type&);

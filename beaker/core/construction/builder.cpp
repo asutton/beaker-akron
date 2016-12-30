@@ -151,31 +151,6 @@ builder::make_assign_expr(expr& e1, expr& e2)
   return make<assign_expr>(e1.get_type(), e1, e2);
 }
 
-/// Assign the value of d2 to the variable d1. 
-///
-/// Note that d2 may be a function and d1 a function variable.
-assign_expr&
-builder::make_assign_expr(decl& d1, decl& d2)
-{
-  assert(is_variable(d1));
-  return make_assign_expr(make_ref_expr(d1), make_deref_expr(make_ref_expr(d2)));
-}
-
-/// Assign the value of `e` to the variable `d`.
-assign_expr&
-builder::make_assign_expr(decl& d, expr& e)
-{
-  assert(is_variable(d));
-  return make_assign_expr(make_ref_expr(d), e);
-}
-
-/// Assign the value of `d` to the object referenced by `e`.
-assign_expr&
-builder::make_assign_expr(expr& e, decl& d)
-{
-  return make_assign_expr(e, make_deref_expr(make_ref_expr(d)));
-}
-
 /// Returns a new temporary expression.
 temp_expr&
 builder::make_temp_expr(type& t)

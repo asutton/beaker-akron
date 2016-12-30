@@ -97,8 +97,11 @@ main(int argc, char* argv[])
     decl& ret = vars[2];
     type& type = cb.get_fn_type(parms, ret);
 
-    expr& def = cb.make_void_expr(
-      cb.make_assign_expr(vars[0], vars[1])
+    expr& def = cb.make_void_expr( // ref dst = deref ref src
+      cb.make_assign_expr(
+        cb.make_ref_expr(vars[0]), 
+        cb.make_deref_expr(cb.make_ref_expr(vars[1]))
+      )
     );
 
     d2 = &cb.make_fn_decl("f2", type, parms, ret, def);
