@@ -35,7 +35,7 @@ generate_call_expr(generator& gen, const call_expr& e)
   const type& tret = e.get_type();
   cg::type ret = generate(gen, tret);
   if (ret.is_indirect())
-    fargs.push_back(entry.CreateAlloca(ret));
+    fargs.push_back(gen.make_alloca(ret));
 
   const expr_seq& args = e.get_arguments();
   const type_seq& parms = ftype.get_parameter_types();
@@ -51,12 +51,11 @@ generate_call_expr(generator& gen, const call_expr& e)
     // we can pass the value directly (tmp will be null in that case).
     cg::value tmp = nullptr;
     if (ptype.is_indirect())
-      tmp = entry.CreateAlloca(ptype);
-    generator::init_guard guard(gen, tmp);
+      tmp = gen.make_alloca(ptype);
     
     // Generate the argument initializer.
+    generator::init_guard guard(gen, tmp);
     cg::value val = generate(gen, arg);
-    // val->dump();
     fargs.push_back(val);
 
     ++ai;

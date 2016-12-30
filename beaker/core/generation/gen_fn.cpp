@@ -43,7 +43,7 @@ adjust_return_parm(generator& gen, const decl& d)
       llvm::Builder ir(gen.get_entry_block());
       cg::type ret = generate(gen, t);
       std::string name = generate(gen, get_declaration_name(d));
-      cg::value ptr = ir.CreateAlloca(ret, nullptr, name);
+      cg::value ptr = gen.make_alloca(ret, name);
 
       // Set the return value.
       gen.set_return_value(ptr);
@@ -87,7 +87,7 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
       // need complex initialization because the argument is passed directly.
       llvm::Builder ir(gen.get_entry_block());
       std::stringstream ss;
-      cg::value ptr = ir.CreateAlloca(type, nullptr, "var." + name);
+      cg::value ptr = gen.make_alloca(type, "var." + name);
       llvm::Builder cur(gen.get_current_block());
       cur.CreateStore(&arg, ptr);
       

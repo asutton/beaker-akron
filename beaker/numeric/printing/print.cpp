@@ -25,7 +25,6 @@ print_algo::operator()(std::ostream& os, const type& t) const
   assert(false && "not a numeric type");
 }
 
-
 void
 print_int_expr(std::ostream& os, const int_expr& e)
 {
@@ -39,6 +38,20 @@ print_algo::operator()(std::ostream& os, const expr& e) const
   switch (e.get_kind()) {
     case int_expr_kind:
       return print_int_expr(os, cast<int_expr>(e));
+
+    case eq_expr_kind:
+      return print_infix_expr(os, cast<eq_expr>(e), "==");
+    case ne_expr_kind:
+      return print_infix_expr(os, cast<ne_expr>(e), "!=");
+    case lt_expr_kind:
+      return print_infix_expr(os, cast<lt_expr>(e), "<");
+    case gt_expr_kind:
+      return print_infix_expr(os, cast<gt_expr>(e), ">");
+    case le_expr_kind:
+      return print_infix_expr(os, cast<le_expr>(e), "<=");
+    case ge_expr_kind:
+      return print_infix_expr(os, cast<ge_expr>(e), ">=");
+    
     default:
       break;
   }

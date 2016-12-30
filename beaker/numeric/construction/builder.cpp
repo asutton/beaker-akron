@@ -5,11 +5,21 @@
 
 #include <beaker/numeric/type.hpp>
 #include <beaker/numeric/expr.hpp>
+
 #include <beaker/logic/type.hpp>
+#include <beaker/logic/construction/builder.hpp>
+
+#include <beaker/base/module.hpp>
 
 
 namespace beaker {
 namespace numeric {
+
+static inline logic::builder& 
+get_logic_builder(module& m)
+{
+  return m.get_builder<logic::builder>();
+}
 
 builder::builder(module& m)
   : basic_builder<numeric_lang>(m)
@@ -55,12 +65,12 @@ builder::get_float_type(int p)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 eq_expr&
-builder::make_eq_expr(type& t, expr& e1, expr& e2)
+builder::make_eq_expr(expr& e1, expr& e2)
 {
   assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<eq_expr>(t, e1, e2);
+  logic::builder& b = get_logic_builder(get_module());
+  return make<eq_expr>(b.get_bool_type(), e1, e2);
 }
 
 /// Returns the expression `e1 != e2`.
@@ -68,12 +78,12 @@ builder::make_eq_expr(type& t, expr& e1, expr& e2)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 ne_expr&
-builder::make_ne_expr(type& t, expr& e1, expr& e2)
+builder::make_ne_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<ne_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  logic::builder& b = get_logic_builder(get_module());
+  return make<ne_expr>(b.get_bool_type(), e1, e2);
 }
 
 /// Returns the expression `e1 < e2`.
@@ -81,12 +91,12 @@ builder::make_ne_expr(type& t, expr& e1, expr& e2)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 lt_expr&
-builder::make_lt_expr(type& t, expr& e1, expr& e2)
+builder::make_lt_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<lt_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  logic::builder& b = get_logic_builder(get_module());
+  return make<lt_expr>(b.get_bool_type(), e1, e2);
 }
 
 /// Returns the expression `e1 > e2`.
@@ -94,12 +104,12 @@ builder::make_lt_expr(type& t, expr& e1, expr& e2)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 gt_expr&
-builder::make_gt_expr(type& t, expr& e1, expr& e2)
+builder::make_gt_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<gt_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  logic::builder& b = get_logic_builder(get_module());
+  return make<gt_expr>(b.get_bool_type(), e1, e2);
 }
 
 /// Returns the expression `e1 <= e2`.
@@ -107,12 +117,12 @@ builder::make_gt_expr(type& t, expr& e1, expr& e2)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 le_expr&
-builder::make_le_expr(type& t, expr& e1, expr& e2)
+builder::make_le_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<le_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  logic::builder& b = get_logic_builder(get_module());
+  return make<le_expr>(b.get_bool_type(), e1, e2);
 }
 
 /// Returns the expression `e1 >= e2`.
@@ -120,12 +130,12 @@ builder::make_le_expr(type& t, expr& e1, expr& e2)
 /// The operands `e1` and `e2` shall have the same type `t`, and `t` shall be 
 /// an arithmetic type. The type of the expression shall be `bool`.
 ge_expr&
-builder::make_ge_expr(type& t, expr& e1, expr& e2)
+builder::make_ge_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(e1.get_type(), e2.get_type()));
   assert(is_arithmetic_expression(e1));
-  assert(logic::is_boolean_type(t));
-  return make<ge_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  logic::builder& b = get_logic_builder(get_module());
+  return make<ge_expr>(b.get_bool_type(), e1, e2);
 }
 
 int_expr&

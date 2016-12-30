@@ -93,6 +93,10 @@ struct generator
   void set_exit_block(llvm::BasicBlock*);
   void end_function();
 
+  // Instruction builders.
+  cg::value make_alloca(cg::type, const char* = "");
+  cg::value make_alloca(cg::type, const std::string&);
+
   // Current initialization. Managed by init_guard.
   llvm::Value* get_initialized_object();
   

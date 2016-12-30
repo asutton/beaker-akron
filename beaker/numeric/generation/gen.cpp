@@ -109,8 +109,17 @@ generate_eq_expr(generator& gen, const eq_expr& e)
   switch (t.get_kind()) {
     case nat_type_kind:
     case int_type_kind:
-    case mod_type_kind:
+    case mod_type_kind: {
+      cg::type type = generate(gen, t);
+      if (type.is_indirect()) {
+        // FIXME: This is kind of dumb (and probably REALLY inefficient).
+        // Bigint support should probably be provided by a separate module,
+        // if not by a user-defined type.
+        v1 = ir.CreateLoad(v1);
+        v2 = ir.CreateLoad(v2);
+      }
       return ir.CreateICmpEQ(v1, v2);
+    }
     case float_type_kind:
       return ir.CreateFCmpOEQ(v1, v2);
     default:

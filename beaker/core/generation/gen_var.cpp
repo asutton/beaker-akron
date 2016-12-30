@@ -12,7 +12,7 @@ generate_local_object_var(generator& gen, const var_decl& d)
   llvm::Builder ir(gen.get_entry_block());
   cg::type type = generate(gen, d.get_type());
   std::string name = generate(gen, d.get_name());
-  cg::value ptr = ir.CreateAlloca(type, nullptr, name);
+  cg::value ptr = gen.make_alloca(type, name);
   gen.put_value(d, ptr);
 
   // Generate the initialization at the current instruction.

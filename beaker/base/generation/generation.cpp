@@ -183,6 +183,22 @@ generator::end_function()
   leave_decl_context();
 }
 
+/// Create a local object for the type `t`. Local variables are always inserted
+/// into the front of the entry block.
+cg::value
+generator::make_alloca(cg::type t, const char* n)
+{
+  llvm::BasicBlock* bb = get_entry_block();
+  llvm::Builder ir(bb, bb->begin());
+  return ir.CreateAlloca(t, nullptr, n);
+}
+
+cg::value
+generator::make_alloca(cg::type t, const std::string& n)
+{
+  return make_alloca(t, n.c_str());
+}
+
 // -------------------------------------------------------------------------- //
 // Dispatch infrastructure
 

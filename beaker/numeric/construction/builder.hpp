@@ -60,12 +60,12 @@ struct builder : basic_builder<numeric_lang>
   float_expr& make_float_expr(type&, value&&);
   float_expr& make_float_expr(type&, double);
 
-  eq_expr& make_eq_expr(type&, expr&, expr&);
-  ne_expr& make_ne_expr(type&, expr&, expr&);
-  lt_expr& make_lt_expr(type&, expr&, expr&);
-  gt_expr& make_gt_expr(type&, expr&, expr&);
-  le_expr& make_le_expr(type&, expr&, expr&);
-  ge_expr& make_ge_expr(type&, expr&, expr&);
+  eq_expr& make_eq_expr(expr&, expr&);
+  ne_expr& make_ne_expr(expr&, expr&);
+  lt_expr& make_lt_expr(expr&, expr&);
+  gt_expr& make_gt_expr(expr&, expr&);
+  le_expr& make_le_expr(expr&, expr&);
+  ge_expr& make_ge_expr(expr&, expr&);
 
   add_expr& make_add_expr(type&, expr&, expr&);
   sub_expr& make_sub_expr(type&, expr&, expr&);

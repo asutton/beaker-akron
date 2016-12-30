@@ -91,6 +91,8 @@ gen_algo::operator()(generator& gen, const expr& e) const
 /// Returns the value of the condition or nullptr if not processing a function.
 ///
 /// \todo Support a configuration mode where the assertion can be disabled.
+///
+/// \bug Why do declarations return values? They modify context. That's it.
 static cg::value
 generate_assert_decl(generator& gen, const assert_decl& d)
 {
@@ -112,15 +114,17 @@ generate_assert_decl(generator& gen, const assert_decl& d)
 
   // Emit the 'fail' block, which contains a trap and an unreachable
   // terminator.
+  //
+  // FIXME: Emit either "trap" or "debugtrap" depending on configuration.
   ir.SetInsertPoint(fail);
   std::vector<llvm::Value*> args;
-  cg::value op = llvm::Intrinsic::getDeclaration(&mod, llvm::Intrinsic::trap);
+  cg::value op = llvm::Intrinsic::getDeclaration(&mod, llvm::Intrinsic::debugtrap);
   ir.CreateCall(op, args);
   ir.CreateUnreachable();
 
   // Emit all future instructions into the end block.
   gen.set_current_block(pass);
-  
+
   return cond;
 }
 
