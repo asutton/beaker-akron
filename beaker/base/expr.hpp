@@ -266,6 +266,66 @@ generic_binary_expr<K>::generic_binary_expr(type& t, expr& e1, expr& e2)
 
 
 // -------------------------------------------------------------------------- //
+// Ternary expressions
+
+// Represents an expression with three operands.
+struct ternary_expr : expr {
+  ternary_expr(int k, type&, expr&, expr&, expr&);
+
+  const expr& get_first() const;
+  expr& get_first();
+
+  const expr& get_second() const;
+  expr& get_second();
+
+  const expr& get_third() const;
+  expr& get_third();
+
+  expr* args_[3];
+};
+
+// Initialize the the binary expression of kind k.
+inline
+ternary_expr::ternary_expr(int k, type& t, expr& e1, expr& e2, expr& e3)
+  : expr(k, t), args_{&e1, &e2, &e3}
+{ }
+
+// Returns the left operand.
+inline const expr& ternary_expr::get_first() const { return *args_[0]; }
+
+// Returns the left operand.
+inline expr& ternary_expr::get_first() { return *args_[0]; }
+
+// Returns the right operand.
+inline const expr& ternary_expr::get_second() const { return *args_[1]; }
+
+// Returns the right operand.
+inline expr& ternary_expr::get_second() { return *args_[1]; }
+
+// Returns the right operand.
+inline const expr& ternary_expr::get_third() const { return *args_[2]; }
+
+// Returns the right operand.
+inline expr& ternary_expr::get_third() { return *args_[2]; }
+
+
+// Represents an expression with two operands.
+template<int K>
+struct generic_ternary_expr : ternary_expr {
+  static constexpr int node_kind = K;
+
+  generic_ternary_expr(type&, expr&, expr&, expr& e3);
+};
+
+// Initialize the the binary expression of kind k.
+template<int K>
+inline
+generic_ternary_expr<K>::generic_ternary_expr(type& t, expr& e1, expr& e2, expr& e3)
+  : ternary_expr(K, t, e1, e2, e3)
+{ }
+
+
+// -------------------------------------------------------------------------- //
 // Initializers
 
 /// Represents the initialization of an object of a given type from some 

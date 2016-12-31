@@ -30,21 +30,21 @@ print_bool_expr(std::ostream& os, const bool_expr& e)
     os << "false";
 }
 
-// Pretty print the expression `e1 && e2`.
+// Pretty print the expression `e1 and e2`.
 static inline void
 print_and_expr(std::ostream& os, const and_expr& e)
 {
-  print_infix_expr(os, e, "&&");
+  print_infix_expr(os, e, "&");
 }
 
-// Pretty print the expression `e1 || e2`.
+// Pretty print the expression `e1 or e2`.
 static inline void
 print_or_expr(std::ostream& os, const or_expr& e)
 {
-  print_infix_expr(os, e, "||");
+  print_infix_expr(os, e, "|");
 }
 
-// Pretty print the expression `!e`.
+// Pretty print the expression `not e`.
 static inline void
 print_not_expr(std::ostream& os, const not_expr& e)
 {
@@ -63,6 +63,31 @@ static inline void
 print_eq_expr(std::ostream& os, const eq_expr& e)
 {
   print_infix_expr(os, e, "<=>");
+}
+
+// Pretty print the expression `e1 ? e2 : e3`.
+static inline void
+print_if_expr(std::ostream& os, const if_expr& e)
+{
+  print_grouped_expr(os, e.get_condition());
+  os << ' ' << '?' << ' ';
+  print_grouped_expr(os, e.get_true_value());
+  os << ' ' << ':' << ' ';
+  print_grouped_expr(os, e.get_false_value());
+}
+
+// Pretty print the expression `e1 && e2`.
+static inline void
+print_and_then_expr(std::ostream& os, const and_then_expr& e)
+{
+  print_infix_expr(os, e, "&&");
+}
+
+// Pretty print the expression `e1 || e2`.
+static inline void
+print_or_else_expr(std::ostream& os, const or_else_expr& e)
+{
+  print_infix_expr(os, e, "||");
 }
 
 void

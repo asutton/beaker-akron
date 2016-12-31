@@ -21,9 +21,6 @@ generate_call_expr(generator& gen, const call_expr& e)
   const expr& fexpr = e.get_function();
   const fn_type& ftype = cast<fn_type>(fexpr.get_type());
 
-  llvm::Builder entry(gen.get_entry_block());
-  llvm::Builder ir(gen.get_current_block());
-
   // Generate the function address.
   cg::value fn = generate(gen, e.get_function());
 
@@ -68,6 +65,7 @@ generate_call_expr(generator& gen, const call_expr& e)
     assert(false && "variadic arguments not implemented");
   }
 
+  llvm::Builder ir(gen.get_current_block());
   return ir.CreateCall(fn, fargs);
 }
 

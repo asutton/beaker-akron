@@ -214,12 +214,6 @@ inline void generator::set_exit_block(llvm::BasicBlock* b) { exit_ = b; }
 /// Returns the current block being built.
 inline llvm::BasicBlock* generator::get_current_block() { return block_; }
 
-/// Sets the current instruction block to b.
-inline void 
-generator::set_current_block(llvm::BasicBlock* b)
-{ 
-  block_ = b; 
-}
 
 /// Returns the top block of the current loop.
 ///

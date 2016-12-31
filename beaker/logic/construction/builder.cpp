@@ -70,10 +70,7 @@ builder::make_bool_expr(const value& v)
     return make_false_expr(); 
 }
 
-// Returns a new expression `e1 && e2`.
-//
-// The operands `e1` and `e2` shall have type `bool`. The type of a the
-// expression is `bool`.
+/// Returns a new expression `e1 & e2`.
 and_expr&
 builder::make_and_expr(expr& e1, expr& e2)
 {
@@ -82,10 +79,7 @@ builder::make_and_expr(expr& e1, expr& e2)
   return make<and_expr>(get_bool_type(), e1, e2);
 }
 
-// Returns a new expression `e1 || e2`.
-//
-// The operands `e1` and `e2` shall have type `bool`. The type of a the
-// expression is `bool`.
+/// Returns a new expression `e1 | e2`.
 or_expr&
 builder::make_or_expr(expr& e1, expr& e2)
 {
@@ -94,10 +88,7 @@ builder::make_or_expr(expr& e1, expr& e2)
   return make<or_expr>(get_bool_type(), e1, e2);
 }
 
-// Returns a new expression `!e`
-//
-// The operand `e` shall have type `bool`. The type of a the expression 
-// is `bool`.
+/// Returns a new expression `!e`
 not_expr&
 builder::make_not_expr(expr& e)
 {
@@ -105,10 +96,7 @@ builder::make_not_expr(expr& e)
   return make<not_expr>(get_bool_type(), e);
 }
 
-// Returns a new expression `e1 => e2`.
-//
-// The operands `e1` and `e2` shall have type `bool`. The type of a the
-// expression is `bool`.
+/// Returns a new expression `e1 => e2`.
 imp_expr&
 builder::make_imp_expr(expr& e1, expr& e2)
 {
@@ -117,16 +105,40 @@ builder::make_imp_expr(expr& e1, expr& e2)
   return make<imp_expr>(get_bool_type(), e1, e2);
 }
 
-// Returns a new expression `e1 <=> e2`.
-//
-// The operands `e1` and `e2` shall have type `bool`. The type of a the
-// expression is `bool`.
+/// Returns a new expression `e1 <=> e2`.
 eq_expr&
 builder::make_eq_expr(expr& e1, expr& e2)
 {
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
   return make<eq_expr>(get_bool_type(), e1, e2);
+}
+
+/// Returns a new expression `e1 ? e2 : e3`.
+if_expr&
+builder::make_if_expr(expr& e1, expr& e2, expr& e3)
+{
+  assert(is_boolean_expression(e1));
+  assert(equivalent(e2.get_type(), e3.get_type()));
+  return make<if_expr>(e2.get_type(), e1, e2, e3);
+}
+
+/// Returns a new expression `e1 && e2`.
+and_then_expr&
+builder::make_and_then_expr(expr& e1, expr& e2)
+{
+  assert(is_boolean_expression(e1));
+  assert(is_boolean_expression(e2));
+  return make<and_then_expr>(get_bool_type(), e1, e2);
+}
+
+/// Returns a new expression `e1 || e2`.
+or_else_expr&
+builder::make_or_else_expr(expr& e1, expr& e2)
+{
+  assert(is_boolean_expression(e1));
+  assert(is_boolean_expression(e2));
+  return make<or_else_expr>(get_bool_type(), e1, e2);
 }
 
 /// Returns the declaration `assert e`.

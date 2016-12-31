@@ -17,14 +17,13 @@ generate_nop_init(generator& gen, const nop_init& e)
 static cg::value
 generate_zero_init(generator& gen, const zero_init& e)
 {
-  llvm::Builder ir(gen.get_current_block());
-
   // Get the initialized object. There must be an initialization context.
   cg::value ptr = gen.get_initialized_object();
   assert(ptr);
 
   // Get the type of object being initialized.
   cg::type type = generate(gen, e.get_object_type());
+  llvm::Builder ir(gen.get_current_block());
   if (type.is_direct()) {
     // When the type is direct, we can simply store a null value.
     cg::value zero = llvm::Constant::getNullValue(type);

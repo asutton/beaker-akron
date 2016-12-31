@@ -183,6 +183,18 @@ generator::end_function()
   leave_decl_context();
 }
 
+/// Sets the current instruction block to b. If the block is unattached, then
+/// add append it to the current block list.
+void 
+generator::set_current_block(llvm::BasicBlock* b)
+{
+  if (!b->getParent())
+    b->insertInto(fn_);
+  block_ = b; 
+}
+
+
+
 /// Create a local object for the type `t`. Local variables are always inserted
 /// into the front of the entry block.
 cg::value

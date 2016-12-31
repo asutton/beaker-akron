@@ -19,7 +19,7 @@ enum
 };
 
 
-/// Represents the type of boolean values.
+/// Represents the type `bool`. There are two boolean values, true and false.
 struct bool_type : base_type<bool_type_kind> 
 {
   using base_type<bool_type_kind>::base_type;

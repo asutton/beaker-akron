@@ -33,26 +33,26 @@ struct bool_expr : generic_literal_expr<bool_expr_kind>
 inline bool bool_expr::get_boolean() const { return get_value().get_integer(); }
 
 
-/// Represents the expression `e1 && e2`. 
+/// Represents the expression `e1 & e2`. 
 ///
 /// The operands `e1` and `e2` shall have type `bool`. The result type of the
 /// expression shall be `bool`. 
 ///
 /// The value of the expression is `true` if and only if both `e1` and `e2` are 
-/// true. If `e1` is false, `e2` is not evaluated.
+/// true.
 struct and_expr : generic_binary_expr<and_expr_kind> 
 {
   using generic_binary_expr<and_expr_kind>::generic_binary_expr;
 };
 
 
-/// Represents the expression `e1 || e2`. 
+/// Represents the expression `e1 | e2`. 
 ///
 /// The operands `e1` and `e2` shall have type `bool` . The result type of the
 /// expression shall be `bool`.
 ///
 /// The value of the expression is `true` if `e1` is `true` `e2` is `true`, or 
-/// both are `true`. If `e1` is true, then `e2` is not evaluated.
+/// both are `true`.
 struct or_expr : generic_binary_expr<or_expr_kind> 
 {
   using generic_binary_expr<or_expr_kind>::generic_binary_expr;
@@ -96,6 +96,68 @@ struct eq_expr : generic_binary_expr<eq_expr_kind>
 {
   using generic_binary_expr<eq_expr_kind>::generic_binary_expr;
 };
+
+
+/// Represents the conditional expression `e1 ? e2 : e3`.
+///
+/// The operand `e1` shall be a boolean expression, and the types of `e2` and
+/// `e3` shall be the same.
+///
+/// The value of the expression...
+struct if_expr : generic_ternary_expr<if_expr_kind> 
+{
+  using generic_ternary_expr<if_expr_kind>::generic_ternary_expr;
+
+  const expr& get_condition() const;
+  expr& get_condition();
+
+  const expr& get_true_value() const;
+  expr& get_true_value();
+
+  const expr& get_false_value() const;
+  expr& get_false_value();
+};
+
+/// Returns the condition of of the expression.
+inline const expr& if_expr::get_condition() const { return get_first(); }
+
+/// Returns the condition of of the expression.
+inline expr& if_expr::get_condition() { return get_first(); }
+
+/// Returns the expression to evaluate when the condition is true.
+inline const expr& if_expr::get_true_value() const { return get_second(); }
+
+/// Returns the expression to evaluate when the condition is true.
+inline expr& if_expr::get_true_value() { return get_second(); }
+
+/// Returns the expression to evaluate when the condition is false.
+inline const expr& if_expr::get_false_value() const { return get_third(); }
+
+/// Returns the expression to evaluate when the condition is false.
+inline expr& if_expr::get_false_value() { return get_third(); }
+
+
+/// Represents the expression `e1 && e2`.
+///
+/// Both `e1` and `e2` shall be boolean expressions.
+///
+/// The expression `e1 && e2` is equivalent to `if e1 then e2 else false`.
+struct and_then_expr : generic_binary_expr<and_then_expr_kind> 
+{
+  using generic_binary_expr<and_then_expr_kind>::generic_binary_expr;
+};
+
+
+/// Represents the expression `e1 || e2`. 
+///
+/// Both `e1` and `e2` shall be boolean expressions.
+///
+/// The expression `e1 || e2` is equivalent to `if e1 then true else e2`.
+struct or_else_expr : generic_binary_expr<or_else_expr_kind> 
+{
+  using generic_binary_expr<or_else_expr_kind>::generic_binary_expr;
+};
+
 
 // Operations
 

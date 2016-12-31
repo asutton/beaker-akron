@@ -9,7 +9,6 @@ static cg::value
 generate_local_object_var(generator& gen, const var_decl& d)
 {
   // Generate storage in the entry block and bind to it.
-  llvm::Builder ir(gen.get_entry_block());
   cg::type type = generate(gen, d.get_type());
   std::string name = generate(gen, d.get_name());
   cg::value ptr = gen.make_alloca(type, name);
@@ -38,7 +37,7 @@ generate_local_reference_var(generator& gen, const var_decl& d)
 
 /// Generate the declaration and initializer.
 ///
-/// \todo Support local function variables.
+/// \todo Support global variables.
 static cg::value
 generate_local_var(generator& gen, const var_decl& d)
 {

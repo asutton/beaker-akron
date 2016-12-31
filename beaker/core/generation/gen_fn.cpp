@@ -40,7 +40,6 @@ adjust_return_parm(generator& gen, const decl& d)
       //
       // FIXME: If the function is defined by an expression, then we don't
       // need to generate the object.
-      llvm::Builder ir(gen.get_entry_block());
       cg::type ret = generate(gen, t);
       std::string name = generate(gen, get_declaration_name(d));
       cg::value ptr = gen.make_alloca(ret, name);
@@ -85,11 +84,10 @@ adjust_function_parm(generator& gen, const decl& d, arg_iterator ai)
     else {
       // Create local storage for the parameter variable. Note that we don't 
       // need complex initialization because the argument is passed directly.
-      llvm::Builder ir(gen.get_entry_block());
       std::stringstream ss;
       cg::value ptr = gen.make_alloca(type, "var." + name);
-      llvm::Builder cur(gen.get_current_block());
-      cur.CreateStore(&arg, ptr);
+      llvm::Builder ir(gen.get_current_block());
+      ir.CreateStore(&arg, ptr);
       
       // Bind the parameter to the automatic storage.
       gen.put_value(d, ptr);

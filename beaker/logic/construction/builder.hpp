@@ -24,6 +24,9 @@ struct or_expr;
 struct not_expr;
 struct imp_expr;
 struct eq_expr;
+struct if_expr;
+struct and_then_expr;
+struct or_else_expr;
 
 struct assert_decl;
 
@@ -54,6 +57,9 @@ struct builder : basic_builder<logic_lang>
   not_expr& make_not_expr(expr&);
   imp_expr& make_imp_expr(expr&, expr&);
   eq_expr& make_eq_expr(expr&, expr&);
+  if_expr& make_if_expr(expr&, expr&, expr&);
+  and_then_expr& make_and_then_expr(expr&, expr&);
+  or_else_expr& make_or_else_expr(expr&, expr&);
 
   // Declarations
   assert_decl& make_assert_decl(expr&);

@@ -162,11 +162,10 @@ generate_ref_expr(generator& gen, const ref_expr& e)
 static cg::value
 generate_assign_expr(generator& gen, const assign_expr& e)
 {
-  llvm::Builder ir(gen.get_current_block());
   cg::value ptr = generate(gen, e.get_lhs());
   cg::value val = generate(gen, e.get_rhs());
-
   cg::type type = generate(gen, e.get_rhs().get_type());
+  llvm::Builder ir(gen.get_current_block());
   if (type.is_direct()) {
     // Assigning direct types is easy. Just store the value at the address.
     ir.CreateStore(val, ptr);
