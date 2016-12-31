@@ -65,9 +65,9 @@ main(int argc, char* argv[])
 
   stmt_seq stmts {
     &cb.make_decl_stmt(vars[0]),
-    &cb.make_decl_stmt(vars[1]),
-    &cb.make_decl_stmt(vars[2]),
-    &cb.make_decl_stmt(vars[3]),
+    // &cb.make_decl_stmt(vars[1]),
+    // &cb.make_decl_stmt(vars[2]),
+    // &cb.make_decl_stmt(vars[3]),
     &cb.make_ret_stmt(z1),
   };
   stmt& def = cb.make_block_stmt(stmts);

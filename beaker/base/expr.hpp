@@ -328,6 +328,15 @@ generic_ternary_expr<K>::generic_ternary_expr(type& t, expr& e1, expr& e2, expr&
 // -------------------------------------------------------------------------- //
 // Initializers
 
+// A base class for all expressions that are initializers.
+struct init : expr
+{
+  init(int, type&);
+};
+
+inline init::init(int k, type& t) : expr(k, t) { }
+
+
 /// Represents the initialization of an object of a given type from some 
 /// intrinsic value.
 ///
@@ -428,7 +437,6 @@ generic_unary_init<K>::generic_unary_init(type& t, expr& e)
 { }
 
 
-
 // -------------------------------------------------------------------------- //
 // Conversions
 
@@ -461,6 +469,18 @@ inline const expr& conversion_expr<K>::get_source() const { return *arg_; }
 // Returns the target expression of the conversion.
 template<int K>
 inline expr& conversion_expr<K>::get_source() { return *arg_; }
+
+
+// -------------------------------------------------------------------------- //
+// Operations
+
+/// Returns true if `e` is an initializer for an object.
+inline bool 
+is_initializer(const expr& e)
+{
+  return dynamic_cast<const init*>(&e);
+}
+
 
 } // namespace beaker
 

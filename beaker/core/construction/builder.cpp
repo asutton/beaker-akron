@@ -242,14 +242,20 @@ builder::make_var_decl(name& n, type& t, expr& e)
 {
   assert(equivalent(t, e.get_type()));
   if (is_object_type(t)) {
-    // Initializing an object requires copy initialization.
-    if (is<copy_init>(e))
+    // Initializing an object requires copy, zero, or trivial initialization.
+    // This cannot be initialized by a reference initializer. If any other 
+    // expression is given, assume that copy initialization was meant.
+    assert(!is<ref_init>(e));
+    if (is<copy_init>(e) || is<zero_init>(e) || is<nop_init>(e))
       return make<var_decl>(n, t, e);
     else
       return make<var_decl>(n, t, make_copy_init(e));
   }
   else if(is_reference_type(t)) {
-    // Initializing a reference requires reference initialization.
+    // Initializing a reference requires reference initialization. Copy, zero,
+    // and trivial initialization is not allowed for references. If any other
+    // expression is given, assume that reference initialization was meant.
+    assert(!is<copy_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
     if (is<ref_init>(e))
       return make<var_decl>(n, t, e);
     else

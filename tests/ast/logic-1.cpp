@@ -144,33 +144,33 @@ main(int argc, char* argv[])
     &cb.make_decl_stmt(vars[0]),
     &cb.make_decl_stmt(vars[1]),
 
-    // // Truth table for !e
-    // assert_eq(mod, logic::not_expr_kind, t, f),
-    // assert_eq(mod, logic::not_expr_kind, f, t),
+    // Truth table for !e
+    assert_eq(mod, logic::not_expr_kind, t, f),
+    assert_eq(mod, logic::not_expr_kind, f, t),
 
-    // // Truth table for e1 & e2
-    // assert_eq(mod, logic::and_expr_kind, t, t, t),
-    // assert_eq(mod, logic::and_expr_kind, t, f, f),
-    // assert_eq(mod, logic::and_expr_kind, f, t, f),
-    // assert_eq(mod, logic::and_expr_kind, f, f, f),
+    // Truth table for e1 & e2
+    assert_eq(mod, logic::and_expr_kind, t, t, t),
+    assert_eq(mod, logic::and_expr_kind, t, f, f),
+    assert_eq(mod, logic::and_expr_kind, f, t, f),
+    assert_eq(mod, logic::and_expr_kind, f, f, f),
 
-    // // Truth table for e1 | e2
-    // assert_eq(mod, logic::or_expr_kind, t, t, t),
-    // assert_eq(mod, logic::or_expr_kind, t, f, t),
-    // assert_eq(mod, logic::or_expr_kind, f, t, t),
-    // assert_eq(mod, logic::or_expr_kind, f, f, f),
+    // Truth table for e1 | e2
+    assert_eq(mod, logic::or_expr_kind, t, t, t),
+    assert_eq(mod, logic::or_expr_kind, t, f, t),
+    assert_eq(mod, logic::or_expr_kind, f, t, t),
+    assert_eq(mod, logic::or_expr_kind, f, f, f),
 
-    // // Truth table for e1 => e2
-    // assert_eq(mod, logic::imp_expr_kind, t, t, t),
-    // assert_eq(mod, logic::imp_expr_kind, t, f, f),
-    // assert_eq(mod, logic::imp_expr_kind, f, t, t),
-    // assert_eq(mod, logic::imp_expr_kind, f, f, t),
+    // Truth table for e1 => e2
+    assert_eq(mod, logic::imp_expr_kind, t, t, t),
+    assert_eq(mod, logic::imp_expr_kind, t, f, f),
+    assert_eq(mod, logic::imp_expr_kind, f, t, t),
+    assert_eq(mod, logic::imp_expr_kind, f, f, t),
 
-    // // Truth table for e1 <=> e2
-    // assert_eq(mod, logic::eq_expr_kind, t, t, t),
-    // assert_eq(mod, logic::eq_expr_kind, t, f, f),
-    // assert_eq(mod, logic::eq_expr_kind, f, t, f),
-    // assert_eq(mod, logic::eq_expr_kind, f, f, t),
+    // Truth table for e1 <=> e2
+    assert_eq(mod, logic::eq_expr_kind, t, t, t),
+    assert_eq(mod, logic::eq_expr_kind, t, f, f),
+    assert_eq(mod, logic::eq_expr_kind, f, t, f),
+    assert_eq(mod, logic::eq_expr_kind, f, f, t),
 
     // Truth table for e1 & e2
     assert_eq(mod, logic::and_then_expr_kind, t, t, t),
