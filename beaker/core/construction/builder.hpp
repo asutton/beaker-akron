@@ -25,7 +25,6 @@ struct void_expr;
 struct ref_expr;
 struct deref_expr;
 struct assign_expr;
-struct temp_expr;
 struct call_expr;
 
 struct nop_init;
@@ -72,7 +71,6 @@ struct builder : basic_builder<core_lang>
   assign_expr& make_assign_expr(expr&, expr&);
   call_expr& make_call_expr(expr&, const expr_seq&);
   call_expr& make_call_expr(expr&, expr_seq&&);
-  temp_expr& make_temp_expr(type&);
 
   nop_init& make_nop_init(type&);
   zero_init& make_zero_init(type&);

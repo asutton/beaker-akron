@@ -4,13 +4,9 @@
 def_expr(nop)
 def_expr(void)
 def_expr(ref)
-
 def_expr(deref)
 def_expr(assign)
 def_expr(call)
-
-// FIXME: Do I actually want this?
-def_expr(temp)
 
 def_init(nop)
 def_init(zero)

@@ -158,12 +158,6 @@ generate_ref_expr(generator& gen, const ref_expr& e)
   return gen.get_value(e.get_declaration());
 }
 
-static cg::value
-generate_temp_expr(generator& gen, const temp_expr& e)
-{
-  assert(false && "not implemented");
-}
-
 /// Assigns the value of the LHS to the object referenced by the RHS.
 static cg::value
 generate_assign_expr(generator& gen, const assign_expr& e)

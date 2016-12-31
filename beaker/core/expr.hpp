@@ -93,36 +93,10 @@ struct assign_expr : generic_binary_expr<assign_expr_kind>
 };
 
 
-/// Represents the expression `temp(t)`.
+/// Represents the expression `f(e1, e2, ..., en).
 ///
-/// This materializes a temporary of type `t`, yielding a reference to that
-/// object.
-///
-/// TODO: Do I really want this expression, or can I deal with materialization
-/// inside codegen.
-struct temp_expr : generic_nullary_expr<temp_expr_kind>
-{
-  temp_expr(type&, type&);
-
-  const type& get_soure_type() const;
-  type& get_soure_type();
-
-  type* src_;
-};
-
-inline 
-temp_expr::temp_expr(type& t1, type& t2)
-  : generic_nullary_expr<temp_expr_kind>(t1), src_(&t2)
-{ }
-
-/// Returns the source type of the expression.
-inline const type& temp_expr::get_soure_type() const { return *src_; }
-
-/// Returns the source type of the expression.
-inline type& temp_expr::get_soure_type() { return *src_; }
-
-
-// Represents the evaluation of a function, given arguments.
+/// This calls the function designated by the expression `f` with the arguments
+/// `e1`, `e2, etc.
 struct call_expr : expr 
 {
   static constexpr int node_kind = call_expr_kind;

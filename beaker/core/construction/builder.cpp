@@ -151,14 +151,8 @@ builder::make_assign_expr(expr& e1, expr& e2)
   return make<assign_expr>(e1.get_type(), e1, e2);
 }
 
-/// Returns a new temporary expression.
-temp_expr&
-builder::make_temp_expr(type& t)
-{
-  assert(is_object_type(t));
-  return make<temp_expr>(get_ref_type(t), t);
-}
 
+/// FIXME: Guarantee that arguments match parameters.
 call_expr&
 builder::make_call_expr(expr& f, const expr_seq& a)
 {
@@ -166,6 +160,7 @@ builder::make_call_expr(expr& f, const expr_seq& a)
   return make<call_expr>(get_return_type(t), f, a);
 }
 
+/// FIXME: Guarantee that arguments match parameters.
 call_expr&
 builder::make_call_expr(expr& f, expr_seq&& a)
 {
@@ -197,7 +192,7 @@ builder::make_copy_init(expr& e)
 }
 
 /// Returns a reference initializer for the expression `e`. This assumes that
-/// the type of the initialized references is the same as the type of `e`.
+/// the type of the initialized reference is the same as the type of `e`.
 ref_init& 
 builder::make_ref_init(expr& e)
 {
