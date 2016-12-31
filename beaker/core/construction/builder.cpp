@@ -418,18 +418,25 @@ builder::make_ret_stmt(expr& e)
 {
   type& t = e.get_type();
   if (is_void_type(t)) {
-    // Void returns do not initialize a return value.
+    // Void returns do not initialize a return value. We could insert a
+    // trivial initializer, just for completion.
     return make<ret_stmt>(e);
   }
   else if (is_object_type(t)) {
-    // Returning a value requires copy initialization.
+    // Returning a value requires copy initialization. Reference, zero, and
+    // trivial initialization are not valid in this context. If any other
+    // expression is given, assume copy initialization was meant.
+    assert(!is<ref_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
     if (is<copy_init>(e))
       return make<ret_stmt>(e);
     else
       return make<ret_stmt>(make_copy_init(e));
   }
   else if(is_reference_type(t)) {
-    // Returning a reference requires reference initialization.
+    // Returning a reference requires reference initialization. Copy, zero,
+    // trivial initialization are not valid in this context. If any other
+    // expression is given, assume reference initialization was meant.
+    assert(!is<copy_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
     if (is<ref_init>(e))
       return make<ret_stmt>(e);
     else
