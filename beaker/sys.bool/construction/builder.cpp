@@ -1,42 +1,27 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #include "builder.hpp"
-#include <beaker/logic/type.hpp>
-#include <beaker/logic/expr.hpp>
-#include <beaker/logic/decl.hpp>
+#include "../type.hpp"
+#include "../expr.hpp"
+#include "../decl.hpp"
 #include <beaker/base/module.hpp>
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 builder::builder(module& m)
-  : basic_builder<logic_lang>(m),
-    bool_(&make_bool_type()), 
-    true_(&make_true_expr()), 
-    false_(&make_false_expr())
+  : basic_builder<sys_bool_lang>(m),
+    bool_(&get_language().make_singleton_set<bool_type>()) 
 { }
 
 /// Returns a new boolean type.
 bool_type&
-builder::make_bool_type()
+builder::get_bool_type()
 {
-  return make<bool_type>();
+  return bool_->get();
 }
 
-/// Returns a new literal corresponding to the integer value `v`.
-///
-/// The literal is `true` when `v` is nonzero and `false` otherwise. The type 
-/// of the expression is `bool`.
-bool_expr&
-builder::get_bool_expr(const value& v)
-{
-  assert(v.is_integer());
-  if (v.get_integer())
-    return get_true_expr();
-  else
-    return get_false_expr();
-}
 
 /// Returns a new literal `true`.
 ///
@@ -56,10 +41,9 @@ builder::make_false_expr()
   return make<bool_expr>(get_bool_type(), value(0));
 }
 
-// Returns a new literal corresponding to the integer value `v`.
-//
-// The literal is `true` when `v` is nonzero and `false` otherwise. The type 
-// of the expression is `bool`.
+// Returns a new literal corresponding to the integer value `v`. The literal 
+// is `true` when `v` is nonzero and `false` otherwise. The type of the 
+// expression is `bool`.
 bool_expr&
 builder::make_bool_expr(const value& v)
 {
@@ -149,5 +133,5 @@ builder::make_assert_decl(expr& e)
   return make<assert_decl>(e);
 }
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker

@@ -1,14 +1,14 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_COMPARISON_HASH_HPP
-#define BEAKER_LOGIC_COMPARISON_HASH_HPP
+#ifndef BEAKER_SYS_BOOL_COMPARISON_HASH_HPP
+#define BEAKER_SYS_BOOL_COMPARISON_HASH_HPP
 
 #include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 struct hash_algo : hash_algorithm
 {
@@ -16,7 +16,7 @@ struct hash_algo : hash_algorithm
   void operator()(hasher&, const expr&) const override;
 };
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 
 

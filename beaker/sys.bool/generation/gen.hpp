@@ -1,14 +1,14 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_GENERATION_GEN_HPP
-#define BEAKER_LOGIC_GENERATION_GEN_HPP
+#ifndef BEAKER_SYS_BOOL_GENERATION_GEN_HPP
+#define BEAKER_SYS_BOOL_GENERATION_GEN_HPP
 
 #include <beaker/base/generation/generation.hpp>
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 struct gen_algo : generate_algorithm
 {
@@ -17,7 +17,7 @@ struct gen_algo : generate_algorithm
   cg::value operator()(generator&, const decl&) const;
 };
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 
 

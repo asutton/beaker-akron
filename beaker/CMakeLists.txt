@@ -19,7 +19,9 @@ endmacro()
 # Directly include the module definition sources.
 include(util/CMakeLists.txt)
 include(base/CMakeLists.txt)
+
 include(sys.void/CMakeLists.txt)
+include(sys.bool/CMakeLists.txt)
 
 # include(core/CMakeLists.txt)
 # include(logic/CMakeLists.txt)

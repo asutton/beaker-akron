@@ -2,7 +2,7 @@
 # All rights reserved
 
 add_beaker_module(
-  lang.cpp
+  # lang.cpp
   type.cpp
   expr.cpp
   decl.cpp
@@ -11,10 +11,6 @@ add_beaker_module(
   construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
-  
-  # serialization/read_json.cpp
-  # visitation.cpp
-  # evaluation.cpp
 )
 
 # add_beaker_test(test-logic-eval test/eval.cpp)

@@ -1,14 +1,14 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_COMPARISON_EQ_HPP
-#define BEAKER_LOGIC_COMPARISON_EQ_HPP
+#ifndef BEAKER_SYS_BOOL_COMPARISON_EQ_HPP
+#define BEAKER_SYS_BOOL_COMPARISON_EQ_HPP
 
 #include <beaker/base/comparison/eq.hpp>
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 struct eq_algo : equivalence_algorithm
 {
@@ -16,7 +16,7 @@ struct eq_algo : equivalence_algorithm
   bool operator()(const expr&, const expr&) const override;
 };
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 
 

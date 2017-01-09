@@ -21,6 +21,8 @@ struct type;
 struct expr;
 struct decl;
 struct stmt;
+struct value;
+
 
 /// Represents an algorithm that operates on an AST.
 ///

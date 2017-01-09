@@ -1,14 +1,14 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include <beaker/logic/generation/gen.hpp>
-#include <beaker/logic/type.hpp>
-#include <beaker/logic/expr.hpp>
-#include <beaker/logic/decl.hpp>
+#include "gen.hpp"
+#include "../type.hpp"
+#include "../expr.hpp"
+#include "../decl.hpp"
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 cg::type
 gen_algo::operator()(generator& gen, const type& t) const
@@ -25,7 +25,6 @@ generate_bool_expr(generator& gen, const bool_expr& e)
   return ir.getInt1(e.get_boolean());
 }
 
-// FIXME: Generate short circuiting evaluation.
 static cg::value 
 generate_and_expr(generator& gen, const and_expr& e)
 {
@@ -35,7 +34,6 @@ generate_and_expr(generator& gen, const and_expr& e)
   return ir.CreateAnd(lhs, rhs);
 }
 
-// FIXME: Generate short circuiting evaluation.
 static cg::value 
 generate_or_expr(generator& gen, const or_expr& e)
 {
@@ -240,6 +238,6 @@ gen_algo::operator()(generator& gen, const decl& d) const
   return generate_assert_decl(gen, cast<assert_decl>(d));
 }
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 

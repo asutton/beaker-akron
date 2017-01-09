@@ -1,20 +1,17 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_DECL_HPP
-#define BEAKER_LOGIC_DECL_HPP
+#ifndef BEAKER_SYS_BOOL_DECL_HPP
+#define BEAKER_SYS_BOOL_DECL_HPP
 
 #include <beaker/base/decl.hpp>
 
 namespace beaker {
-namespace logic {
-
-struct fn_type;
-struct parm_type;
+namespace sys_bool {
 
 enum 
 {
-  first_decl_kind = logic_lang_block,
+  first_decl_kind = sys_bool_lang_block,
 #define def_decl(e) e ## _decl_kind,
 #include "decl.def"
   last_decl_kind
@@ -56,7 +53,7 @@ inline const expr& assert_decl::get_assertion() const { return *expr_; }
 /// Returns the asserted expression.
 inline expr& assert_decl::get_assertion() { return *expr_; }
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 
 

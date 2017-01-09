@@ -1,16 +1,16 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include <beaker/logic/printing/print.hpp>
-#include <beaker/logic/type.hpp>
-#include <beaker/logic/expr.hpp>
-#include <beaker/logic/decl.hpp>
+#include "print.hpp"
+#include "../type.hpp"
+#include "../expr.hpp"
+#include "../decl.hpp"
 
 #include <iostream>
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 void
 print_algo::operator()(std::ostream& os, const type& t) const
@@ -101,7 +101,7 @@ print_algo::operator()(std::ostream& os, const expr& e) const
     default:
       break;
   }
-  assert(false && "not a logic expression");
+  assert(false && "not a boolean expression");
 }
 
 
@@ -120,6 +120,6 @@ print_algo::operator()(std::ostream& os, const decl& d) const
   print_assert_decl(os, cast<assert_decl>(d));
 }
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 

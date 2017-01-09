@@ -1,19 +1,19 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include <beaker/logic/comparison/hash.hpp>
-#include <beaker/logic/type.hpp>
-#include <beaker/logic/expr.hpp>
+#include "hash.hpp"
+#include "../type.hpp"
+#include "../expr.hpp"
 
 
 namespace beaker {
-namespace logic {
+namespace sys_bool {
 
 // Hashes no additional behavior.
 void
 hash_algo::operator()(hasher& h, const type& t) const
 {
-  assert(t.get_kind() == bool_type_kind);
+  assert(is_boolean_type(t));
 }
 
 // Hash the boolean value of e into h.
@@ -40,8 +40,8 @@ hash_algo::operator()(hasher& h, const expr& e) const
     default:
       break;
   }
-  assert(false && "not a logical expression");
+  assert(false && "not a boolean expression");
 }
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker

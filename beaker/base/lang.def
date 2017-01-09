@@ -10,6 +10,7 @@
 // and not hard-coded into base library.
 
 def_lang(sys_void)
+def_lang(sys_bool)
 def_lang(core)
 def_lang(logic)
 def_lang(numeric)

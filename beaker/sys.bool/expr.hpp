@@ -1,23 +1,25 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_EXPR_HPP
-#define BEAKER_LOGIC_EXPR_HPP
+#ifndef BEAKER_SYS_BOOL_EXPR_HPP
+#define BEAKER_SYS_BOOL_EXPR_HPP
 
 #include <beaker/base/expr.hpp>
 
 
 namespace beaker {
-namespace logic {
-
+namespace sys_bool {
 
 enum {
-  first_expr_kind = logic_lang_block,
+  first_expr_kind = sys_bool_lang_block,
 #define def_expr(e) e ## _expr_kind,
 #include "expr.def"
   last_expr_kind
 };
 
+
+// -------------------------------------------------------------------------- //
+// Expressions
 
 /// Represents the boolean literals `true` and `false`.
 ///
@@ -159,11 +161,12 @@ struct or_else_expr : generic_binary_expr<or_else_expr_kind>
 };
 
 
+// -------------------------------------------------------------------------- //
 // Operations
 
 bool is_boolean_expression(const expr&);
 
-} // namespace logic
+} // namespace sys_bool
 } // namespace beaker
 
 
