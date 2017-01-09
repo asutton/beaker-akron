@@ -11,6 +11,8 @@
 
 def_lang(sys_void)
 def_lang(sys_bool)
+def_lang(sys_int)
+def_lang(sys_float)
 def_lang(core)
 def_lang(logic)
 def_lang(numeric)

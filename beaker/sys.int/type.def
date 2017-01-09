@@ -1,0 +1,8 @@
+// Copyright (c) 2015-2017 Andrew Sutton
+// All rights reserved
+
+def_type(nat)
+def_type(int)
+def_type(mod)
+
+#undef def_type

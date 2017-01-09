@@ -22,6 +22,7 @@ include(base/CMakeLists.txt)
 
 include(sys.void/CMakeLists.txt)
 include(sys.bool/CMakeLists.txt)
+include(sys.int/CMakeLists.txt)
 
 # include(core/CMakeLists.txt)
 # include(logic/CMakeLists.txt)

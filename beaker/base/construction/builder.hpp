@@ -56,7 +56,7 @@ template<typename T, typename... Args>
 T& 
 builder_base::make(Args&&... args)
 {
-  typed_allocator<T> alloc = alloc_;
+  typed_allocator<T> alloc(alloc_);
   T* ptr = alloc.allocate(1);
   return *new (ptr) T(std::forward<Args>(args)...);
 }

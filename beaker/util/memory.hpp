@@ -243,7 +243,9 @@ struct typed_allocator
   struct rebind { using other = typed_allocator<U>; };
 
   typed_allocator();
-  typed_allocator(allocator& a);
+  typed_allocator(const typed_allocator&) = default;
+  template<typename U> typed_allocator(const typed_allocator<U>&);
+  explicit typed_allocator(allocator& a);
 
   std::size_t max_size() const noexcept;
 
@@ -253,7 +255,7 @@ struct typed_allocator
   T* allocate();
   T* allocate(std::size_t);
   T* allocate(std::size_t, const void*);
-  void deallocate(T*);
+  void deallocate(T*, std::size_t);
 
   template<typename... Args>
   void construct(T*, Args&&...);
@@ -267,6 +269,13 @@ template<typename T>
 inline
 typed_allocator<T>::typed_allocator() 
   : typed_allocator(default_allocator())
+{ }
+
+template<typename T>
+template<typename U>
+inline
+typed_allocator<T>::typed_allocator(const typed_allocator<U>& a) 
+  : alloc_(a.alloc_)
 { }
 
 template<typename T>
@@ -315,6 +324,13 @@ T*
 typed_allocator<T>::allocate(std::size_t n, const void*)
 {
   return allocate(n);
+}
+
+template<typename T>
+inline void
+typed_allocator<T>::deallocate(T* p, std::size_t n)
+{
+  alloc_->deallocate(p);
 }
 
 template<typename T>

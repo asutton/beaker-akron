@@ -31,8 +31,8 @@ struct canonical_set
   canonical_set(allocator&);
   ~canonical_set();
 
-  template<typename... Args> T& 
-  get(Args&&...);
+  template<typename... Args> 
+  T& get(Args&&...);
 
   allocator* alloc_;
   set_type* set_;
