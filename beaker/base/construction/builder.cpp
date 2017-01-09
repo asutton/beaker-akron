@@ -13,7 +13,7 @@ namespace beaker {
 language&
 builder_base::get_language()
 {
-  return language::get_instance();
+  return mod_->get_language();
 }
 
 // Returns the allocator for the language.

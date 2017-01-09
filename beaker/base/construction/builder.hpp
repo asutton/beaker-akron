@@ -16,10 +16,15 @@ namespace beaker {
 
 struct module;
 
-/// The base class of all builder objects.
+/// The base class of all builder objects. This class provides access to the
+/// owning module as well also a local allocator. All objects allocated to
+/// this builder (or rather the derived object) are destroyed when it goes
+/// out of scope.
 struct builder_base
 {
   builder_base(module&);
+
+  allocator& get_allocator();
 
   language& get_language();
   allocator& get_language_allocator();
@@ -31,7 +36,11 @@ struct builder_base
   T& make(Args&&... args);
 
   module* mod_;
+  sequential_allocator<> alloc_;
 };
+
+/// Returns the allocator for the builder.
+inline allocator& builder_base::get_allocator() { return alloc_; }
 
 /// Initialize the builder object.
 inline builder_base::builder_base(module& m) : mod_(&m) { }
@@ -47,7 +56,7 @@ template<typename T, typename... Args>
 T& 
 builder_base::make(Args&&... args)
 {
-  typed_allocator<T> alloc = get_module_allocator();
+  typed_allocator<T> alloc = alloc_;
   T* ptr = alloc.allocate(1);
   return *new (ptr) T(std::forward<Args>(args)...);
 }
