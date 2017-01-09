@@ -25,6 +25,9 @@ include(sys.bool/CMakeLists.txt)
 include(sys.int/CMakeLists.txt)
 include(sys.float/CMakeLists.txt)
 
+include(sys.name/CMakeLists.txt)
+# include(sys.var/CMakeLists.txt)
+
 # include(core/CMakeLists.txt)
 # include(logic/CMakeLists.txt)
 # include(numeric/CMakeLists.txt)
