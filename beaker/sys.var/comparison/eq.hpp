@@ -8,14 +8,15 @@
 
 
 namespace beaker {
-namespace sys_name {
+namespace sys_var {
 
 struct eq_algo : equivalence_algorithm
 {
-  bool operator()(const name&, const name&) const override;
+  bool operator()(const type&, const type&) const override;
+  bool operator()(const expr&, const expr&) const override;
 };
 
-} // namespace sys_name
+} // namespace sys_var
 } // namespace beaker
 
 

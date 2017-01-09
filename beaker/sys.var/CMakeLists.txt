@@ -3,7 +3,9 @@
 
 add_beaker_module(
   # lang.cpp
-  name.cpp
+  type.cpp
+  expr.cpp
+  decl.cpp
   comparison/eq.cpp
   comparison/hash.cpp
   construction/builder.cpp

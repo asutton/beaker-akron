@@ -481,6 +481,9 @@ is_initializer(const expr& e)
   return dynamic_cast<const init*>(&e);
 }
 
+bool is_object_expression(const expr&);
+bool is_reference_expression(const expr&);
+bool is_function_expression(const expr&);
 
 } // namespace beaker
 
