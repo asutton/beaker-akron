@@ -8,12 +8,8 @@ add_beaker_module(
   comparison/eq.cpp
   comparison/hash.cpp
   construction/builder.cpp
-  # printing/print.cpp
-  # generation/gen.cpp
-  
-  # serialization/read_json.cpp
-  # visitation.cpp
-  # evaluation.cpp
+  printing/print.cpp
+  generation/gen.cpp
 )
 
 # add_beaker_test(test-logic-eval test/eval.cpp)
