@@ -5,8 +5,8 @@
 #include "construction/builder.hpp"
 #include "comparison/eq.hpp"
 #include "comparison/hash.hpp"
-// #include <beaker/logic/printing/print.hpp>
-// #include <beaker/logic/generation/gen.hpp>
+#include "printing/print.hpp"
+#include "generation/gen.hpp"
 
 #include <cassert>
 
