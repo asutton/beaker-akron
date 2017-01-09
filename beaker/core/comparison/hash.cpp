@@ -40,8 +40,6 @@ hash_fn_type(hasher& h, const fn_type& t)
 {
   hash(h, t.get_parameter_types());
   hash(h, t.get_return_type());
-  hash(h, t.is_noexcept());
-  hash(h, t.is_variadic());
 }
 
 // Append the hash of common type t to h.

@@ -58,9 +58,7 @@ eq_ref_type(const ref_type& a, const ref_type& b)
 static bool
 eq_fn_type(const fn_type& a, const fn_type& b)
 {
-  return a.is_noexcept() == b.is_noexcept() &&
-         a.is_variadic() == b.is_variadic() &&
-         equivalent(a.get_return_type(), b.get_return_type()) &&
+  return equivalent(a.get_return_type(), b.get_return_type()) &&
          equivalent(a.get_parameter_types(), b.get_parameter_types());
 }
 

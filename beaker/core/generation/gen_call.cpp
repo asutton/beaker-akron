@@ -58,12 +58,7 @@ generate_call_expr(generator& gen, const call_expr& e)
     ++ai;
     ++pi;
   }
-
-  // Handle extra arguments in the case of variadic functions.
-  if (ai != ae) {
-    assert(ftype.is_variadic());
-    assert(false && "variadic arguments not implemented");
-  }
+  assert(ai == ae && pi == pe);
 
   llvm::Builder ir(gen.get_current_block());
   return ir.CreateCall(fn, fargs);

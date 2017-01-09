@@ -26,7 +26,7 @@ enum
 // however, languages with byte-oriented objects may not support unaligned
 // integer sizes.
 template<int K>
-struct numeric_type : base_type<K>
+struct numeric_type : generic_object_type<K>
 {
   explicit numeric_type(int);
 
@@ -38,7 +38,7 @@ struct numeric_type : base_type<K>
 template<int K>
 inline
 numeric_type<K>::numeric_type(int p) 
-  : base_type<K>(), prec_(p)
+  : generic_object_type<K>(), prec_(p)
 { }
 
 // Returns the precision of the numeric type.

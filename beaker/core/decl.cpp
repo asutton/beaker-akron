@@ -20,10 +20,6 @@ fn_type& fn_decl::get_type()
   return cast<fn_type>(mapping_decl::get_type()); 
 }
 
-/// Returns true if the function has variadic type.
-bool fn_decl::is_variadic() const { return get_type().is_variadic(); }
-
-
 } // namespace core
 } // namespace beaker
 

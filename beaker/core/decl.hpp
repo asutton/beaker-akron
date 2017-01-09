@@ -44,8 +44,6 @@ struct fn_decl : generic_mapping_decl<fn_decl_kind>
 
   fn_type const& get_type() const;
   fn_type& get_type();
-
-  bool is_variadic() const;
 };
 
 

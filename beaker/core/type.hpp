@@ -20,9 +20,9 @@ enum
 
 
 /// Represents the type `void`.
-struct void_type : base_type<void_type_kind>
+struct void_type : generic_base_type<void_type_kind>
 {
-  using base_type<void_type_kind>::base_type;
+  using generic_base_type<void_type_kind>::generic_base_type;
 };
 
 
@@ -34,20 +34,21 @@ struct void_type : base_type<void_type_kind>
 /// Note that "reference collapsing" is a feature of type aliasing and type 
 /// substitution. Those rules may select how references compose in those
 /// contexts. Those rules are not present in the core language (yet).
-struct ref_type : type
+struct ref_type : generic_reference_type<ref_type_kind>
 {
-  static constexpr int node_kind = ref_type_kind;
-
   ref_type(type& t);
 
-  const type& get_object_type() const;
-  type& get_object_type();
+  const type& get_object_type() const override;
+  type& get_object_type() override;
 
   type* type_;
 };
 
 /// Construct the type `t&`.
-inline ref_type::ref_type(type& t) : type(ref_type_kind), type_(&t) { }
+inline 
+ref_type::ref_type(type& t)
+  : generic_reference_type<node_kind>(), type_(&t) 
+{ }
 
 /// Returns the type of the referenced object.
 inline const type& ref_type::get_object_type() const { return *type_; }
@@ -63,10 +64,8 @@ inline type& ref_type::get_object_type() { return *type_; }
 /// last declared parameter.
 ///
 /// A noexcept function type does not propagate exceptions.
-struct fn_type : type
+struct fn_type : generic_function_type<fn_type_kind>
 {
-  static constexpr int node_kind = fn_type_kind;
-
   fn_type(const type_seq&, type&);
   fn_type(type_seq&&, type&);
 
@@ -81,20 +80,18 @@ struct fn_type : type
 
   type_seq parms_;
   type* ret_;
-  bool noexcept_ : 1;
-  bool variadic_ : 1;
 };
 
 // Initialize the function type with parameters p and return type t.
 inline
 fn_type::fn_type(const type_seq& p, type& t)
-  : type(node_kind), parms_(p), ret_(&t), noexcept_(false), variadic_(false)
+  : generic_function_type<node_kind>(), parms_(p), ret_(&t)
 { }
 
 // Initialize the function type with parameters p and return type t.
 inline
 fn_type::fn_type(type_seq&& p, type& t)
-  : type(node_kind), parms_(std::move(p)), ret_(&t), noexcept_(false), variadic_(false)
+  : generic_function_type<node_kind>(), parms_(std::move(p)), ret_(&t)
 { }
 
 // Returns the sequence of parameter types.
@@ -109,12 +106,6 @@ inline const type& fn_type::get_return_type() const { return *ret_; }
 // Returns the return type.
 inline type& fn_type::get_return_type() { return *ret_; }
 
-/// Returns true if the function is noexcept.
-inline bool fn_type::is_noexcept() const { return noexcept_; }
-
-/// Returns true if the function type is variadic.
-inline bool fn_type::is_variadic() const { return variadic_; }
-
 
 // -------------------------------------------------------------------------- //
 // Operations
@@ -124,48 +115,6 @@ inline bool
 is_void_type(const type& t)
 {
   return t.get_kind() == void_type_kind;
-}
-
-/// Returns true if `t` is a function type.
-inline bool
-is_function_type(const type& t)
-{
-  return t.get_kind() == fn_type_kind;
-}
-
-/// Returns true if t is a reference type. The reference types are `ref t`, 
-/// `in t`, and `out t`.
-inline bool
-is_reference_type(const type& t)
-{
-  return t.get_kind() == ref_type_kind;
-}
-
-/// Returns true if t is an object type. The object types are all types that 
-/// are not `void`, reference types or function types.
-inline bool 
-is_object_type(const type& t)
-{
-  return !is_void_type(t) && !is_function_type(t) && !is_reference_type(t);
-}
-
-/// Returns a type u that is guaranteed to be an object type for t. If t is a 
-/// reference type, this returns the type of the referenced object. Otherwise, 
-/// this returns t.
-inline const type&
-get_object_type(const type& t)
-{
-  if (const ref_type* ref = as<ref_type>(&t))
-    return ref->get_object_type();
-  return t;
-}
-
-inline type&
-get_object_type(type& t)
-{
-  if (ref_type* ref = as<ref_type>(&t))
-    return ref->get_object_type();
-  return t;
 }
 
 /// Returns the return type of t, where t is required to be a function type.

@@ -22,9 +22,9 @@ include(base/CMakeLists.txt)
 include(core/CMakeLists.txt)
 include(logic/CMakeLists.txt)
 include(numeric/CMakeLists.txt)
-include(procedural/CMakeLists.txt)
-include(data/CMakeLists.txt)
-include(variadic/CMakeLists.txt)
+# include(procedural/CMakeLists.txt)
+# include(data/CMakeLists.txt)
+# include(variadic/CMakeLists.txt)
 
 # FXIME: Clean this up and re-add it.
 # include(sample/CMakeLists.txt)

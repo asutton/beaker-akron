@@ -20,9 +20,9 @@ enum
 
 
 /// Represents the type `bool`. There are two boolean values, true and false.
-struct bool_type : base_type<bool_type_kind> 
+struct bool_type : generic_object_type<bool_type_kind> 
 {
-  using base_type<bool_type_kind>::base_type;
+  using generic_object_type<bool_type_kind>::generic_object_type;
 };
 
 

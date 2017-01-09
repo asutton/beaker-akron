@@ -109,7 +109,7 @@ generate_fn_type(generator& gen, const fn_type& t)
     generate_parm_type(gen, p, parms);
 
   // Create and annotate the function type.
-  return llvm::FunctionType::get(ret, parms, t.is_variadic());
+  return llvm::FunctionType::get(ret, parms, false);
 }
 
 // Generate a common type from t.

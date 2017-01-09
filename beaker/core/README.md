@@ -1,39 +1,60 @@
 
-This language feature provides support for declaring variables, constants,
-and functions. Note that this feature does not define any concrete types or,
-expressions. The facilities here are common to every language that works
-with objects and functions.
+# Core language features
+
+This language feature provides support for declaring and initializing variables
+and defining functions and their associated operations: accessing stored values
+and calling functions with arguments.
+
+This feature is not "complete" in the sense that it cannot be used without
+other language features. This feature set is primary intended to provide
+support for 
+
 
 ## Types
 
-This feature exposes two types:
+This feature exposes three types:
+
+### `void` type
+
+The `void` type represents the type of expressions that do not compute values.
+It is not an object type; it cannot be used to declare variables or parameters.
+This is because there is no `void` value that can be stored in an object.
 
 ### Reference types
 
-    ref t
+    t&
 
-The type `ref t` is a reference to a stored object. This is similar to a 
-pointer type, except that that the set of operations on `ref t` are identical
-to those of `t.
+The type `t&` is a reference to a stored object.
 
 ### Function types
 
     (t1, t2, ..., tn) -> t
 
 The type of a function taking $n$ arguments of various type and returning
-an object of type `t.
+a value type `t`. The parameters and return types may be references.
 
-    (t1, t2, *) -> t
-
-A variadic function type accepts an unnamed variadic argument list after its 
-last declared parameter. See the variadic feature for types and expressions
-that can be used to access variadic argument lists.
 
 ## Expressions
 
+This feature defines a number of expressions related to the types above.
+
+### `void` expressions
+
+    `void e`
+
+Evaluates and and discards the value of `e`. The type of the expression is 
+`void`.
+
+
 ### Declaration reference
 
-    ref d
+    `ref d`
+
+A reference to a declaration. The type and value of the expression depend on
+the type of declaration.
+
+When `d` is the name of an object, the value of this expression is a reference
+to the declared type of `v`. When `
 
 A reference to a declared name. The type of the expression depends on the kind
 of declaration (see below).
@@ -49,17 +70,33 @@ of declaration (see below).
 A reference can be converted to an object.
 
 
+## Initializers
+
+Initializers are expressions that invoke an initialization procedure (i.e., a
+constructor). Objects are produced by construction.
+
+### Trivial initialization
+
+Invokes a trivial constructor, which does not modify the contents of memory.
+Trivially constructed objects are partially formed. in C++, these have
+indeterminate value. Reading from an object with indeterminate values is
+undefined behavior.
+
+### Zero initialization
+
+Inovkes a constructor that assigns 0 to all bits in the representation of an
+object. This is defined for objects of all types except reference types.
+
+### Copy initialization
+
+Assigns the value of an expression to an object.
+
+### Reference initialization
+
+Binds a reference to the object computed by an expression.
+
+
 ## Declarations
-
-### Constants
-
-    const t n = e;
-
-A constant declaration associates a name with a type and value. The declared
-type of the constant `n` shall match the type of `e`.
-
-A translation environment must evaluation the `e` and create the mapping 
-between the name and its value.
 
 ### Variables
 
