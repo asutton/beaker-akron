@@ -3,6 +3,7 @@
 
 add_beaker_module(
   value.cpp
+  node.cpp
   lang.cpp
   seq.cpp
   name.cpp

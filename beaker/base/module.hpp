@@ -1,9 +1,10 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_COMMON_MODULE_HPP
 #define BEAKER_COMMON_MODULE_HPP
 
+#include <beaker/base/node.hpp>
 #include <beaker/base/type.hpp>
 #include <beaker/base/decl.hpp>
 
@@ -14,6 +15,7 @@ namespace beaker {
 
 struct allocator;
 struct symbol_table;
+struct language;
 struct name;
 
 
@@ -62,16 +64,12 @@ builder_set::get()
 
 
 /// Represents a named collection of types, values, and functions.
-///
-/// A module is the owner of all terms constructed in a particular translation
-/// or transformation.
-struct module
+struct module : node_store
 {
-  module();
-  module(allocator&, symbol_table&);
+  module(language&);
   ~module();
 
-  allocator& get_allocator();
+  language& get_language();
   symbol_table& get_symbol_table();
   
   builder_set& get_builders();
@@ -85,21 +83,17 @@ struct module
 
   void add_declaration(decl&);
 
-  allocator* alloc_;
-  symbol_table* syms_;
+  language* lang_;
   builder_set build_;
   name* name_;
   decl_seq decls_;
-
-  bool my_alloc_ : 1; // True if the allocator is internal.
-  bool my_syms_ : 1; // True if the symbol table is internal.
 };
 
-/// Returns the allocator for the module.
-inline allocator& module::get_allocator() { return *alloc_; }
+/// Returns the language of the module.
+inline language& module::get_language() { return *lang_; }
 
 /// Returns the symbol table used by the module.
-inline symbol_table& module::get_symbol_table() { return *syms_; }
+inline symbol_table& module::get_symbol_table() { return lang_->get_symbol_table(); }
 
 /// Returns the set of term builders for the module.
 inline builder_set& module::get_builders() { return build_; }

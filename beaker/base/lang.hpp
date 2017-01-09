@@ -4,6 +4,8 @@
 #ifndef BEAKER_BASE_LANGUAGE_HPP
 #define BEAKER_BASE_LANGUAGE_HPP
 
+#include <beaker/base/node.hpp>
+
 #include <cassert>
 #include <typeindex>
 #include <unordered_map>
@@ -12,9 +14,7 @@
 
 namespace beaker {
 
-struct allocator;
-template<typename T> struct singleton_set;
-template<typename T> struct canonical_set;
+struct symbol_table;
 struct module;
 struct name;
 struct type;
@@ -119,18 +119,19 @@ inline basic_feature<N>::basic_feature(build_fn f) : feature(N, f) { }
 ///
 /// A client program must register the set of features needed by the language
 /// at program startup.
-struct language
+///
+/// \todo Should the language really own the symbol table, or is this something
+/// that should be globally allocated (as a kind of string table) and passed
+/// into the language?
+struct language : node_store
 {
   using feature_list = std::vector<feature*>;
   using feature_set = std::unordered_map<int, feature*>;
-  using canonicals_map = std::unordered_map<int, void*>;
 
   language();
   ~language();
 
   static language& get_instance();
-
-  allocator& get_allocator();
 
   const feature_list& get_features() const;
   static feature& get_feature(int);
@@ -142,17 +143,13 @@ struct language
 
   template<typename T> void add_feature();
 
-  template<typename T> singleton_set<T>& make_singleton_set();
-  template<typename T> canonical_set<T>& make_canonical_set();
+  const symbol_table& get_symbol_table() const;
+  symbol_table& get_symbol_table();
 
-  allocator* alloc_;
   feature_list list_;
   feature_set feat_;
-  canonicals_map canon_;
+  symbol_table* syms_;
 };
-
-/// Returns the language allocator.
-inline allocator& language::get_allocator() { return *alloc_; }
 
 /// Returns the list of features for the language.
 inline const language::feature_list& language::get_features() const { return list_; }
@@ -168,28 +165,11 @@ language::add_feature()
   feat_.emplace(f->get_id(), f);
 }
 
-/// Register a new singleton set for the given node id. Only a single set
-/// can be registered with such a node.
-template<typename T>
-singleton_set<T>&
-language::make_singleton_set()
-{
-  assert(canon_.count(T::node_kind) == 0);
-  void* p = canon_[T::node_kind] = new singleton_set<T>(*alloc_);
-  return *reinterpret_cast<singleton_set<T>*>(p);
-}
+/// Returns the symbols for the language.
+inline const symbol_table& language::get_symbol_table() const { return *syms_; }
 
-/// Register a new canonical set for the given node id. Only a single set
-/// can be registered with such a node.
-template<typename T>
-canonical_set<T>&
-language::make_canonical_set()
-{
-  assert(canon_.count(T::node_kind) == 0);
-  void* p = canon_[T::node_kind] = new canonical_set<T>(*alloc_);
-  return *reinterpret_cast<canonical_set<T>*>(p);
-}
-
+/// Returns the symbols for the language.
+inline symbol_table& language::get_symbol_table() { return *syms_; }
 
 // -------------------------------------------------------------------------- //
 // Language and term identification

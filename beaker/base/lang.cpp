@@ -8,6 +8,7 @@
 #include "decl.hpp"
 #include "stmt.hpp"
 #include <beaker/util/memory.hpp>
+#include <beaker/util/symbol_table.hpp>
 
 #include <cassert>
 
@@ -17,7 +18,7 @@ namespace beaker {
 static language* lang_ = nullptr;
 
 language::language()
-  : alloc_(new sequential_allocator<>())
+  : syms_(new symbol_table())
 {
   assert(!lang_);
   lang_ = this;
@@ -27,7 +28,7 @@ language::~language()
 {
   for (auto p : feat_)
     delete p.second;
-  delete alloc_;
+  delete syms_;
 }
 
 /// Returns the global language instance.
