@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_BASE_LANGUAGE_HPP
@@ -12,6 +12,9 @@
 
 namespace beaker {
 
+struct allocator;
+template<typename T> struct singleton_set;
+template<typename T> struct canonical_set;
 struct module;
 struct name;
 struct type;
@@ -120,17 +123,16 @@ struct language
 {
   using feature_list = std::vector<feature*>;
   using feature_set = std::unordered_map<int, feature*>;
+  using canonicals_map = std::unordered_map<int, void*>;
 
   language();
   ~language();
 
   static language& get_instance();
 
+  allocator& get_allocator();
+
   const feature_list& get_features() const;
-
-  template<typename T>
-  void add_feature();
-
   static feature& get_feature(int);
   static feature& get_feature(const name&);
   static feature& get_feature(const type&);
@@ -138,9 +140,19 @@ struct language
   static feature& get_feature(const decl&);
   static feature& get_feature(const stmt&);
 
+  template<typename T> void add_feature();
+
+  template<typename T> singleton_set<T>& make_singleton_set();
+  template<typename T> canonical_set<T>& make_canonical_set();
+
+  allocator* alloc_;
   feature_list list_;
   feature_set feat_;
+  canonicals_map canon_;
 };
+
+/// Returns the language allocator.
+inline allocator& language::get_allocator() { return *alloc_; }
 
 /// Returns the list of features for the language.
 inline const language::feature_list& language::get_features() const { return list_; }
@@ -155,6 +167,29 @@ language::add_feature()
   list_.push_back(f);
   feat_.emplace(f->get_id(), f);
 }
+
+/// Register a new singleton set for the given node id. Only a single set
+/// can be registered with such a node.
+template<typename T>
+singleton_set<T>&
+language::make_singleton_set()
+{
+  assert(canon_.count(T::node_kind) == 0);
+  void* p = canon_[T::node_kind] = new singleton_set<T>(*alloc_);
+  return *reinterpret_cast<singleton_set<T>*>(p);
+}
+
+/// Register a new canonical set for the given node id. Only a single set
+/// can be registered with such a node.
+template<typename T>
+canonical_set<T>&
+language::make_canonical_set()
+{
+  assert(canon_.count(T::node_kind) == 0);
+  void* p = canon_[T::node_kind] = new canonical_set<T>(*alloc_);
+  return *reinterpret_cast<canonical_set<T>*>(p);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Language and term identification

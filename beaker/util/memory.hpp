@@ -5,7 +5,7 @@
 #define BEAKER_UTIL_MEMORY_HPP
 
 #include <cassert>
-#include <cstdint>
+#include <memory>
 
 
 namespace beaker
@@ -229,36 +229,109 @@ sequential_allocator<S>::extend()
 template<typename T>
 struct typed_allocator
 {
-  typed_allocator()
-    : typed_allocator(default_allocator())
-  { }
+  using value_type = T;
+  using pointer = T*;
+  using const_pointer = const T*;
+  using reference = T&;
+  using const_reference = const T&;
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+  using propagate_on_container_move_assignment = std::true_type;
+  using is_always_equal = std::false_type;
 
-  typed_allocator(allocator& a)
-    : alloc_(&a)
-  { }
+  template<typename U>
+  struct rebind { using other = typed_allocator<U>; };
+
+  typed_allocator();
+  typed_allocator(allocator& a);
+
+  std::size_t max_size() const noexcept;
+
+  const T* address(const T&) const noexcept;
+  T* address(T&) const noexcept;
 
   T* allocate();
-  T* allocate(int);
+  T* allocate(std::size_t);
+  T* allocate(std::size_t, const void*);
   void deallocate(T*);
+
+  template<typename... Args>
+  void construct(T*, Args&&...);
+
+  void destroy(T*);
 
   allocator* alloc_;
 };
 
+template<typename T>
+inline
+typed_allocator<T>::typed_allocator() 
+  : typed_allocator(default_allocator())
+{ }
 
 template<typename T>
-T*
+inline
+typed_allocator<T>::typed_allocator(allocator& a) 
+  : alloc_(&a)
+{ }
+
+template<typename T>
+inline std::size_t
+typed_allocator<T>::max_size() const noexcept
+{
+  return std::size_t(-1) / sizeof(T);
+}
+
+template<typename T>
+inline const T*
+typed_allocator<T>::address(const T& x) const noexcept
+{
+  return std::addressof(x);
+}
+
+template<typename T>
+inline T*
+typed_allocator<T>::address(T& x) const noexcept
+{
+  return std::addressof(x);
+}
+
+template<typename T>
+inline T*
 typed_allocator<T>::allocate()
 {
   return static_cast<T*>(alloc_->allocate(sizeof(T), alignof(T)));
 }
 
-
 template<typename T>
-T*
-typed_allocator<T>::allocate(int n)
+inline T*
+typed_allocator<T>::allocate(std::size_t n)
 {
   return static_cast<T*>(alloc_->allocate(n * sizeof(T), alignof(T)));
 }
+
+template<typename T>
+T*
+typed_allocator<T>::allocate(std::size_t n, const void*)
+{
+  return allocate(n);
+}
+
+template<typename T>
+template<typename... Args>
+inline void 
+typed_allocator<T>::construct(T* p, Args&&... args)
+{
+  new(p) T(std::forward<Args>(args)...);
+}
+
+template<typename T>
+inline void
+typed_allocator<T>::destroy(T* p)
+{
+  p->~T();
+}
+
 
 
 } // namespace beaker

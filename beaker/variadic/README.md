@@ -2,6 +2,12 @@
 This language feature provides support for working with variadic argument
 lists. 
 
+FIXME: Add a new function type for variadic functions. This is can be 
+completely separate from core function types, but it will need new code
+gen methods. That means we'll probably have to make code gen routines
+available for subtypes.
+
+
 ## Types
 
 The type `va.list` is the type of a variadic argument list. It's layout

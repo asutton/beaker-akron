@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #include "lang.hpp"
@@ -7,6 +7,7 @@
 #include "expr.hpp"
 #include "decl.hpp"
 #include "stmt.hpp"
+#include <beaker/util/memory.hpp>
 
 #include <cassert>
 
@@ -16,6 +17,7 @@ namespace beaker {
 static language* lang_ = nullptr;
 
 language::language()
+  : alloc_(new sequential_allocator<>())
 {
   assert(!lang_);
   lang_ = this;
@@ -25,6 +27,7 @@ language::~language()
 {
   for (auto p : feat_)
     delete p.second;
+  delete alloc_;
 }
 
 /// Returns the global language instance.

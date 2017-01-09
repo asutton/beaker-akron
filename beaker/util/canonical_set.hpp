@@ -1,9 +1,10 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_UTIL_CANONICAL_SET_HPP
 #define BEAKER_UTIL_CANONICAL_SET_HPP
 
+#include <beaker/util/memory.hpp>
 #include <beaker/util/hash.hpp>
 #include <beaker/util/cast.hpp>
 
@@ -23,21 +24,38 @@ namespace beaker {
 template<typename T>
 struct canonical_set
 {
-  using set_type = std::unordered_set<T, universal_hash, universal_eq>;
+  using alloc_type = typed_allocator<T>;
+  using set_type = std::unordered_set<T, universal_hash, universal_eq, alloc_type>;
 
   canonical_set();
+  canonical_set(allocator&);
   ~canonical_set();
 
-  template<typename... Args> T& get(Args&&...);
+  template<typename... Args> T& 
+  get(Args&&...);
 
+  allocator* alloc_;
   set_type* set_;
 };
 
 template<typename T>
-inline canonical_set<T>::canonical_set() : set_(new set_type()) { }
+inline 
+canonical_set<T>::canonical_set() 
+  : alloc_(&default_allocator()), set_(new set_type(alloc_type(*alloc_)))
+{ }
 
 template<typename T>
-inline canonical_set<T>::~canonical_set() { delete set_; }
+inline 
+canonical_set<T>::canonical_set(allocator& a) 
+  : alloc_(&a), set_(new set_type(alloc_type(*alloc_)))
+{ }
+
+template<typename T>
+inline 
+canonical_set<T>::~canonical_set() 
+{ 
+  delete set_; 
+}
 
 /// Get the canonical value of T for args.
 template<typename T>

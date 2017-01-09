@@ -7,11 +7,8 @@
 #include <beaker/util/memory.hpp>
 #include <beaker/util/singleton_set.hpp>
 #include <beaker/util/canonical_set.hpp>
-#include <beaker/base/name.hpp>
-#include <beaker/base/type.hpp>
-#include <beaker/base/expr.hpp>
-#include <beaker/base/decl.hpp>
-#include <beaker/base/stmt.hpp>
+#include <beaker/base/lang.hpp>
+#include <beaker/base/comparison/eq.hpp>
 #include <beaker/base/comparison/hash.hpp>
 
 
@@ -24,8 +21,11 @@ struct builder_base
 {
   builder_base(module&);
 
+  language& get_language();
+  allocator& get_language_allocator();
+
   module& get_module();
-  allocator& get_allocator();
+  allocator& get_module_allocator();
 
   template<typename T, typename... Args>
   T& make(Args&&... args);
@@ -47,7 +47,7 @@ template<typename T, typename... Args>
 T& 
 builder_base::make(Args&&... args)
 {
-  typed_allocator<T> alloc = get_allocator();
+  typed_allocator<T> alloc = get_module_allocator();
   T* ptr = alloc.allocate(1);
   return *new (ptr) T(std::forward<Args>(args)...);
 }
