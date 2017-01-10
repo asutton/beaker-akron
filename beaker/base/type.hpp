@@ -148,18 +148,17 @@ struct function_type : type
 inline function_type::function_type(int k) : type(k) { }
 
 
-// A base type is a fundamental, non composite, type of a language.
+/// A helper class for defining function types.
 template<int K>
-struct generic_function_type : function_type
+struct function_type_impl : function_type
 {
   static constexpr int node_kind = K;
   
-  generic_function_type();
+  function_type_impl();
 };
 
-// Initialize the base type.
 template<int K> 
-inline generic_function_type<K>::generic_function_type() : function_type(K) { }
+inline function_type_impl<K>::function_type_impl() : function_type(K) { }
 
 
 // -------------------------------------------------------------------------- //

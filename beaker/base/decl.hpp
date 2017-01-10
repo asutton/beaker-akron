@@ -440,52 +440,54 @@ inline bool mapping_decl::has_definition() const { return def_.is_local(); }
 inline defn mapping_decl::get_definition() const { return def_; }
 
 
-// A helper class for declaring mapping declarations.
+// A helper class for defining mapping declarations.
 template<int K>
-struct generic_mapping_decl : mapping_decl
+struct mapping_decl_impl : mapping_decl
 {
-  generic_mapping_decl(name&, type&, const decl_seq&, decl&);
-  generic_mapping_decl(name&, type&, decl_seq&&, decl&);
-  generic_mapping_decl(name&, type&, const decl_seq&, decl&, expr&);
-  generic_mapping_decl(name&, type&, decl_seq&&, decl&, expr&);
-  generic_mapping_decl(name&, type&, const decl_seq&, decl&, stmt&);
-  generic_mapping_decl(name&, type&, decl_seq&&, decl&, stmt&);
+  static constexpr int node_kind = K;
+
+  mapping_decl_impl(name&, type&, const decl_seq&, decl&);
+  mapping_decl_impl(name&, type&, decl_seq&&, decl&);
+  mapping_decl_impl(name&, type&, const decl_seq&, decl&, expr&);
+  mapping_decl_impl(name&, type&, decl_seq&&, decl&, expr&);
+  mapping_decl_impl(name&, type&, const decl_seq&, decl&, stmt&);
+  mapping_decl_impl(name&, type&, decl_seq&&, decl&, stmt&);
 };
 
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, const decl_seq& p, decl& r)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r)
   : mapping_decl(K, n, t, p, r)
 { }
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, decl_seq&& p, decl& r)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r)
   : mapping_decl(K, n, t, std::move(p), r)
 { }
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, const decl_seq& p, decl& r, expr& e)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r, expr& e)
   : mapping_decl(K, n, t, p, r, e)
 { }
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, decl_seq&& p, decl& r, expr& e)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r, expr& e)
   : mapping_decl(K, n, t, std::move(p), r, e)
 { }
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r, stmt& s)
   : mapping_decl(K, n, t, p, r, s)
 { }
 
 template<int K>
 inline
-generic_mapping_decl<K>::generic_mapping_decl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
   : mapping_decl(K, n, t, std::move(p), r, s)
 { }
 

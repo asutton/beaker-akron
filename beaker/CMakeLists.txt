@@ -29,6 +29,7 @@ include(sys.float/CMakeLists.txt)
 # System declarations
 include(sys.name/CMakeLists.txt)
 include(sys.var/CMakeLists.txt)
+include(sys.fn/CMakeLists.txt)
 
 # include(core/CMakeLists.txt)
 # include(logic/CMakeLists.txt)
