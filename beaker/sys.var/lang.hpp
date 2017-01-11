@@ -1,24 +1,22 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_CORE_LANG_HPP
-#define BEAKER_CORE_LANG_HPP
+#ifndef BEAKER_SYS_VAR_LANG_HPP
+#define BEAKER_SYS_VAR_LANG_HPP
 
 #include <beaker/base/lang.hpp>
 
 
 namespace beaker {
-namespace core {
+namespace sys_var {
 
-/// A feature defines an extensible set of terms that can be used with the
-/// beaker language runtime. In particular, this exposes a core set of 
-/// algorithms and facilities needed to operate on those terms.
-struct feature : basic_feature<core_lang>
+/// Represents the feature allowing the declaration of variables.
+struct feature : basic_feature<sys_var_lang>
 {
   feature();
 };
 
-} // namespace core
+} // namespace sys_var
 } // namespace beaker
 
 

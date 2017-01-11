@@ -2,24 +2,24 @@
 // All rights reserved
 
 #include "lang.hpp"
-#include <beaker/core/construction/builder.hpp>
-#include <beaker/core/comparison/eq.hpp>
-#include <beaker/core/comparison/hash.hpp>
-#include <beaker/core/printing/print.hpp>
-#include <beaker/core/generation/gen.hpp>
+#include "construction/builder.hpp"
+#include "comparison/eq.hpp"
+#include "comparison/hash.hpp"
+#include "printing/print.hpp"
+#include "generation/gen.hpp"
 
 #include <cassert>
 
 
 namespace beaker {
-namespace core {
+namespace sys_var {
 
 /// Allocate a node builder for the language feature.
 static void* make_builder(module& m) { return new builder(m); }
 
 
 feature::feature()
-  : basic_feature<core_lang>(make_builder)
+  : basic_feature<sys_var_lang>(make_builder)
 {
   add_algorithm<eq_algo>();
   add_algorithm<hash_algo>();
@@ -27,5 +27,5 @@ feature::feature()
   add_algorithm<gen_algo>();
 }
 
-} // namespace core
+} // namespace sys_var
 } // namespace beaker

@@ -2,7 +2,7 @@
 # All rights reserved
 
 add_beaker_module(
-  # lang.cpp
+  lang.cpp
   type.cpp
   expr.cpp
   decl.cpp
