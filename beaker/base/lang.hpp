@@ -15,6 +15,7 @@
 namespace beaker {
 
 struct symbol_table;
+struct language;
 struct module;
 struct name;
 struct type;
@@ -48,10 +49,13 @@ struct feature
   using build_fn = void* (*)(module&);
   using algorithm_set = std::unordered_map<std::type_index, algorithm*>;
 
-  feature(int, build_fn);
+  feature(int, language&, build_fn);
   virtual ~feature();
 
   int get_id() const;
+  
+  const language& get_language() const;
+  language& get_language();
 
   template<typename T>
   void add_algorithm();
@@ -62,16 +66,31 @@ struct feature
   build_fn get_builder_factory() const;
 
   int id_;
+  language* lang_;
   build_fn build_;
   algorithm_set algos_;
 };
 
-inline feature::feature(int id, build_fn f) : id_(id), build_(f) { }
+inline 
+feature::feature(int id, language& l, build_fn f)
+  : id_(id), lang_(&l), build_(f) 
+{ }
 
-inline feature::~feature() { for (auto p : algos_) delete p.second; }
+inline 
+feature::~feature() 
+{ 
+  for (auto p : algos_) 
+    delete p.second; 
+}
 
-/// Returns the id 
+/// Returns the global feature id.
 inline int feature::get_id() const { return id_; }
+
+/// Returns the language that incorporates the feature.
+inline const language& feature::get_language() const { return *lang_; }
+
+/// Returns the language that incorporates the feature.
+inline language& feature::get_language() { return *lang_; }
 
 /// Returns a factory function for a builder.
 inline feature::build_fn feature::get_builder_factory() const { return build_; }
@@ -100,15 +119,18 @@ feature::get_algorithm() const
 
 /// A helper class that provides the feature id as an integer constant.
 template<int N>
-struct basic_feature : feature
+struct feature_impl : feature
 {
   static constexpr int feature_id = N;
 
-  basic_feature(build_fn);
+  feature_impl(language&, build_fn);
 };
 
 template<int N>
-inline basic_feature<N>::basic_feature(build_fn f) : feature(N, f) { }
+inline 
+feature_impl<N>::feature_impl(language& l, build_fn f)
+  : feature(N, l, f)
+{ }
 
 
 // -------------------------------------------------------------------------- //
@@ -162,7 +184,10 @@ template<typename T>
 inline void
 language::add_feature()
 {
-  feature *f = new T();
+  constexpr int id = T::feature_id;
+  if (feat_.count(id))
+    return;
+  feature *f = new T(*this);
   list_.push_back(f);
   feat_.emplace(f->get_id(), f);
 }

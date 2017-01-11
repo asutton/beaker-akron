@@ -10,9 +10,9 @@
 namespace beaker {
 namespace sys_fn {
 
-struct feature : basic_feature<sys_fn_lang>
+struct feature : feature_impl<sys_fn_lang>
 {
-  feature();
+  feature(language&);
 };
 
 } // namespace sys_fn

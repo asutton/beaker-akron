@@ -10,12 +10,9 @@
 namespace beaker {
 namespace sys_bool {
 
-/// A feature defines an extensible set of terms that can be used with the
-/// beaker language runtime. In particular, this exposes a core set of 
-/// algorithms and facilities needed to operate on those terms.
-struct feature : basic_feature<sys_bool_lang>
+struct feature : feature_impl<sys_bool_lang>
 {
-  feature();
+  feature(language&);
 };
 
 } // namespace sys_bool

@@ -8,6 +8,8 @@
 #include "printing/print.hpp"
 #include "generation/gen.hpp"
 
+#include <beaker/sys.bool/lang.hpp>
+
 
 namespace beaker {
 namespace sys_int {
@@ -15,9 +17,11 @@ namespace sys_int {
 /// Allocates a builder.
 static void* make_builder(module& m) { return new builder(m); }
 
-feature::feature()
-  : basic_feature<sys_int_lang>(make_builder)
+feature::feature(language& lang)
+  : feature_impl<sys_int_lang>(lang, make_builder)
 {
+  lang.add_feature<sys_bool::feature>();
+  
   add_algorithm<eq_algo>();
   add_algorithm<hash_algo>();
   add_algorithm<print_algo>();

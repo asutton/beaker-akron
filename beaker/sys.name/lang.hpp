@@ -10,10 +10,9 @@
 namespace beaker {
 namespace sys_name {
 
-// A feature for using working with basic system names.
-struct feature : basic_feature<sys_name_lang>
+struct feature : feature_impl<sys_name_lang>
 {
-  feature();
+  feature(language&);
 };
 
 } // namespace sys_name

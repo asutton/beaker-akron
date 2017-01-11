@@ -1,6 +1,19 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
+#include "lang.hpp"
+
+
+using namespace beaker;
+
+int 
+main()
+{
+  symbol_table syms;
+  system_lang lang(syms);
+}
+
+#if 0
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
 
@@ -202,3 +215,4 @@ main(int argc, char* argv[])
   generate(gen, mod);
   gen.get_module().dump();
 }
+#endif

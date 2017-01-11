@@ -30,7 +30,7 @@ enum
 ///
 /// \todo How should we represent ordered floating point values? Are they
 /// fundamentally different types (e.g., real_type?).
-struct float_type : generic_object_type<float_type_kind> 
+struct float_type : object_type_impl<float_type_kind> 
 {
   explicit float_type(int);
 
@@ -41,7 +41,7 @@ struct float_type : generic_object_type<float_type_kind>
 
 inline 
 float_type::float_type(int p)
-  : generic_object_type<node_kind>(), prec_(p)
+  : object_type_impl<node_kind>(), prec_(p)
 { }
 
 /// Returns the precision of the floating point type.

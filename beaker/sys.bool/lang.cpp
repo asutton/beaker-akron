@@ -15,8 +15,8 @@ namespace sys_bool {
 /// Allocate a node builder for the language feature.
 static void* make_builder(module& m) { return new builder(m); }
 
-feature::feature()
-  : basic_feature<sys_bool_lang>(make_builder)
+feature::feature(language& lang)
+  : feature_impl<sys_bool_lang>(lang, make_builder)
 {
   add_algorithm<eq_algo>();
   add_algorithm<hash_algo>();

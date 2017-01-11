@@ -23,9 +23,9 @@ enum
 
 /// Represents the type `void`. The void type describes expressions and
 /// functions that do not have values.
-struct void_type : generic_base_type<void_type_kind> 
+struct void_type : base_type_impl<void_type_kind> 
 {
-  using generic_base_type<void_type_kind>::generic_base_type;
+  using base_type_impl<void_type_kind>::base_type_impl;
 };
 
 

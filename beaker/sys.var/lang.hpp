@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_SYS_VAR_LANG_HPP
@@ -11,9 +11,9 @@ namespace beaker {
 namespace sys_var {
 
 /// Represents the feature allowing the declaration of variables.
-struct feature : basic_feature<sys_var_lang>
+struct feature : feature_impl<sys_var_lang>
 {
-  feature();
+  feature(language&);
 };
 
 } // namespace sys_var

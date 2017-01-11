@@ -42,8 +42,9 @@ template<typename T>
 singleton_set<T>&
 node_store::make_singleton_set()
 {
-  assert(map_.count(T::node_kind) == 0);
-  void* p = map_[T::node_kind] = new singleton_set<T>(alloc_);
+  constexpr int k = T::node_kind;
+  assert(map_.count(k) == 0);
+  void* p = map_[k] = new singleton_set<T>(alloc_);
   return *reinterpret_cast<singleton_set<T>*>(p);
 }
 
@@ -53,8 +54,9 @@ template<typename T>
 canonical_set<T>&
 node_store::make_canonical_set()
 {
-  assert(map_.count(T::node_kind) == 0);
-  void* p = map_[T::node_kind] = new canonical_set<T>(alloc_);
+  constexpr int k = T::node_kind;
+  assert(map_.count(k) == 0);
+  void* p = map_[k] = new canonical_set<T>(alloc_);
   return *reinterpret_cast<canonical_set<T>*>(p);
 }
 

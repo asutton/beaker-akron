@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #include "lang.hpp"
@@ -8,8 +8,8 @@
 #include "printing/print.hpp"
 #include "generation/gen.hpp"
 
-#include <cassert>
-
+#include <beaker/sys.void/lang.hpp>
+#include <beaker/sys.name/lang.hpp>
 
 namespace beaker {
 namespace sys_var {
@@ -17,10 +17,12 @@ namespace sys_var {
 /// Allocate a node builder for the language feature.
 static void* make_builder(module& m) { return new builder(m); }
 
-
-feature::feature()
-  : basic_feature<sys_var_lang>(make_builder)
+feature::feature(language& lang)
+  : feature_impl<sys_var_lang>(lang, make_builder)
 {
+  lang.add_feature<sys_void::feature>();
+  lang.add_feature<sys_name::feature>();
+
   add_algorithm<eq_algo>();
   add_algorithm<hash_algo>();
   add_algorithm<print_algo>();

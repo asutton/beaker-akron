@@ -63,16 +63,16 @@ using type_seq = seq<type>;
 
 // A base type is a fundamental, non composite, type of a language.
 template<int K>
-struct generic_base_type : type
+struct base_type_impl : type
 {
   static constexpr int node_kind = K;
   
-  generic_base_type();
+  base_type_impl();
 };
 
 // Initialize the base type.
 template<int K> 
-inline generic_base_type<K>::generic_base_type() : type(K) { }
+inline base_type_impl<K>::base_type_impl() : type(K) { }
 
 
 // -------------------------------------------------------------------------- //
@@ -92,16 +92,16 @@ inline object_type::object_type(int k) : type(k) { }
 
 // A base type is a fundamental, non composite, type of a language.
 template<int K>
-struct generic_object_type : object_type
+struct object_type_impl : object_type
 {
   static constexpr int node_kind = K;
   
-  generic_object_type();
+  object_type_impl();
 };
 
 // Initialize the base type.
 template<int K> 
-inline generic_object_type<K>::generic_object_type() : object_type(K) { }
+inline object_type_impl<K>::object_type_impl() : object_type(K) { }
 
 
 // -------------------------------------------------------------------------- //
@@ -122,16 +122,16 @@ inline reference_type::reference_type(int k) : type(k) { }
 
 // A base type is a fundamental, non composite, type of a language.
 template<int K>
-struct generic_reference_type : reference_type
+struct reference_type_impl : reference_type
 {
   static constexpr int node_kind = K;
   
-  generic_reference_type();
+  reference_type_impl();
 };
 
 // Initialize the base type.
 template<int K> 
-inline generic_reference_type<K>::generic_reference_type() : reference_type(K) { }
+inline reference_type_impl<K>::reference_type_impl() : reference_type(K) { }
 
 
 // -------------------------------------------------------------------------- //

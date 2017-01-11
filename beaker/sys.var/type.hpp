@@ -30,7 +30,7 @@ enum
 /// Note that "reference collapsing" is a feature of type aliasing and type 
 /// substitution. Those rules may select how references compose in those
 /// contexts. Those rules are not present in the core language (yet).
-struct ref_type : generic_reference_type<ref_type_kind>
+struct ref_type : reference_type_impl<ref_type_kind>
 {
   ref_type(type& t);
 
@@ -43,7 +43,7 @@ struct ref_type : generic_reference_type<ref_type_kind>
 /// Construct the type `t&`.
 inline 
 ref_type::ref_type(type& t)
-  : generic_reference_type<node_kind>(), type_(&t) 
+  : reference_type_impl<node_kind>(), type_(&t) 
 { }
 
 /// Returns the type of the referenced object.
