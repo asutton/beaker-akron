@@ -130,7 +130,7 @@ struct language : node_store
   using feature_list = std::vector<feature*>;
   using feature_set = std::unordered_map<int, feature*>;
 
-  language();
+  language(symbol_table&);
   ~language();
 
   static language& get_instance();

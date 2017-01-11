@@ -17,8 +17,8 @@ namespace beaker {
 
 static language* lang_ = nullptr;
 
-language::language()
-  : syms_(new symbol_table())
+language::language(symbol_table& syms)
+  : syms_(&syms)
 {
   assert(!lang_);
   lang_ = this;
@@ -28,7 +28,6 @@ language::~language()
 {
   for (auto p : feat_)
     delete p.second;
-  delete syms_;
 }
 
 /// Returns the global language instance.
