@@ -3,3 +3,5 @@
 
 def_decl(fn)
 def_decl(parm)
+
+#undef def_decl

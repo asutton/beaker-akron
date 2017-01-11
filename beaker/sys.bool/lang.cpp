@@ -1,8 +1,8 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #include "lang.hpp"
-#include "construction/builder.hpp"
+#include "build.hpp"
 #include "comparison/eq.hpp"
 #include "comparison/hash.hpp"
 #include "printing/print.hpp"

@@ -2,13 +2,11 @@
 // All rights reserved
 
 #include "lang.hpp"
-#include "construction/builder.hpp"
+#include "build.hpp"
 #include "comparison/eq.hpp"
 #include "comparison/hash.hpp"
 #include "printing/print.hpp"
 #include "generation/gen.hpp"
-
-#include <cassert>
 
 
 namespace beaker {

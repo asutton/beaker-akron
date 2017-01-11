@@ -1,6 +1,5 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_decl(assert)
+#include "build.hpp"
 
-#undef def_decl

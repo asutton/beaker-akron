@@ -1,10 +1,9 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "builder.hpp"
-#include "../type.hpp"
-#include "../expr.hpp"
-#include <beaker/base/module.hpp>
+#include "build.hpp"
+#include "type.hpp"
+#include "expr.hpp"
 
 namespace beaker {
 namespace sys_void {

@@ -4,9 +4,10 @@
 add_beaker_module(
   lang.cpp
   name.cpp
+  fwd.cpp
+  build.cpp
   comparison/eq.cpp
   comparison/hash.cpp
-  construction/builder.cpp
   printing/print.cpp
   generation/gen.cpp
 )

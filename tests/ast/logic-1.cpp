@@ -11,6 +11,7 @@ main()
 {
   symbol_table syms;
   system_lang lang(syms);
+  module mod(lang);
 }
 
 #if 0

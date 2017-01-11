@@ -1,9 +1,9 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "builder.hpp"
-#include "../name.hpp"
-#include <beaker/base/module.hpp>
+#include "build.hpp"
+#include "name.hpp"
+
 #include <beaker/util/symbol_table.hpp>
 
 

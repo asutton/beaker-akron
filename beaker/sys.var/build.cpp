@@ -1,13 +1,13 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "builder.hpp"
-#include "../type.hpp"
-#include "../expr.hpp"
-#include "../decl.hpp"
-#include <beaker/base/module.hpp>
+#include "build.hpp"
+#include "type.hpp"
+#include "expr.hpp"
+#include "decl.hpp"
+
 #include <beaker/sys.name/name.hpp>
-#include <beaker/sys.name/construction/builder.hpp>
+#include <beaker/sys.name/build.hpp>
 
 
 namespace beaker {

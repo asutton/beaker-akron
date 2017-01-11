@@ -1,40 +1,19 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_FN_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_SYS_FN_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_SYS_FN_BUILD_HPP
+#define BEAKER_SYS_FN_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
-#include <beaker/base/type.hpp>
+#include <beaker/sys.fn/fwd.hpp>
+#include <beaker/sys.name/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 #include <beaker/base/expr.hpp>
-#include <beaker/base/decl.hpp>
 #include <beaker/base/stmt.hpp>
 
 
 namespace beaker {
-
-namespace sys_name {
-
-struct basic_name;
-struct internal_name;
-
-} // namespace
-
 namespace sys_fn {
-
-struct fn_type;
-
-struct call_expr;
-struct eq_expr;
-struct ne_expr;
-
-struct fn_decl;
-struct parm_decl;
-
-struct block_stmt;
-struct expr_stmt;
-struct decl_stmt;
-struct ret_stmt;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate core terms.

@@ -2,14 +2,14 @@
 // All rights reserved
 
 #include "lang.hpp"
-#include "construction/builder.hpp"
+#include "build.hpp"
 #include "comparison/eq.hpp"
 #include "comparison/hash.hpp"
 #include "printing/print.hpp"
 #include "generation/gen.hpp"
 
-#include <beaker/sys.void/lang.hpp>
 #include <beaker/sys.name/lang.hpp>
+
 
 namespace beaker {
 namespace sys_var {
@@ -20,7 +20,6 @@ static void* make_builder(module& m) { return new builder(m); }
 feature::feature(language& lang)
   : feature_impl<sys_var_lang>(lang, make_builder)
 {
-  lang.add_feature<sys_void::feature>();
   lang.add_feature<sys_name::feature>();
 
   add_algorithm<eq_algo>();

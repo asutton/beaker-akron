@@ -1,35 +1,17 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_VAR_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_SYS_VAR_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_SYS_VAR_BUILD_HPP
+#define BEAKER_SYS_VAR_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
+#include <beaker/sys.var/fwd.hpp>
+#include <beaker/sys.name/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 
 
 namespace beaker {
-
-namespace sys_name {
-
-struct basic_name;
-struct internal_name;
-
-} // namespace sys_name
-
 namespace sys_var {
-
-struct ref_type;
-
-struct ref_expr;
-struct deref_expr;
-struct assign_expr;
-
-struct nop_init;
-struct zero_init;
-struct copy_init;
-struct ref_init;
-
-struct var_decl;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate core terms.

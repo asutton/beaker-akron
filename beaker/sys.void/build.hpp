@@ -1,18 +1,16 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_LOGIC_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_LOGIC_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_SYS_VOID_BUILD_HPP
+#define BEAKER_SYS_VOID_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
+#include <beaker/sys.void/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 
 
 namespace beaker {
 namespace sys_void {
-
-struct void_type;
-struct nop_expr;
-struct void_expr;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate logical terms.

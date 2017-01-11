@@ -1,21 +1,16 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_FLOAT_CONSTRUCTION_HPP
-#define BEAKER_SYS_FLOAT_CONSTRUCTION_HPP
+#ifndef BEAKER_SYS_FLOAT_BUILD_HPP
+#define BEAKER_SYS_FLOAT_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
+#include <beaker/sys.float/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 
 
 namespace beaker {
 namespace sys_float {
-
-// Forward declare all types and expressions.
-#define def_type(T) struct T##_type;
-#define def_expr(E) struct E##_expr;
-#include "../type.def"
-#include "../expr.def"
-
 
 // Provides access to resources needed to construct, validate, and
 // evaluate numeric terms.

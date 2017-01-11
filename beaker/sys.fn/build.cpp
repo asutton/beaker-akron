@@ -1,19 +1,19 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "builder.hpp"
-#include "../type.hpp"
-#include "../expr.hpp"
-#include "../decl.hpp"
-#include "../stmt.hpp"
+#include "build.hpp"
+#include "type.hpp"
+#include "expr.hpp"
+#include "decl.hpp"
+#include "stmt.hpp"
+
 #include <beaker/sys.void/type.hpp>
 #include <beaker/sys.bool/type.hpp>
-#include <beaker/sys.bool/construction/builder.hpp>
+#include <beaker/sys.bool/build.hpp>
 #include <beaker/sys.name/name.hpp>
-#include <beaker/sys.name/construction/builder.hpp>
+#include <beaker/sys.name/build.hpp>
 #include <beaker/sys.var/expr.hpp>
-#include <beaker/sys.var/construction/builder.hpp>
-#include <beaker/base/module.hpp>
+#include <beaker/sys.var/build.hpp>
 
 
 namespace beaker {

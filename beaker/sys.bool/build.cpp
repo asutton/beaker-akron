@@ -1,11 +1,11 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "builder.hpp"
-#include "../type.hpp"
-#include "../expr.hpp"
-#include "../decl.hpp"
-#include <beaker/base/module.hpp>
+#include "build.hpp"
+#include "type.hpp"
+#include "expr.hpp"
+#include "decl.hpp"
+
 
 namespace beaker {
 namespace sys_bool {
@@ -21,7 +21,6 @@ builder::get_bool_type()
 {
   return bool_->get();
 }
-
 
 /// Returns a new literal `true`.
 ///

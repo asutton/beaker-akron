@@ -1,13 +1,14 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_BASE_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_BASE_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_BASE_BUILD_HPP
+#define BEAKER_BASE_BUILD_HPP
 
 #include <beaker/util/memory.hpp>
 #include <beaker/util/singleton_set.hpp>
 #include <beaker/util/canonical_set.hpp>
 #include <beaker/base/lang.hpp>
+#include <beaker/base/module.hpp>
 #include <beaker/base/comparison/eq.hpp>
 #include <beaker/base/comparison/hash.hpp>
 
@@ -45,8 +46,25 @@ inline allocator& builder_base::get_allocator() { return alloc_; }
 /// Initialize the builder object.
 inline builder_base::builder_base(module& m) : mod_(&m) { }
 
+/// Returns the language in which the module is written.
+inline language& builder_base::get_language() { return mod_->get_language(); }
+
 /// Returns the allocator for the object.
 inline module& builder_base::get_module() { return *mod_; }
+
+/// Returns the allocator for the language.
+inline allocator& 
+builder_base::get_language_allocator()
+{ 
+  return get_language().get_allocator(); 
+}
+
+/// Returns the allocator for the module.
+inline allocator& 
+builder_base::get_module_allocator()
+{ 
+  return mod_->get_allocator(); 
+}
 
 /// Construct an object from b, using the given arguments.
 ///

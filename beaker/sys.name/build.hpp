@@ -1,17 +1,16 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_NAME_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_SYS_NAME_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_SYS_NAME_BUILD_HPP
+#define BEAKER_SYS_NAME_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
+#include <beaker/sys.name/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 
 
 namespace beaker {
 namespace sys_name {
-
-struct basic_name;
-struct internal_name;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate sys_name terms.

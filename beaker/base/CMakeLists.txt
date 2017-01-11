@@ -14,7 +14,6 @@ add_beaker_module(
   module.cpp
   comparison/eq.cpp
   comparison/hash.cpp
-  construction/builder.cpp
   printing/print.cpp
   generation/generation.cpp
   generation/type.cpp

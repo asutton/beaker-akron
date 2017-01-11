@@ -1,27 +1,16 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_BOOL_CONSTRUCTION_BUILDER_HPP
-#define BEAKER_SYS_BOOL_CONSTRUCTION_BUILDER_HPP
+#ifndef BEAKER_SYS_BOOL_BUILD_HPP
+#define BEAKER_SYS_BOOL_BUILD_HPP
 
-#include <beaker/base/construction/builder.hpp>
+#include <beaker/sys.bool/fwd.hpp>
+
+#include <beaker/base/build.hpp>
 
 
 namespace beaker {
 namespace sys_bool {
-
-struct bool_type;
-struct bool_expr;
-struct and_expr;
-struct or_expr;
-struct not_expr;
-struct imp_expr;
-struct eq_expr;
-struct if_expr;
-struct and_then_expr;
-struct or_else_expr;
-
-struct assert_decl;
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate logical terms.
