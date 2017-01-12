@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_LEX_WORD_HPP
@@ -17,9 +17,9 @@ namespace beaker {
 ///
 /// Note that it is the user's responsibility to determine the meaning of the
 /// lexed word.
-struct c_word_lexer
+struct word_lexer
 {
-  c_word_lexer(const char* f, const char* l)
+  word_lexer(const char* f, const char* l)
     : start(nullptr), finish(nullptr)
   { 
     lex(f, l); 
@@ -42,20 +42,20 @@ struct c_word_lexer
 
 /// Returns true if c is in the set [a-zA-Z_].
 inline bool
-c_word_lexer::is_word_start(char c)
+word_lexer::is_word_start(char c)
 {
   return std::isalpha(c) | (c == '_'); // Avoid a branch.
 }
 
 /// Returns true if c is the set [a-zA-Z0-9_].
 inline bool
-c_word_lexer::is_word_rest(char c)
+word_lexer::is_word_rest(char c)
 {
   return std::isalpha(c) | std::isdigit(c) | (c == '_'); // Avoid a branch.
 }
 
 inline void
-c_word_lexer::lex(const char* first, const char* limit)
+word_lexer::lex(const char* first, const char* limit)
 {
   if (first == limit)
     return;

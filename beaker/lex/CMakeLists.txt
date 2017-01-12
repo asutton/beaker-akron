@@ -3,4 +3,5 @@
 
 add_beaker_module(
   word.cpp
+  number.cpp
 )

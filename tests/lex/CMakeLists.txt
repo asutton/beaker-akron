@@ -7,4 +7,5 @@ macro(add_beaker_test target)
   target_link_libraries(${target} beaker)
 endmacro()
 
-add_beaker_test(test-lex-c_word c_word.cpp)
+add_beaker_test(test-lex-word word.cpp)
+add_beaker_test(test-lex-number number.cpp)

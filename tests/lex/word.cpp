@@ -9,17 +9,17 @@
 
 using namespace beaker;
 
-c_word_lexer
+word_lexer
 lexer(const char *first, const char* limit)
 {
-  return c_word_lexer(first, limit);
+  return word_lexer(first, limit);
 }
 
 /// Returns true if [first, limit) is a C word.
 bool
 lex(const char *first, const char* limit)
 {
-  c_word_lexer lex(first, limit);
+  word_lexer lex(first, limit);
   return lex.ok() && lex.word_begin() == first && lex.word_end() == limit;
 }
 
@@ -27,7 +27,7 @@ lex(const char *first, const char* limit)
 bool
 lex(int n, const char *first, const char* limit)
 {
-  c_word_lexer lex(first, limit);
+  word_lexer lex(first, limit);
   return lex.ok() && lex.word_begin() == first && lex.word_end() == first + n;
 }
 
