@@ -6,8 +6,9 @@ add_beaker_module(
   type.cpp
   expr.cpp
   decl.cpp
-  fwd.cpp
   build.cpp
+  ast.cpp
+  fwd.cpp
   comparison/eq.cpp
   comparison/hash.cpp
   printing/print.cpp
