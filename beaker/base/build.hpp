@@ -9,6 +9,11 @@
 #include <beaker/util/canonical_set.hpp>
 #include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
+#include <beaker/base/name.hpp>
+#include <beaker/base/type.hpp>
+#include <beaker/base/expr.hpp>
+#include <beaker/base/decl.hpp>
+#include <beaker/base/stmt.hpp>
 #include <beaker/base/comparison/eq.hpp>
 #include <beaker/base/comparison/hash.hpp>
 

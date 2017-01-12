@@ -1,7 +1,7 @@
 # Copyright (c) 2015-2016 Andrew Sutton
 # All rights reserved
 
-add_library(util lang.cpp)
+add_library(util lang.cpp build.cpp)
 target_link_libraries(util beaker)
 
 # Add a test program.
