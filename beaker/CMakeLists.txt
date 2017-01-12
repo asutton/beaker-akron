@@ -31,16 +31,8 @@ include(sys.name/CMakeLists.txt)
 include(sys.var/CMakeLists.txt)
 include(sys.fn/CMakeLists.txt)
 
-# include(core/CMakeLists.txt)
-# include(logic/CMakeLists.txt)
-# include(numeric/CMakeLists.txt)
-# include(procedural/CMakeLists.txt)
-# include(data/CMakeLists.txt)
-# include(variadic/CMakeLists.txt)
-
-# FXIME: Clean this up and re-add it.
-# include(sample/CMakeLists.txt)
-
+# Lexical support
+include(lex/CMakeLists.txt)
 
 # Define the core library.
 add_library(beaker STATIC ${beaker_src})
