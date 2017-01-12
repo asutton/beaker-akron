@@ -39,7 +39,7 @@ struct builder : basic_builder<sys_int_lang>
 
   int_expr& make_int_expr(type&, const value&);
   int_expr& make_int_expr(type&, value&&);
-  int_expr& make_int_expr(type&, int n);
+  int_expr& make_int_expr(type&, int);
 
   eq_expr& make_eq_expr(expr&, expr&);
   ne_expr& make_ne_expr(expr&, expr&);
@@ -48,13 +48,13 @@ struct builder : basic_builder<sys_int_lang>
   le_expr& make_le_expr(expr&, expr&);
   ge_expr& make_ge_expr(expr&, expr&);
 
-  add_expr& make_add_expr(type&, expr&, expr&);
-  sub_expr& make_sub_expr(type&, expr&, expr&);
-  mul_expr& make_mul_expr(type&, expr&, expr&);
-  div_expr& make_div_expr(type&, expr&, expr&);
-  rem_expr& make_rem_expr(type&, expr&, expr&);
-  neg_expr& make_neg_expr(type&, expr&);
-  rec_expr& make_rec_expr(type&, expr&);
+  add_expr& make_add_expr(expr&, expr&);
+  sub_expr& make_sub_expr(expr&, expr&);
+  mul_expr& make_mul_expr(expr&, expr&);
+  div_expr& make_div_expr(expr&, expr&);
+  rem_expr& make_rem_expr(expr&, expr&);
+  neg_expr& make_neg_expr(expr&);
+  rec_expr& make_rec_expr(expr&);
 
   canonical_set<nat_type>* nat_;
   canonical_set<int_type>* int_;

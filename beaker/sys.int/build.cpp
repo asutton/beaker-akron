@@ -173,64 +173,57 @@ builder::make_ge_expr(expr& e1, expr& e2)
 }
 
 add_expr&
-builder::make_add_expr(type& t, expr& e1, expr& e2)
+builder::make_add_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(t, e1.get_type()));
-  assert(equivalent(t, e2.get_type()));
-  assert(is_integral_type(t));
-  return make<add_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  assert(is_integral_expression(e1));
+  return make<add_expr>(e1.get_type(), e1, e2);
 }
 
 sub_expr&
-builder::make_sub_expr(type& t, expr& e1, expr& e2)
+builder::make_sub_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(t, e1.get_type()));
-  assert(equivalent(t, e2.get_type()));
-  assert(is_integral_type(t));
-  return make<sub_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  assert(is_integral_expression(e1));
+  return make<sub_expr>(e1.get_type(), e1, e2);
 }
 
 mul_expr&
-builder::make_mul_expr(type& t, expr& e1, expr& e2)
+builder::make_mul_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(t, e1.get_type()));
-  assert(equivalent(t, e2.get_type()));
-  assert(is_integral_type(t));
-  return make<mul_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  assert(is_integral_expression(e1));
+  return make<mul_expr>(e1.get_type(), e1, e2);
 }
 
 div_expr&
-builder::make_div_expr(type& t, expr& e1, expr& e2)
+builder::make_div_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(t, e1.get_type()));
-  assert(equivalent(t, e2.get_type()));
-  assert(is_integral_type(t));
-  return make<div_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  assert(is_integral_expression(e1));
+  return make<div_expr>(e1.get_type(), e1, e2);
 }
 
 rem_expr&
-builder::make_rem_expr(type& t, expr& e1, expr& e2)
+builder::make_rem_expr(expr& e1, expr& e2)
 {
-  assert(equivalent(t, e1.get_type()));
-  assert(equivalent(t, e2.get_type()));
-  assert(is_integral_type(t));
-  return make<rem_expr>(t, e1, e2);
+  assert(equivalent(e1.get_type(), e2.get_type()));
+  assert(is_integral_expression(e1));
+  return make<rem_expr>(e1.get_type(), e1, e2);
 }
 
 neg_expr&
-builder::make_neg_expr(type& t, expr& e)
+builder::make_neg_expr(expr& e)
 {
-  assert(equivalent(t, e.get_type()));
-  assert(is_integral_type(t));
-  return make<neg_expr>(t, e);
+  assert(is_integral_expression(e));
+  return make<neg_expr>(e.get_type(), e);
 }
 
 rec_expr&
-builder::make_rec_expr(type& t, expr& e)
+builder::make_rec_expr(expr& e)
 {
-  assert(equivalent(t, e.get_type()));
-  assert(is_integral_type(t));
-  return make<rec_expr>(t, e);
+  assert(is_integral_expression(e));
+  return make<rec_expr>(e.get_type(), e);
 }
 
 } // namespace sys_int
