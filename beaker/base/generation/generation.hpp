@@ -114,6 +114,10 @@ struct generator
   void enter_source_module(const module&);
   void leave_source_module();
 
+  // Printing and serialization
+  void print();
+  void print(std::ostream&);
+
   generator* parent_;  // The parent generation context.
   llvm::Context* cxt_; // The context
   llvm::Module* mod_;  // The module

@@ -14,9 +14,10 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/raw_os_ostream.h>
 
 #include <algorithm>
-#include <sstream>
 
 
 namespace beaker {
@@ -211,6 +212,21 @@ generator::make_alloca(cg::type t, const std::string& n)
   return make_alloca(t, n.c_str());
 }
 
+/// Print the text of the module to standard output.
+void
+generator::print()
+{
+  mod_->print(llvm::outs(), nullptr);
+}
+
+/// Print the text of the module to the given output stream.
+void
+generator::print(std::ostream& os)
+{
+  llvm::raw_os_ostream out(os);
+  mod_->print(out, nullptr);
+}
+
 // -------------------------------------------------------------------------- //
 // Dispatch infrastructure
 
@@ -248,7 +264,6 @@ generate_algorithm::operator()(generator&, const stmt&) const
 {
   assert(false && "not defined");
 }
-
 
 /// Generate code for the declarations in m.
 void

@@ -1,8 +1,8 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_VAR_COMPARISON_EQ_HPP
-#define BEAKER_SYS_VAR_COMPARISON_EQ_HPP
+#ifndef BEAKER_SYS_NAME_COMPARISON_EQ_HPP
+#define BEAKER_SYS_NAME_COMPARISON_EQ_HPP
 
 #include <beaker/base/comparison/eq.hpp>
 

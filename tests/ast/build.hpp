@@ -113,6 +113,11 @@ struct builder
   auto& make_decl_stmt(decl& d) { return fn_.make_decl_stmt(d); }
   auto& make_ret_stmt(expr& e) { return fn_.make_ret_stmt(e); }
 
+
+  // Common snippets
+  decl& make_main(const stmt_seq&);
+  stmt& make_return(int);
+
   beaker::sys_void::builder& void_;
   beaker::sys_bool::builder& bool_;
   beaker::sys_int::builder& int_;

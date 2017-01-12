@@ -7,7 +7,7 @@ target_link_libraries(util beaker)
 # Add a test program.
 macro(add_beaker_test target)
   add_executable(${target} ${ARGN})
-  # target_link_libraries(${target} util beaker)
+  target_link_libraries(${target} util)
 endmacro()
 
 
@@ -23,5 +23,5 @@ endmacro()
 # add_beaker_test(test-ast-fn-3 fn-3.cpp)
 
 
-# add_beaker_test(test-ast-logic-1 logic-1.cpp)
+add_beaker_test(test-ast-logic-1 logic-1.cpp)
 # add_beaker_test(test-ast-numeric-1 numeric-1.cpp)
