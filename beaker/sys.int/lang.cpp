@@ -7,6 +7,7 @@
 #include "comparison/hash.hpp"
 #include "printing/print.hpp"
 #include "generation/gen.hpp"
+#include "serialization/write.hpp"
 
 #include <beaker/sys.bool/lang.hpp>
 
@@ -26,6 +27,7 @@ feature::feature(language& lang)
   add_algorithm<hash_algo>();
   add_algorithm<print_algo>();
   add_algorithm<gen_algo>();
+  add_algorithm<write_algo>();
 }
 
 } // namespace sys_int

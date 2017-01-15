@@ -204,7 +204,7 @@ generate_fn_def(generator& gen, const fn_decl& d, llvm::Function* f)
 {
   // If the function isn't defined, there's nothing to do.
   defn def = d.get_definition();
-  if (def.is_remote())
+  if (def.is_absent())
     return;
 
   // Generate a local definition.

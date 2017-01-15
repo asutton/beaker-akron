@@ -14,4 +14,5 @@ add_beaker_module(
   comparison/hash.cpp
   printing/print.cpp
   generation/gen.cpp
+  serialization/write.cpp
 )

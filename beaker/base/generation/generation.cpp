@@ -305,6 +305,8 @@ do_generate_type(generator& gen, const type& t)
 /// Generate the LLVM representation of t.
 ///
 /// If the type has previously been seen, return its cached version.
+///
+/// TODO: Verify that t is a canonical type.
 cg::type
 generate(generator& gen, const type& t)
 {

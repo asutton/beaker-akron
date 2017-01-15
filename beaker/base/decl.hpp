@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_BASE_DECL_HPP
@@ -40,8 +40,8 @@ struct defn
   defn();
   defn(int, void*);
 
-  bool is_remote() const;
-  bool is_local() const;
+  bool is_absent() const;
+  bool is_present() const;
 
   int get_kind() const;
 
@@ -56,11 +56,11 @@ inline defn::defn() : kind_(-1), term_() { }
 
 inline defn::defn(int k, void* p) : kind_(k), term_(p) { }
 
-/// Returns true if the definition is remote to the current module.
-inline bool defn::is_remote() const { return term_ == nullptr; }
+/// Returns true if the definition is absent.
+inline bool defn::is_absent() const { return term_ == nullptr; }
 
-/// Returns true if the definition is local to the module.
-inline bool defn::is_local() const { return term_ != nullptr; }
+/// Returns true if the definition is present.
+inline bool defn::is_present() const { return term_ != nullptr; }
 
 /// Returns the kind of definition.
 ///
@@ -302,7 +302,7 @@ value_decl::value_decl(int k, name& n, type& t, expr& e)
 { }
 
 /// Returns true when declaration has a local definition.
-inline bool value_decl::has_initializer() const { return def_.is_local(); }
+inline bool value_decl::has_initializer() const { return def_.is_present(); }
 
 // Returns the initializer of the value declaration.
 inline defn value_decl::get_initializer() const { return def_; }
@@ -434,7 +434,7 @@ inline const decl& mapping_decl::get_return() const { return *ret_; }
 inline decl& mapping_decl::get_return() { return *ret_; }
 
 /// Returns true if the function has a definition.
-inline bool mapping_decl::has_definition() const { return def_.is_local(); }
+inline bool mapping_decl::has_definition() const { return def_.is_present(); }
 
 // Returns the definition of the mapping.
 inline defn mapping_decl::get_definition() const { return def_; }

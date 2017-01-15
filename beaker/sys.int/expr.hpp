@@ -26,7 +26,12 @@ enum {
 struct int_expr : generic_literal_expr<int_expr_kind>
 {
   using generic_literal_expr<int_expr_kind>::generic_literal_expr;
+
+  std::intmax_t get_integer() const;
 };
+
+/// Returns the integer value of the expression.
+inline std::intmax_t int_expr::get_integer() const { return get_value().get_integer(); }
 
 
 /// Represents the expression `e1 == e2`.

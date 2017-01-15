@@ -20,7 +20,5 @@ add_beaker_module(
   generation/value.cpp
   generation/note.cpp
 
-  # serialization/json.cpp
-  # serialization/json_reader.cpp
-  # serialization/json_writer.cpp
+  serialization/writer.cpp
 )

@@ -6,6 +6,7 @@
 
 #include <beaker/base/printing/print.hpp>
 #include <beaker/base/generation/generation.hpp>
+#include <beaker/base/serialization/writer.hpp>
 
 
 using namespace beaker;
@@ -134,7 +135,11 @@ main()
   decl& main_ = build.make_main(stmts);
   mod.add_declaration(main_);
 
-  generator gen("a.ll");
-  generate(gen, mod);
-  gen.print();
+  archive_writer ar;
+  write_module(ar, mod);
+  ar.save("out");
+
+  // generator gen("a.ll");
+  // generate(gen, mod);
+  // gen.print();
 }
