@@ -7,9 +7,18 @@
 #include <beaker/base/printing/print.hpp>
 #include <beaker/util/symbol.hpp>
 
-// FIXME: Mac OS X does not define this header.
-// An implementation can be found here: https://gist.github.com/atr000/249599
-#include <byteswap.h>
+// FIXME: Can we rely on an endian.h header instead of inet/byteswap?
+//
+// FIXME: Factor this into a sepaate module so we can use it for reading
+// also.
+#if defined(__linux__)
+#  include <endian.h>
+#  include <arpa/inet.h>
+#elif defined(__APPLE__)
+#  include <arpa/inet.h>
+#else
+#  error unknown operating system
+#endif
 
 #include <iostream>
 #include <iomanip>
@@ -17,36 +26,16 @@
 
 namespace beaker {
 
-// FIXME: These don't actually work. Figure out why.
-#if 0
-static constexpr std::uint16_t
-byte_swap(std::uint16_t n) 
-{
-  return (n & 0xff << 8) | (n >> 8);
-}
-
-static constexpr std::uint32_t
-byte_swap(std::uint32_t n) 
-{
-  return byte_swap(std::uint16_t(n & std::uint32_t(0xffff) << 16)) | 
-         byte_swap(std::uint16_t(n >> 16));
-}
-
-static constexpr std::uint64_t
-byte_swap(std::uint64_t n) 
-{
-  return byte_swap(std::uint32_t(n & std::uint64_t(0xffffffff) << 32)) | 
-         byte_swap(std::uint32_t(n >> 32));
-}
-#endif
-
 
 // FIXME: Actually detect endianness so that this will be correct.
 static inline std::uint16_t 
 msbf(std::uint16_t n)
 {
-  bswap_16(n);
-  return n;
+#if defined(__linux__)
+  return htons(n);
+#elif defined(__APPLE__)
+  return htons(n);
+#endif
 }
 
 static inline std::int16_t 
@@ -58,8 +47,11 @@ msbf(std::int16_t n)
 static inline std::uint32_t
 msbf(std::uint32_t n)
 { 
-  bswap_32(n);
-  return n;
+#if defined(__linux__)
+  return htonl(n);
+#elif defined(__APPLE__)
+  return htonl(n);
+#endif
 }
 
 static inline std::int32_t
@@ -71,8 +63,11 @@ msbf(std::int32_t n)
 static inline std::uint64_t
 msbf(std::uint64_t n)
 { 
-  bswap_64(n);
-  return n;
+#if defined(__linux__)
+  return htobe64(n);
+#elif defined(__APPLE__)
+  return htonll(n);
+#endif
 }
 
 static inline std::int64_t
@@ -359,68 +354,45 @@ get_decl(const archive_writer& ar, std::size_t id)
   assert(false && "unknown type id");
 }
 
-/// Save the populated archive to a file.
-void
-archive_writer::save(const char* path)
+// Note that the offset of serialized entities uses 32 bits! We almost 
+// certainly don't need 64 bits, but I won't guarantee that we can live with 
+// only 16.
+static archive_writer::byte_stream
+serialize_block(const archive_writer::stream_table& table)
 {
-  // Reassemble stream tables into a single binary stream.
-  //
-  // FIXME: This is totally broken. We need to insert reference tables so that 
-  // we can actually index into the serialized output. In particular, we
-  // need a top-level ToC that indexes into major output blocks. These are:
-  // - configuration (not implemented)
-  // - strings
-  // - types 
-  // - declarations
-  // - others?
-  //
-  // strings, types, and declarations are also indexed, so we'll need to
-  // generate a ToC for each of those entries. A ToC is a mapping of identifier
-  // to file offset.
-  //
-  // TODO: We could compress the output. There are a lot of 0's in the 
-  // bytecode for these files (bzip2 -9 reduces the file size to ~7% of its
-  // original size).
-
-
-  // Serialize types to an output stream and simultaneously build an
-  // offset table for it.
-  byte_stream tout;
-  tout.reserve(1 << 16);
-  byte_stream toff;
-  for (std::size_t i = 0; i != types.size(); ++i) {
-    print(get_type(*this, i));
-    // Compute the offset of the serialized type in the type list.
-    //
-    // NOTE: 32 bit offsets! We almost certainly don't need 64 bits, but I
-    // won't guarantee that we can live with 16.
-    std::uint32_t off = msbf(tout.size()); 
-    
-    const unsigned char* p = reinterpret_cast<const unsigned char*>(&off);
-    toff.insert(toff.end(), p, p + sizeof(off));
-    tout.insert(tout.end(), types[i].begin(), types[i].end());
+  // Serialize table into two output streams
+  archive_writer::byte_stream data; // a concatenation of entity streams, and
+  archive_writer::byte_stream off; // a mapping of indexes to relative offsets
+  for (std::size_t i = 0; i != table.size(); ++i) {
+    std::uint32_t pos = msbf(data.size()); 
+    const unsigned char* p = reinterpret_cast<const unsigned char*>(&pos);
+    off.insert(off.end(), p, p + sizeof(pos));
+    data.insert(data.end(), table[i].begin(), table[i].end());
   }
-
-  // // Append all type streams.
-  // for (byte_stream& b : types)
-  //   out.insert(out.end(), b.begin(), b.end());
-
-  // // Append all declaration streams.
-  // for (byte_stream& b : decls)
-  //   out.insert(out.end(), b.begin(), b.end());
-
 
   // Serialize the type list into a new buffer, writing the number of entries
   // and the total length of the list.
-  std::uint64_t len = msbf(types.size()); // Length of offset table.
-  std::uint64_t end = msbf(tout.size()); // Length of type list.
-  byte_stream out;
+  std::uint64_t len = msbf(table.size()); // Length of offset table.
+  std::uint64_t end = msbf(data.size()); // Length of type list.
+  archive_writer::byte_stream out;
   const unsigned char* lenp = reinterpret_cast<const unsigned char*>(&len);
   const unsigned char* endp = reinterpret_cast<const unsigned char*>(&end);
   out.insert(out.end(), lenp, lenp + sizeof(len));
   out.insert(out.end(), endp, endp + sizeof(end));
-  out.insert(out.end(), toff.begin(), toff.end());
-  out.insert(out.end(), tout.begin(), tout.end());
+  out.insert(out.end(), off.begin(), off.end());
+  out.insert(out.end(), data.begin(), data.end());
+  return out;
+}
+
+/// Save the populated archive to a file.
+void
+archive_writer::save(const char* path)
+{
+  stream_table blocks {
+    serialize_block(types),
+    serialize_block(decls)
+  };
+  byte_stream out = serialize_block(blocks);
 
   // Write the file.
   std::FILE* f = std::fopen(path, "wb");
