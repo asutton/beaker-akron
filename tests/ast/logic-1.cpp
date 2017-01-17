@@ -137,7 +137,7 @@ main()
 
   archive_writer ar;
   write_module(ar, mod);
-  ar.save("out");
+  ar.save("out.bkm");
 
   // generator gen("a.ll");
   // generate(gen, mod);

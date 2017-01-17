@@ -13,7 +13,7 @@
 #include <beaker/base/comparison/eq.hpp>
 #include <beaker/base/comparison/hash.hpp>
 
-#include <queue>
+#include <cstdint>
 
 
 namespace beaker {
@@ -36,10 +36,10 @@ struct archive_writer
     byte_stream& get() { return (*table)[index]; }
   };
 
-  using type_map = std::unordered_map<const type*, std::size_t>;
-  using decl_map = std::unordered_map<const decl*, std::size_t>;
+  using type_map = std::unordered_map<const type*, std::uint32_t>;
+  using decl_map = std::unordered_map<const decl*, std::uint32_t>;
 
-  void write_id(std::size_t);
+  void write_id(std::uint32_t);
   void write_bool(bool);
   void write_int(int);
   void write_string(const char*);

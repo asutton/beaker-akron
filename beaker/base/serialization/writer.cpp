@@ -67,10 +67,14 @@ get_write(const T& t)
 }
 
 /// Append a boolean value to the archive.
+///
+/// \todo This current writes in network byte order for debugging purposes.
+/// It's not strictly necessary since modules are not intended to be shared
+/// across architectures (but presumably, they could).
 void
-archive_writer::write_id(std::size_t id)
+archive_writer::write_id(std::uint32_t id)
 {
-  id = htonll(id);
+  id = htonl(id);
   const unsigned char* p = reinterpret_cast<const unsigned char*>(&id);
   byte_stream& stream = get_active_stream();
   stream.insert(stream.end(), p, p + sizeof(id));
@@ -284,8 +288,73 @@ get_decl(const archive_writer& ar, int id)
 
 /// Save the populated archive to a file.
 void
-archive_writer::save(const char*)
+archive_writer::save(const char* path)
 {
+  // Reassemble stream tables into a single binary stream.
+  //
+  // FIXME: This is totally broken. We need to insert reference tables so that 
+  // we can actually index into the serialized output. In particular, we
+  // need a top-level ToC that indexes into major output blocks. These are:
+  // - configuration (not implemented)
+  // - strings
+  // - types 
+  // - declarations
+  // - others?
+  //
+  // strings, types, and declarations are also indexed, so we'll need to
+  // generate a ToC for each of those entries. A ToC is a mapping of identifier
+  // to file offset.
+  //
+  // TODO: We could compress the output. There are a lot of 0's in the 
+  // bytecode for these files (bzip2 -9 reduces the file size to ~7% of its
+  // original size).
+
+
+  // Serialize types to an output stream and simultaneously build an
+  // offset table for it.
+  byte_stream tout;
+  tout.reserve(1 << 16);
+  byte_stream toff;
+  for (std::size_t i = 0; i != types.size(); ++i) {
+    print(get_type(*this, i));
+    // Compute the offset of the serialized type in the type list.
+    //
+    // NOTE: 32 bit offsets! We almost certainly don't need 64 bits, but I
+    // won't guarantee that we can live with 16.
+    std::uint32_t off = htonl(tout.size()); 
+    
+    const unsigned char* p = reinterpret_cast<const unsigned char*>(&off);
+    toff.insert(toff.end(), p, p + sizeof(off));
+    tout.insert(tout.end(), types[i].begin(), types[i].end());
+  }
+
+  // // Append all type streams.
+  // for (byte_stream& b : types)
+  //   out.insert(out.end(), b.begin(), b.end());
+
+  // // Append all declaration streams.
+  // for (byte_stream& b : decls)
+  //   out.insert(out.end(), b.begin(), b.end());
+
+
+  // Serialize the type list into a new buffer, writing the number of entries
+  // and the total length of the list.
+  std::uint64_t len = htonll(types.size()); // Length of offset table.
+  std::uint64_t end = htonll(tout.size()); // Length of type list.
+  byte_stream out;
+  const unsigned char* lenp = reinterpret_cast<const unsigned char*>(&len);
+  const unsigned char* endp = reinterpret_cast<const unsigned char*>(&end);
+  out.insert(out.end(), lenp, lenp + sizeof(len));
+  out.insert(out.end(), endp, endp + sizeof(end));
+  out.insert(out.end(), toff.begin(), toff.end());
+  out.insert(out.end(), tout.begin(), tout.end());
+
+  // Write the file.
+  std::FILE* f = std::fopen(path, "wb");
+  std::fwrite(out.data(), out.size(), 1, f);
+  std::fclose(f);
+
+#if 0
   std::cout << "--- types ---\n";
   for (std::size_t i = 0; i != types.size(); ++i) {
     const type& t = get_type(*this, i);
@@ -301,6 +370,7 @@ archive_writer::save(const char*)
     print(d);
     print_bytes(decls[i]);
   }
+#endif
 }
 
 } // namespace beaker
