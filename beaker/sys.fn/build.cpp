@@ -15,6 +15,8 @@
 #include <beaker/sys.var/expr.hpp>
 #include <beaker/sys.var/build.hpp>
 
+#include <algorithm>
+
 
 namespace beaker {
 namespace sys_fn {

@@ -20,6 +20,7 @@ namespace cg {
 /// A wrapper around llvm::Value that provides additional information.
 struct value : annotated
 {
+  value();
   value(llvm::Value*);
   
   explicit operator bool() const;
@@ -29,8 +30,11 @@ struct value : annotated
   llvm::Value* val_;
 };
 
+/// Initialize an empty value.
+inline value::value() : val_(nullptr) { }
+
 /// Initialize this as a direct type.
-inline value::value(llvm::Value* t) : val_(t) { }
+inline value::value(llvm::Value* v) : val_(v) { }
 
 /// Converts to an true when the value is non-null.
 inline value::operator bool() const { return val_; }

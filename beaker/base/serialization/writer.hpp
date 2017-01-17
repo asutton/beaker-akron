@@ -41,7 +41,8 @@ struct archive_writer
 
   void write_id(std::uint32_t);
   void write_bool(bool);
-  void write_int(int);
+  void write_int(std::int32_t);
+  void write_int(std::uint32_t);
   void write_string(const char*);
   void write_string(const symbol&);
 

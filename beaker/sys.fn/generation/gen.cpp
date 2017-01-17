@@ -10,6 +10,9 @@
 #include <beaker/sys.void/type.hpp>
 #include <beaker/util/symbol.hpp>
 
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Argument.h>
+
 #include <sstream>
 
 

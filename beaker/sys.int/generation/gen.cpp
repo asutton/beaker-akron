@@ -101,6 +101,7 @@ generate_lt_expr(generator& gen, const lt_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -120,6 +121,7 @@ generate_gt_expr(generator& gen, const gt_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -139,6 +141,7 @@ generate_le_expr(generator& gen, const le_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -158,6 +161,7 @@ generate_ge_expr(generator& gen, const ge_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 /// Generate an add expression.
@@ -179,6 +183,7 @@ generate_add_expr(generator& gen, const add_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -199,6 +204,7 @@ generate_sub_expr(generator& gen, const sub_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -219,6 +225,7 @@ generate_mul_expr(generator& gen, const mul_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -238,6 +245,7 @@ generate_div_expr(generator& gen, const div_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value
@@ -257,6 +265,7 @@ generate_rem_expr(generator& gen, const rem_expr& e)
       break;
   }
   assert(false && "not an integral type");
+  return {};
 }
 
 static cg::value

@@ -6,6 +6,9 @@
 #include "../expr.hpp"
 #include "../decl.hpp"
 
+#include <llvm/IR/Intrinsics.h>
+#include <llvm/IR/Function.h>
+
 
 namespace beaker {
 namespace sys_bool {

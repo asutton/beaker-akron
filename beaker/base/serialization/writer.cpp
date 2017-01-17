@@ -7,13 +7,79 @@
 #include <beaker/base/printing/print.hpp>
 #include <beaker/util/symbol.hpp>
 
-#include <arpa/inet.h>
+// FIXME: Mac OS X does not define this header.
+// An implementation can be found here: https://gist.github.com/atr000/249599
+#include <byteswap.h>
 
 #include <iostream>
 #include <iomanip>
 
 
 namespace beaker {
+
+// FIXME: These don't actually work. Figure out why.
+#if 0
+static constexpr std::uint16_t
+byte_swap(std::uint16_t n) 
+{
+  return (n & 0xff << 8) | (n >> 8);
+}
+
+static constexpr std::uint32_t
+byte_swap(std::uint32_t n) 
+{
+  return byte_swap(std::uint16_t(n & std::uint32_t(0xffff) << 16)) | 
+         byte_swap(std::uint16_t(n >> 16));
+}
+
+static constexpr std::uint64_t
+byte_swap(std::uint64_t n) 
+{
+  return byte_swap(std::uint32_t(n & std::uint64_t(0xffffffff) << 32)) | 
+         byte_swap(std::uint32_t(n >> 32));
+}
+#endif
+
+
+// FIXME: Actually detect endianness so that this will be correct.
+static inline std::uint16_t 
+msbf(std::uint16_t n)
+{
+  bswap_16(n);
+  return n;
+}
+
+static inline std::int16_t 
+msbf(std::int16_t n)
+{
+  return msbf(std::uint16_t(n));
+}
+
+static inline std::uint32_t
+msbf(std::uint32_t n)
+{ 
+  bswap_32(n);
+  return n;
+}
+
+static inline std::int32_t
+msbf(std::int32_t n)
+{ 
+  return msbf(std::uint32_t(n));
+}
+
+static inline std::uint64_t
+msbf(std::uint64_t n)
+{ 
+  bswap_64(n);
+  return n;
+}
+
+static inline std::int64_t
+msbf(std::int64_t n)
+{ 
+  return msbf(std::uint32_t(n));
+}
 
 
 // -------------------------------------------------------------------------- //
@@ -74,7 +140,7 @@ get_write(const T& t)
 void
 archive_writer::write_id(std::uint32_t id)
 {
-  id = htonl(id);
+  id = msbf(id);
   const unsigned char* p = reinterpret_cast<const unsigned char*>(&id);
   byte_stream& stream = get_active_stream();
   stream.insert(stream.end(), p, p + sizeof(id));
@@ -87,11 +153,18 @@ archive_writer::write_bool(bool b)
   get_active_stream().push_back(b);
 }
 
-/// Append an integer value to the archive.
+/// Append a 32-bit integer value to the archive.
 void
-archive_writer::write_int(int n)
+archive_writer::write_int(std::int32_t n)
 {
-  n = htonl(n);
+  return write_int(std::uint32_t(n));
+}
+
+/// Append a 32-bit integer value to the archive.
+void
+archive_writer::write_int(std::uint32_t n)
+{
+  n = msbf(n);
   const unsigned char* p = reinterpret_cast<const unsigned char*>(&n);
   byte_stream& stream = get_active_stream();
   stream.insert(stream.end(), p, p + sizeof(int));
@@ -104,7 +177,7 @@ void
 archive_writer::write_string(const char* s)
 {
   std::size_t n = std::strlen(s);
-  write_int(n);
+  write_int((std::uint32_t)n);
   byte_stream& stream = get_active_stream();
   stream.insert(stream.end(), s, s + n);
 }
@@ -267,7 +340,7 @@ print_bytes(const archive_writer::byte_stream& b)
 }
 
 static const type&
-get_type(const archive_writer& ar, int id) 
+get_type(const archive_writer& ar, std::size_t id) 
 {
   for (auto p : ar.type_ids) {
     if (p.second == id)
@@ -277,7 +350,7 @@ get_type(const archive_writer& ar, int id)
 }
 
 static const decl&
-get_decl(const archive_writer& ar, int id) 
+get_decl(const archive_writer& ar, std::size_t id) 
 {
   for (auto p : ar.decl_ids) {
     if (p.second == id)
@@ -321,7 +394,7 @@ archive_writer::save(const char* path)
     //
     // NOTE: 32 bit offsets! We almost certainly don't need 64 bits, but I
     // won't guarantee that we can live with 16.
-    std::uint32_t off = htonl(tout.size()); 
+    std::uint32_t off = msbf(tout.size()); 
     
     const unsigned char* p = reinterpret_cast<const unsigned char*>(&off);
     toff.insert(toff.end(), p, p + sizeof(off));
@@ -339,8 +412,8 @@ archive_writer::save(const char* path)
 
   // Serialize the type list into a new buffer, writing the number of entries
   // and the total length of the list.
-  std::uint64_t len = htonll(types.size()); // Length of offset table.
-  std::uint64_t end = htonll(tout.size()); // Length of type list.
+  std::uint64_t len = msbf(types.size()); // Length of offset table.
+  std::uint64_t end = msbf(tout.size()); // Length of type list.
   byte_stream out;
   const unsigned char* lenp = reinterpret_cast<const unsigned char*>(&len);
   const unsigned char* endp = reinterpret_cast<const unsigned char*>(&end);
