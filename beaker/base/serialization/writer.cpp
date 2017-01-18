@@ -26,54 +26,42 @@
 
 namespace beaker {
 
+template<typename T, int N>
+struct is_integral_size 
+  : std::integral_constant<bool, std::is_integral<T>::value && sizeof(T) == N>
+{ };
 
-// FIXME: Actually detect endianness so that this will be correct.
-static inline std::uint16_t 
-msbf(std::uint16_t n)
+template<typename T>
+inline std::enable_if_t<is_integral_size<T, 2>::value, T>
+msbf(T n)
 {
 #if defined(__linux__)
-  return htons(n);
+  return (T)htons(n);
 #elif defined(__APPLE__)
-  return htons(n);
+  return (T)htons(n);
 #endif
 }
 
-static inline std::int16_t 
-msbf(std::int16_t n)
+template<typename T>
+inline std::enable_if_t<is_integral_size<T, 4>::value, T>
+msbf(T n)
 {
-  return msbf(std::uint16_t(n));
-}
-
-static inline std::uint32_t
-msbf(std::uint32_t n)
-{ 
 #if defined(__linux__)
-  return htonl(n);
+  return (T)htonl(n);
 #elif defined(__APPLE__)
-  return htonl(n);
+  return (T)htonl(n);
 #endif
 }
 
-static inline std::int32_t
-msbf(std::int32_t n)
-{ 
-  return msbf(std::uint32_t(n));
-}
-
-static inline std::uint64_t
-msbf(std::uint64_t n)
-{ 
+template<typename T>
+inline std::enable_if_t<is_integral_size<T, 8>::value, T>
+msbf(T n)
+{
 #if defined(__linux__)
   return htobe64(n);
 #elif defined(__APPLE__)
   return htonll(n);
 #endif
-}
-
-static inline std::int64_t
-msbf(std::int64_t n)
-{ 
-  return msbf(std::uint32_t(n));
 }
 
 
