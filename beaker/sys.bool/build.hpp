@@ -36,6 +36,7 @@ struct builder : basic_builder<sys_bool_lang>
 
   // Declarations
   assert_decl& make_assert_decl(expr&);
+  assert_decl& make_assert_decl(decl&, expr&);
 
   module* mod_;
   singleton_set<bool_type>* bool_;

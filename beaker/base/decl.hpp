@@ -95,6 +95,7 @@ inline T& defn::get_as() { return *reinterpret_cast<T*>(term_); }
 struct decl
 {
   explicit decl(int);
+  explicit decl(int, decl&);
   virtual ~decl() = default;
 
   int get_feature() const;  
@@ -116,8 +117,14 @@ struct decl
   decl* cxt_;
 };
 
-/// Initialize the declaration with kind k.
+/// Initialize the declaration with kind k and a null context. This should 
+/// only ever be used by the module class.
+///
+/// \todo Require opting in to this constructor using a fake argument.
 inline decl::decl(int k) : kind_(k), cxt_() { }
+
+/// Initialize the declaration with kind k and context c.
+inline decl::decl(int k, decl& c) : kind_(k), cxt_(&c) { }
 
 /// Returns the language pack of the declaration.
 inline int decl::get_feature() const { return get_language(kind_); }

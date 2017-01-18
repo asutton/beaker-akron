@@ -34,7 +34,7 @@ struct assert_decl : decl
 {
   static constexpr int node_kind = assert_decl_kind;
 
-  assert_decl(expr&);
+  assert_decl(decl&, expr&);
 
   const expr& get_assertion() const;
   expr& get_assertion();
@@ -43,8 +43,8 @@ struct assert_decl : decl
 };
 
 inline
-assert_decl::assert_decl(expr& e)
-  : decl(node_kind), expr_(&e)
+assert_decl::assert_decl(decl& cxt, expr& e)
+  : decl(node_kind, cxt), expr_(&e)
 { }
 
 /// Returns the asserted expression.
