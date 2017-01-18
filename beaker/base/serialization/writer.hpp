@@ -14,6 +14,7 @@
 #include <beaker/base/comparison/hash.hpp>
 
 #include <cstdint>
+#include <string>
 
 
 namespace beaker {
@@ -34,6 +35,15 @@ struct archive_writer
 
     const byte_stream& get() const { return (*table)[index]; }
     byte_stream& get() { return (*table)[index]; }
+  };
+
+  template<typename T>
+  struct encoding
+  {
+    using map = std::unordered_map<T, std::uint32_t>;
+    using table = stream_table;
+    map ids;
+    table bytes;
   };
 
   using type_map = std::unordered_map<const type*, std::uint32_t>;
@@ -61,10 +71,9 @@ struct archive_writer
 
   byte_stream& get_active_stream();
 
-  type_map type_ids; // Unique ids for types
-  stream_table types; // Serialized types
-  decl_map decl_ids; // Unique identifiers for declarations
-  stream_table decls; // Serialized declarations
+  encoding<const type*> types;
+  encoding<const decl*> decls;
+  encoding<std::string> strings;
   stream_ref active; // The active stream
 
   struct activate_stream;

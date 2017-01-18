@@ -58,6 +58,7 @@ inline std::enable_if_t<is_integral_size<T, 8>::value, T>
 msbf(T n)
 {
 #if defined(__linux__)
+  std::cout << "HERE ?" << n << (T)htonl(n) << '\n';
   return htobe64(n);
 #elif defined(__APPLE__)
   return htonll(n);
@@ -105,6 +106,26 @@ write_algorithm::operator()(archive_writer&, const stmt&) const
 
 // -------------------------------------------------------------------------- //
 // Archive
+
+namespace {
+void
+print_bytes(const archive_writer::byte_stream& b)
+{
+  std::cout << std::hex;
+  std::cout << std::setfill('0');
+  unsigned int n = 0;
+  for (auto c : b) {
+    std::cout << std::setw(2) << (unsigned)c << ' ';
+    if (++n == 16) {
+      std::cout << '\n';
+      n = 0;
+    }
+  }
+  std::cout << '\n';
+  std::cout << std::dec;
+  std::cout << std::setfill(' ');
+}
+} // namespace
 
 // Returns the serialization algorithm associated with the node t.
 template<typename T>
@@ -155,14 +176,34 @@ archive_writer::write_int(std::uint32_t n)
 
 /// Writes the string into the archive.
 ///
-/// \todo Write the string into a dedicated string table.
+/// This does not require that the string is previously uniqued. Strings of
+/// equal value will be unified in the string table.
 void
 archive_writer::write_string(const char* s)
 {
-  std::size_t n = std::strlen(s);
-  write_int((std::uint32_t)n);
-  byte_stream& stream = get_active_stream();
-  stream.insert(stream.end(), s, s + n);
+  assert(strings.ids.size() == strings.ids.size());
+  std::string str = s;
+  auto iter = strings.ids.find(str);
+  if (iter == strings.ids.end()) {
+    std::size_t id = strings.ids.size();
+    strings.ids.emplace(str, id);
+    strings.bytes.emplace_back();
+    {
+      // Save the string into the string table.
+      activate_stream s(*this, strings.bytes);
+      byte_stream& bs = get_active_stream();
+      std::uint32_t len = msbf(std::uint32_t(str.size()));
+      const unsigned char* ptr = reinterpret_cast<const unsigned char*>(&len);
+      bs.insert(bs.end(), ptr, ptr + sizeof(len));
+      bs.insert(bs.end(), str.begin(), str.end());
+    }
+    // Write the id into the current stream.
+    write_id(id);
+  }
+  else {
+    // Write the id of the string into the active stream.
+    write_id(iter->second);
+  }
 }
 
 /// Write the symbol into the current stream.
@@ -206,17 +247,17 @@ archive_writer::save_type(const type& t)
 void
 archive_writer::write_type(const type& t)
 {
-  assert(type_ids.size() == types.size());
-  auto iter = type_ids.find(&t);
-  if (iter == type_ids.end()) {
+  assert(types.ids.size() == types.bytes.size());
+  auto iter = types.ids.find(&t);
+  if (iter == types.ids.end()) {
     // If the type hasn't been seen yet generate a new id and initialize
     // it's byte stream.
-    std::size_t id = type_ids.size();
-    type_ids.emplace(&t, id);
-    types.emplace_back();
+    std::size_t id = types.ids.size();
+    types.ids.emplace(&t, id);
+    types.bytes.emplace_back();
     {
       // Step outside of the current stream and generate the type.
-      activate_stream s(*this, types);
+      activate_stream s(*this, types.bytes);
       save_type(t);
     }
     // Write the id into the current stream.
@@ -255,15 +296,15 @@ archive_writer::save_decl(const decl& d)
 void
 archive_writer::write_decl(const decl& d)
 {
-  assert(decl_ids.size() == decls.size());
-  std::size_t id = decl_ids.size();
-  auto result = decl_ids.emplace(&d, id);
+  assert(decls.ids.size() == decls.bytes.size());
+  std::size_t id = decls.ids.size();
+  auto result = decls.ids.emplace(&d, id);
   if (result.second) {
     // We have not previously seen this declaration, so we can generate
     // a new byte stream for it and write it in place.
-    decls.emplace_back();
+    decls.bytes.emplace_back();
     {
-      activate_stream s(*this, decls);
+      activate_stream s(*this, decls.bytes);
       save_decl(d);
     }
   }
@@ -274,17 +315,17 @@ archive_writer::write_decl(const decl& d)
 void
 archive_writer::write_ref(const decl& d)
 {
-  assert(decl_ids.size() == decls.size());
-  auto iter = decl_ids.find(&d);
-  if (iter == decl_ids.end()) {
+  assert(decls.ids.size() == decls.bytes.size());
+  auto iter = decls.ids.find(&d);
+  if (iter == decls.ids.end()) {
     // If the declaration hasn't been seen yet generate a new id and initialize
     // it's byte stream.
-    std::size_t id = decl_ids.size();
-    decl_ids.emplace(&d, id);
-    decls.emplace_back();
+    std::size_t id = decls.ids.size();
+    decls.ids.emplace(&d, id);
+    decls.bytes.emplace_back();
     {
-      // Step outside of the current stream and generate the type.
-      activate_stream s(*this, decls);
+      // Write the declaration in a new stream.
+      activate_stream s(*this, decls.bytes);
       save_decl(d);
     }
     // Write the id into the current stream.
@@ -304,43 +345,6 @@ archive_writer::write_stmt(const stmt& s)
   get_write(s)(*this, s);
 }
 
-static void
-print_bytes(const archive_writer::byte_stream& b)
-{
-  std::cout << std::hex;
-  std::cout << std::setfill('0');
-  unsigned int n = 0;
-  for (auto c : b) {
-    std::cout << std::setw(2) << (unsigned)c << ' ';
-    if (++n == 16) {
-      std::cout << '\n';
-      n = 0;
-    }
-  }
-  std::cout << '\n';
-  std::cout << std::dec;
-  std::cout << std::setfill(' ');
-}
-
-static const type&
-get_type(const archive_writer& ar, std::size_t id) 
-{
-  for (auto p : ar.type_ids) {
-    if (p.second == id)
-      return *p.first;
-  }
-  assert(false && "unknown type id");
-}
-
-static const decl&
-get_decl(const archive_writer& ar, std::size_t id) 
-{
-  for (auto p : ar.decl_ids) {
-    if (p.second == id)
-      return *p.first;
-  }
-  assert(false && "unknown type id");
-}
 
 // Note that the offset of serialized entities uses 32 bits! We almost 
 // certainly don't need 64 bits, but I won't guarantee that we can live with 
@@ -377,8 +381,9 @@ void
 archive_writer::save(const char* path)
 {
   stream_table blocks {
-    serialize_block(types),
-    serialize_block(decls)
+    serialize_block(types.bytes),
+    serialize_block(decls.bytes),
+    serialize_block(strings.bytes)
   };
   byte_stream out = serialize_block(blocks);
 
@@ -386,24 +391,6 @@ archive_writer::save(const char* path)
   std::FILE* f = std::fopen(path, "wb");
   std::fwrite(out.data(), out.size(), 1, f);
   std::fclose(f);
-
-#if 0
-  std::cout << "--- types ---\n";
-  for (std::size_t i = 0; i != types.size(); ++i) {
-    const type& t = get_type(*this, i);
-    std::cout << i << ": " << t.get_kind() << ": ";
-    print(t);
-    print_bytes(types[i]);
-  }
-
-  std::cout << "\n--- declarations ---\n";
-  for (std::size_t i = 0; i != decls.size(); ++i) {
-    const decl& d = get_decl(*this, i);
-    std::cout << i << ": " << d.get_kind() << ": ";
-    print(d);
-    print_bytes(decls[i]);
-  }
-#endif
 }
 
 } // namespace beaker
