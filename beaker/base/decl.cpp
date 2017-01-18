@@ -1,11 +1,27 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #include "decl.hpp"
+#include "module.hpp"
 
 
 namespace beaker
 {
+
+module&
+decl::get_module()
+{
+  decl* p = this;
+  while (p->cxt_)
+    p = p->cxt_;
+  return cast<module>(*p);
+}
+
+const module& 
+decl::get_module() const
+{
+  return const_cast<decl*>(this)->get_module();
+}
 
 // Returns this as a named declaration.
 const named_decl*

@@ -64,7 +64,7 @@ builder_set::get()
 
 
 /// Represents a named collection of types, values, and functions.
-struct module : node_store
+struct module : decl, node_store
 {
   module(language&);
   ~module();

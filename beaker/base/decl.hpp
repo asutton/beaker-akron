@@ -83,7 +83,15 @@ inline T& defn::get_as() { return *reinterpret_cast<T*>(term_); }
 // -------------------------------------------------------------------------- //
 // Declaration base class
 
-// Represents the set of all declarations.
+/// Represents the set of all declarations.
+///
+/// Each declaration is made within the context of some other context, except 
+/// modules which are not owned by any other declaration. For example, a global 
+/// function is declared within the context of a module; a local variable is
+/// declared within the context of a function (even though it may be scoped
+/// within a sequence of nested functions).
+///
+/// \todo Support the notion of semantic and lexical contexts as in C++.
 struct decl
 {
   explicit decl(int);
@@ -92,6 +100,12 @@ struct decl
   int get_feature() const;  
   int get_kind() const;
 
+  const decl* get_context() const;
+  decl* get_context();
+
+  const module& get_module() const;
+  module& get_module();
+
   const named_decl* as_named() const;
   named_decl* as_named();
 
@@ -99,16 +113,23 @@ struct decl
   typed_decl* as_typed();
   
   int kind_;
+  decl* cxt_;
 };
 
-// Initialize the declaration with kind k.
-inline decl::decl(int k) : kind_(k) { }
+/// Initialize the declaration with kind k.
+inline decl::decl(int k) : kind_(k), cxt_() { }
 
-// Returns the language pack of the declaration.
+/// Returns the language pack of the declaration.
 inline int decl::get_feature() const { return get_language(kind_); }
 
-// Returns the declaration's kind.
+/// Returns the declaration's kind.
 inline int decl::get_kind() const { return kind_; }
+
+/// Returns the context of the declaration, or nullptr if this is a module.
+inline const decl* decl::get_context() const { return cxt_; }
+
+/// Returns the context of the declaration, or nullptr if this is a module.
+inline decl* decl::get_context() { return cxt_; }
 
 
 // -------------------------------------------------------------------------- //
