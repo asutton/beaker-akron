@@ -58,7 +58,6 @@ inline std::enable_if_t<is_integral_size<T, 8>::value, T>
 msbf(T n)
 {
 #if defined(__linux__)
-  std::cout << "HERE ?" << n << (T)htonl(n) << '\n';
   return htobe64(n);
 #elif defined(__APPLE__)
   return htonll(n);

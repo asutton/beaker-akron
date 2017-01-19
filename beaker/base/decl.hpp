@@ -95,14 +95,17 @@ inline T& defn::get_as() { return *reinterpret_cast<T*>(term_); }
 struct decl
 {
   explicit decl(int);
-  explicit decl(int, decl&);
   virtual ~decl() = default;
 
   int get_feature() const;  
   int get_kind() const;
 
+  int get_id() const;
+  void set_id(int);
+
   const decl* get_context() const;
   decl* get_context();
+  void set_context(decl&);
 
   const module& get_module() const;
   module& get_module();
@@ -114,17 +117,13 @@ struct decl
   typed_decl* as_typed();
   
   int kind_;
+  int id_;
   decl* cxt_;
 };
 
 /// Initialize the declaration with kind k and a null context. This should 
 /// only ever be used by the module class.
-///
-/// \todo Require opting in to this constructor using a fake argument.
-inline decl::decl(int k) : kind_(k), cxt_() { }
-
-/// Initialize the declaration with kind k and context c.
-inline decl::decl(int k, decl& c) : kind_(k), cxt_(&c) { }
+inline decl::decl(int k) : kind_(k), id_(-1), cxt_() { }
 
 /// Returns the language pack of the declaration.
 inline int decl::get_feature() const { return get_language(kind_); }
@@ -132,11 +131,20 @@ inline int decl::get_feature() const { return get_language(kind_); }
 /// Returns the declaration's kind.
 inline int decl::get_kind() const { return kind_; }
 
+/// Returns the unique id of the declaration.
+inline int decl::get_id() const { return id_; }
+
+/// Sets the unique id for this declaration.
+inline void decl::set_id(int n) { id_ = n; }
+
 /// Returns the context of the declaration, or nullptr if this is a module.
 inline const decl* decl::get_context() const { return cxt_; }
 
 /// Returns the context of the declaration, or nullptr if this is a module.
 inline decl* decl::get_context() { return cxt_; }
+
+/// Sets the context of this declaration.
+inline void decl::set_context(decl& d) { cxt_ = &d; }
 
 
 // -------------------------------------------------------------------------- //

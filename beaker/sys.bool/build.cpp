@@ -129,15 +129,7 @@ assert_decl&
 builder::make_assert_decl(expr& e)
 {
   assert(is_boolean_expression(e));
-  return make<assert_decl>(get_module(), e);
-}
-
-/// Returns a `assert e` with context `cxt`.
-assert_decl&
-builder::make_assert_decl(decl& cxt, expr& e)
-{
-  assert(is_boolean_expression(e));
-  return make<assert_decl>(cxt, e);
+  return make<assert_decl>(e);
 }
 
 } // namespace sys_bool
