@@ -46,9 +46,9 @@ struct fn_decl : mapping_decl_impl<fn_decl_kind>
 /// they are names that refer to local storage. However, that storage may be
 /// allocated by the calling function or the caller, depending on the type of
 /// the parameter.
-struct parm_decl : generic_value_decl<parm_decl_kind>
+struct parm_decl : value_decl_impl<parm_decl_kind>
 {
-  using generic_value_decl<parm_decl_kind>::generic_value_decl;
+  using value_decl_impl<parm_decl_kind>::value_decl_impl;
 };
 
 

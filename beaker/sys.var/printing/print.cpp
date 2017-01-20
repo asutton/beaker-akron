@@ -100,7 +100,7 @@ print_var_decl(std::ostream& os, const var_decl& d)
   print(os, d.get_name());
   if (d.has_initializer()) {
     os << ' ';
-    print(os, d.get_initializer().template get_as<expr>());
+    print(os, d.get_initializer());
   }
   os << ";\n";
 }

@@ -23,9 +23,9 @@ enum
 // The storage of a variable may be static, thread, or automatic. This
 // class only represents the declaration of the object, it does not
 // maintain its storage.
-struct var_decl : generic_value_decl<var_decl_kind>
+struct var_decl : value_decl_impl<var_decl_kind>
 {
-  using generic_value_decl<var_decl_kind>::generic_value_decl;
+  using value_decl_impl<var_decl_kind>::value_decl_impl;
 };
 
 

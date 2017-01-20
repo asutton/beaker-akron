@@ -35,18 +35,20 @@ struct builder : basic_builder<sys_fn_lang>
   ne_expr& make_ne_expr(expr&, expr&);
 
   // Declarations
-  fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&);
-  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&);
-  fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&);
-  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&);
-  fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, expr&);
-  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, expr&);
-  fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, expr&);
-  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, expr&);
-  fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
-  fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, stmt&);
-  fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
-  fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, name&, type&, const decl_seq&, decl&);
+  fn_decl& make_fn_decl(dc, const char*, type&, const decl_seq&, decl&);
+  fn_decl& make_fn_decl(dc, name&, type&, decl_seq&&, decl&);
+  fn_decl& make_fn_decl(dc, const char*, type&, decl_seq&&, decl&);
+
+  fn_decl& make_fn_decl(dc, name&, type&, const decl_seq&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, const char*, type&, const decl_seq&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, name&, type&, decl_seq&&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, const char*, type&, decl_seq&&, decl&, stmt&);
+  
+  fn_decl& make_fn_decl(dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, linkage, const char*, type&, const decl_seq&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
+  fn_decl& make_fn_decl(dc, linkage, const char*, type&, decl_seq&&, decl&, stmt&);
   
   parm_decl& make_parm_decl(name&, type&);
   parm_decl& make_parm_decl(const char*, type&);

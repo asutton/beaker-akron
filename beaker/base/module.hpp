@@ -62,8 +62,20 @@ builder_set::get()
   return *reinterpret_cast<T*>(p);
 }
 
+/// A helper class used to generate unique ids for declarations.
+///
+/// \todo Consider using random numbers so that ids are independent of
+/// declaration order.
+struct id_generator
+{
+  int operator()() { return ++last; }
+  int last = 0;
+};
 
-/// Represents a named collection of types, values, and functions.
+
+/// Represents a named collection of types, values, and functions. A module
+/// is the root container of declarations for a translation; it is equivalent
+/// to a translation unit in C/C++.
 struct module : decl, node_store
 {
   module(language&);
@@ -75,6 +87,8 @@ struct module : decl, node_store
   builder_set& get_builders();
   template<typename T> T& get_builder();
 
+  int generate_id();
+
   const name& get_module_name() const;
   name& get_module_name();
 
@@ -85,6 +99,7 @@ struct module : decl, node_store
 
   language* lang_;
   builder_set build_;
+  id_generator gen_;
   name* name_;
   decl_seq decls_;
 };
@@ -102,6 +117,9 @@ inline builder_set& module::get_builders() { return build_; }
 template<typename T>
 inline T& module::get_builder() { return build_.template get<T>(); }
 
+/// Generate a unique id.
+inline int module::generate_id() { return gen_(); }
+
 /// Returns the name of the module.
 inline const name& module::get_module_name() const { return *name_; }
 
@@ -117,7 +135,7 @@ inline decl_seq& module::get_declarations() { return decls_; }
 /// Adds a declaration to the module.
 inline void module::add_declaration(decl& d) { decls_.push_back(d); }
 
-} // namespace
+} // namespace beaker
 
 
 #endif

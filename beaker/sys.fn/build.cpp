@@ -134,102 +134,112 @@ builder::make_ne_expr(expr& e1, expr& e2)
   return make<ne_expr>(t, e1, e2);
 }
 
-/// Returns a new function that has no definition.
-///
-/// TODO: Should this have external linkage by default?
+/// Returns a new function that has no definition. By default, a function with 
+/// no definition has external linkage.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r)
+builder::make_fn_decl(dc cxt, name& n, type& t, const decl_seq& p, decl& r)
 {
-  return make<fn_decl>(n, t, p, r);
+  return make<fn_decl>(generate_id(), cxt, n, t, p, r);
 }
 
-/// Returns a new function that has no definition.
+/// Returns a new function that has no definition. By default, a function with 
+/// no definition has external linkage.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r)
+builder::make_fn_decl(dc cxt, const char* n, type& t, const decl_seq& p, decl& r)
 {
-  return make_fn_decl(get_name(n), t, p, r);
+  return make_fn_decl(cxt, get_name(n), t, p, r);
 }
 
-/// Returns a new function that has no definition.
-///
-/// TODO: Should this have external linkage by default?
+/// Returns a new function that has no definition. By default, a function with 
+/// no definition has external linkage.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r)
+builder::make_fn_decl(dc cxt, name& n, type& t, decl_seq&& p, decl& r)
 {
-  return make<fn_decl>(n, t, std::move(p), r);
+  return make<fn_decl>(generate_id(), cxt, n, t, std::move(p), r);
 }
 
-/// Returns a new function that has no definition.
+/// Returns a new function that has no definition. By default, a function with 
+/// no definition has external linkage.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r)
+builder::make_fn_decl(dc cxt, const char* n, type& t, decl_seq&& p, decl& r)
 {
-  return make_fn_decl(get_name(n), t, std::move(p), r);
+  return make_fn_decl(cxt, get_name(n), t, std::move(p), r);
 }
 
-/// Returns a new function defined by an expression e.
+/// Returns a new function with external linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r, expr& e)
+builder::make_fn_decl(dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(n, t, p, r, e);
+  return make<fn_decl>(generate_id(), cxt, n, t, p, r, s);
 }
 
-/// Returns a new function defined by an expression e.
+/// Returns a new function with external linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r, expr& e)
+builder::make_fn_decl(dc cxt, const char* n, type& t, const decl_seq& p, decl& r, stmt& s)
 {
-  return make_fn_decl(get_name(n), t, p, r, e);
+  return make_fn_decl(cxt, get_name(n), t, p, r, s);
 }
 
-/// Returns a new function defined by an expression e.
+/// Returns a new function with external linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r, expr& e)
+builder::make_fn_decl(dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(n, t, std::move(p), r, e);
+  return make<fn_decl>(generate_id(), cxt, n, t, std::move(p), r, s);
 }
 
-/// Returns a new function defined by an expression e.
+/// Returns a new function with external linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r, expr& e)
+builder::make_fn_decl(dc cxt, const char* n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
-  return make_fn_decl(get_name(n), t, std::move(p), r, e);
+  return make_fn_decl(cxt, get_name(n), t, std::move(p), r, s);
 }
 
-/// Returns a new function defined by a block statement s.
+/// Returns a new function with the given linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+builder::make_fn_decl(dc cxt, linkage l, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(n, t, p, r, s);
+  return make<fn_decl>(generate_id(), cxt, l, n, t, p, r, s);
 }
 
-/// Returns a new function defined by a block statement s.
+/// Returns a new function with the given linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, const decl_seq& p, decl& r, stmt& s)
+builder::make_fn_decl(dc cxt, linkage l, const char* n, type& t, const decl_seq& p, decl& r, stmt& s)
 {
-  return make_fn_decl(get_name(n), t, p, r, s);
+  return make_fn_decl(cxt, l, get_name(n), t, p, r, s);
 }
 
-/// Returns a new function defined by a block statement s.
+/// Returns a new function with the given linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+builder::make_fn_decl(dc cxt, linkage l, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(n, t, std::move(p), r, s);
+  return make<fn_decl>(generate_id(), cxt, l, n, t, std::move(p), r, s);
 }
 
-/// Returns a new function defined by a block statement s.
+/// Returns a new function with the given linkage and defined by a block 
+/// statement.
 fn_decl&
-builder::make_fn_decl(const char* n, type& t, decl_seq&& p, decl& r, stmt& s)
+builder::make_fn_decl(dc cxt, linkage l, const char* n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
-  return make_fn_decl(get_name(n), t, std::move(p), r, s);
+  return make_fn_decl(cxt, l, get_name(n), t, std::move(p), r, s);
 }
 
-/// Returns a new parameter.
+/// Returns a new parameter `t n`. Note that the declaration context of
+/// the parameter is determined when it is added to its function. 
 parm_decl&
 builder::make_parm_decl(name& n, type& t)
 {
-  return make<parm_decl>(n, t);
+  return make<parm_decl>(generate_id(), dc{}, automatic_storage, n, t);
 }
 
-/// Returns a new parameter `t n`.
+/// Returns a new parameter `t n`. Note that the declaration context of
+/// the parameter is determined when it is added to its function. 
 parm_decl&
 builder::make_parm_decl(const char* n, type& t)
 {

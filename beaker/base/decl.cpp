@@ -12,8 +12,8 @@ module&
 decl::get_module()
 {
   decl* p = this;
-  while (p->cxt_)
-    p = p->cxt_;
+  while (p->get_context())
+    p = p->get_context();
   return cast<module>(*p);
 }
 

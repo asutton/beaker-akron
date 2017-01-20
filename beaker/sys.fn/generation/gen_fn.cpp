@@ -114,36 +114,12 @@ generate_parms(generator& gen, const fn_decl& d)
     adjust_function_parm(gen, parm, ai++);
 }
 
-// Generate a function definition that is an expression `e`. This is equivalent
-// to a function whose definition is `{ return e; }`. As with return statements,
-// we expect that `e` to be a void expression or an initialization of the
-// return value.
+/// Generate the function definition.
 static void
-generate_expr_def(generator& gen, const fn_decl& decl, const expr& def)
-{
-  // Simply initialize the return value.
-  generator::init_guard guard(gen, gen.get_return_value());
-  generate(gen, def);
-
-  // And jump to the exit block.
-  llvm::Builder ir(gen.get_current_block());
-  ir.CreateBr(gen.get_exit_block());
-}
-
-// Generate a function definition that is a (block) statement.
-//
-// When the definition is a statement, we need to allocate the return variable.
-//
-// FIXME: If the return value is a register, we don't need to allocate anything,
-// and returns don't need to branch to the exit block.
-//
-// FIXME: If the return type is void, then the return generation is going to
-// be a little different.
-static void
-generate_stmt_def(generator& gen, const fn_decl& decl, const stmt& def)
+generate_body(generator& gen, const fn_decl& d)
 {
   // Generate the statement body.
-  generate(gen, def);
+  generate(gen, d.get_definition());
 
   // Insert a terminator, if needed.
   llvm::BasicBlock* last = gen.get_current_block();
@@ -151,19 +127,6 @@ generate_stmt_def(generator& gen, const fn_decl& decl, const stmt& def)
     llvm::Builder ir(last);
     ir.CreateBr(gen.get_exit_block());
   }
-}
-
-// Choose the right kind of definition to emit.
-static void
-generate_body(generator& gen, const fn_decl& d)
-{
-  defn def = d.get_definition();
-  if (def.get_kind() == fn_decl::expr_defn)
-    generate_expr_def(gen, d, def.get_as<expr>());
-  else if (def.get_kind() == fn_decl::stmt_defn)
-    generate_stmt_def(gen, d, def.get_as<stmt>());
-  else
-    assert(false && "unsupported definition");
 }
 
 // Generate the final return from the function.
@@ -196,18 +159,11 @@ generate_exit(generator& gen, const fn_decl& d)
 }
 
 // Generate a function definition.
-//
-// TODO: Don't require a separate exit block unless there is an early
-// return statement.
 static void
 generate_fn_def(generator& gen, const fn_decl& d, llvm::Function* f)
 {
-  // If the function isn't defined, there's nothing to do.
-  defn def = d.get_definition();
-  if (def.is_absent())
+  if (!d.has_definition())
     return;
-
-  // Generate a local definition.
   gen.define_function(f);
   generate_parms(gen, d);
   generate_body(gen, d);  

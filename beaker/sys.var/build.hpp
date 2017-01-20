@@ -37,10 +37,10 @@ struct builder : basic_builder<sys_var_lang>
   ref_init& make_ref_init(expr&);
 
   // Declarations
-  var_decl& make_var_decl(name&, type&);
-  var_decl& make_var_decl(const char*, type&);
-  var_decl& make_var_decl(name&, type&, expr&);
-  var_decl& make_var_decl(const char*, type&, expr&);
+  var_decl& make_var_decl(dc, name&, type&);
+  var_decl& make_var_decl(dc, const char*, type&);
+  var_decl& make_var_decl(dc, storage, name&, type&, expr&);
+  var_decl& make_var_decl(dc, storage, const char*, type&, expr&);
   
   canonical_set<ref_type>* ref_;
 };

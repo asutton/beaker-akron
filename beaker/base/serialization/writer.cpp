@@ -284,7 +284,10 @@ void
 archive_writer::save_decl(const decl& d)
 {
   write_int(d.get_kind());
-  get_write(d)(*this, d);
+  write_int(d.get_id());
+  write_ref(*d.get_semantic_context());
+  write_ref(*d.get_lexical_context());
+  get_write(d)(*this, d); // Dispatch
 }
 
 /// Writes a declaration into the current stream. This must only be used

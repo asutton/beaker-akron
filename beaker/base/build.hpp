@@ -38,6 +38,8 @@ struct builder_base
   module& get_module();
   allocator& get_module_allocator();
 
+  int generate_id();
+
   template<typename T, typename... Args>
   T& make(Args&&... args);
 
@@ -58,18 +60,13 @@ inline language& builder_base::get_language() { return mod_->get_language(); }
 inline module& builder_base::get_module() { return *mod_; }
 
 /// Returns the allocator for the language.
-inline allocator& 
-builder_base::get_language_allocator()
-{ 
-  return get_language().get_allocator(); 
-}
+inline allocator& builder_base::get_language_allocator() { return get_language().get_allocator(); }
 
 /// Returns the allocator for the module.
-inline allocator& 
-builder_base::get_module_allocator()
-{ 
-  return mod_->get_allocator(); 
-}
+inline allocator& builder_base::get_module_allocator() { return mod_->get_allocator(); }
+
+/// Generate a unique identifier from the module.
+inline int builder_base::generate_id() { return mod_->generate_id(); }
 
 /// Construct an object from b, using the given arguments.
 ///

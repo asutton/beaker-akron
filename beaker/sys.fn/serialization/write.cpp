@@ -51,43 +51,13 @@ write_algo::operator()(archive_writer& ar, const expr& e) const
 
 
 void
-write_fn_decl(archive_writer& ar, const fn_decl& d)
-{
-  write_name(ar, d.get_name());
-  write_type(ar, d.get_type());
-  write_seq(ar, d.get_parameters());
-  write_decl(ar, d.get_return());
-
-  defn def = d.get_definition();
-  write_bool(ar, def.is_present());
-  if (def.is_present()) {
-    write_int(ar, def.get_kind());
-    if (def.get_kind() == fn_decl::stmt_defn) {
-      const stmt& s = def.get_as<stmt>();
-      write_stmt(ar, s);
-    }
-    else {
-      const expr& e = def.get_as<expr>();
-      write_expr(ar, e);
-    }
-  }
-}
-
-void
-write_parm_decl(archive_writer& ar, const parm_decl& d)
-{
-  write_name(ar, d.get_name());
-  write_type(ar, d.get_type());
-}
-
-void
 write_algo::operator()(archive_writer& ar, const decl& d) const
 {
   switch (d.get_kind()) {
     case fn_decl_kind:
-      return write_fn_decl(ar, cast<fn_decl>(d));
+      return write_mapping_decl(ar, cast<fn_decl>(d));
     case parm_decl_kind:
-      return write_parm_decl(ar, cast<parm_decl>(d));
+      return write_value_decl(ar, cast<parm_decl>(d));
     default:
       assert(false && "not a function declaration");
   }

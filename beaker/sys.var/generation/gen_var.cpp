@@ -6,7 +6,7 @@ namespace sys_var {
 
 /// A locally declared object requires storage.
 static cg::value
-generate_local_object_var(generator& gen, const var_decl& d)
+generate_local_object(generator& gen, const var_decl& d)
 {
   // Generate storage in the entry block and bind to it.
   cg::type type = generate(gen, d.get_type());
@@ -17,18 +17,19 @@ generate_local_object_var(generator& gen, const var_decl& d)
   // Generate the initialization at the current instruction.
   assert(d.has_initializer());
   generator::init_guard guard(gen, ptr);
-  generate(gen, d.get_initializer().get_as<expr>());
+  generate(gen, d.get_initializer());
   return ptr;
 }
 
 /// A locally declared reference is an alias to its referenced object.
+///
+/// Just evaluate the initializer (without an object, we'll get the value
+/// back directly) and bind the declaration to that address.
 static cg::value
-generate_local_reference_var(generator& gen, const var_decl& d)
+generate_local_reference(generator& gen, const var_decl& d)
 {
-  // Just evaluate the initializer (without an object, we'll get the value
-  // back directly) and bind the declaration to that address.
   assert(d.has_initializer());
-  const expr& def = d.get_initializer().get_as<expr>();
+  const expr& def = d.get_initializer();
   generator::init_guard guard(gen, nullptr);
   cg::value ptr = generate(gen, def);
   gen.put_value(d, ptr);
@@ -41,9 +42,9 @@ generate_local_var(generator& gen, const var_decl& d)
 {
   const type& t = d.get_type();
   if (is_object_type(t))
-    return generate_local_object_var(gen, d);
+    return generate_local_object(gen, d);
   else if (is_reference_type(t))
-    return generate_local_reference_var(gen, d);
+    return generate_local_reference(gen, d);
   else
     assert(false && "unsupported declaration");
 }
@@ -54,8 +55,6 @@ generate_local_var(generator& gen, const var_decl& d)
 static cg::value
 generate_var_decl(generator& gen, const var_decl& d)
 {
-  assert(d.has_storage());
-
   if (d.has_automatic_storage()) {
     return generate_local_var(gen, d);
   }

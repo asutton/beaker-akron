@@ -16,96 +16,97 @@ namespace beaker {
 struct name;
 struct type;
 struct expr;
-struct stmt;
+struct decl;
 struct named_decl;
 struct typed_decl;
+struct stmt;
 
-// -------------------------------------------------------------------------- //
-// Definitions
+/// The type of a unique identifier.
+using uid = int;
 
-/// Represents an optional definition of a declaration.
-///
-/// Most declarations have an associated definition (i.e., the precise meaning 
-/// associated with a name). The definition can be local or remote to the
-/// current module. Remote definitions must be supplied at link time. 
-///
-/// Additionally, some declarations may support multiple kinds of declaration. 
-/// For example, a function can be defined by a compound statement or an
-/// expression. In general, we expect that a language will normalize the 
-/// definitions so that each declaration has only a single kind. That is,
-/// functions defined by an expression e can be easily rewritten as a function
-/// defined by a compound statement that simply returns e.
-struct defn
+/// A declaration's context is the declaration in which the declaration
+/// appears. The semantic and lexical contexts of a module are both null,
+/// indicating that it is the root declaration context.
+struct dc
 {
-  defn();
-  defn(int, void*);
+  dc();
+  dc(decl&);
+  dc(decl&, decl&);
 
-  bool is_absent() const;
-  bool is_present() const;
+  const decl* get_context() const;
+  decl* get_context();
 
-  int get_kind() const;
+  const decl* get_semantic_context() const;
+  decl* get_semantic_context();
 
-  template<typename T> const T& get_as() const;
-  template<typename T> T& get_as();
-  
-  int kind_;
-  void* term_;
+  const decl* get_lexical_context() const;
+  decl* get_lexical_context();
+
+  decl* sema_;
+  decl* lex_;
 };
 
-inline defn::defn() : kind_(-1), term_() { }
+/// Initialize an empty declaration context. This should only be used by the
+/// constructor of the `module` class.
+inline dc::dc() : sema_(), lex_() { }
 
-inline defn::defn(int k, void* p) : kind_(k), term_(p) { }
+/// Initialize this declaration context with the same semantic and lexical
+/// contexts.
+inline dc::dc(decl& d) : sema_(&d), lex_(&d) { }
 
-/// Returns true if the definition is absent.
-inline bool defn::is_absent() const { return term_ == nullptr; }
+/// Initialize this declaration context with different semantic and lexical 
+/// contexts.
+inline dc::dc(decl& s, decl& l) : sema_(&s), lex_(&l) { }
 
-/// Returns true if the definition is present.
-inline bool defn::is_present() const { return term_ != nullptr; }
+/// Returns the semantic declaration context, or nullptr if this is the root
+/// declaration context.
+inline const decl* dc::get_context() const { return sema_; }
 
-/// Returns the kind of definition.
-///
-/// This is valid only when the declaration is internal.
-inline int defn::get_kind() const { return kind_; }
+/// Returns the semantic declaration context.
+inline decl* dc::get_context() { return sema_; }
 
-/// Returns the definition cast as T.
-///
-/// This is valid only when the declaration is internal.
-template<typename T>
-inline const T& defn::get_as() const { return *reinterpret_cast<const T*>(term_); }
+/// Returns the semantic declaration context.
+inline const decl* dc::get_semantic_context() const { return sema_; }
 
-/// Returns the definition cast as T.
-///
-/// This is valid only when the declaration is internal.
-template<typename T>
-inline T& defn::get_as() { return *reinterpret_cast<T*>(term_); }
+/// Returns the semantic declaration context.
+inline decl* dc::get_semantic_context() { return sema_; }
 
+/// Returns the lexical declaration context.
+inline const decl* dc::get_lexical_context() const { return lex_; }
 
-// -------------------------------------------------------------------------- //
-// Declaration base class
+/// Returns the lexical declaration context.
+inline decl* dc::get_lexical_context() { return lex_; }
+
 
 /// Represents the set of all declarations.
+///
+/// Every declaration has an id that uniquely identifies it within a module.
+/// This is assigned at the time of creation.
 ///
 /// Each declaration is made within the context of some other context, except 
 /// modules which are not owned by any other declaration. For example, a global 
 /// function is declared within the context of a module; a local variable is
 /// declared within the context of a function (even though it may be scoped
 /// within a sequence of nested functions).
-///
-/// \todo Support the notion of semantic and lexical contexts as in C++.
 struct decl
 {
   explicit decl(int);
+  explicit decl(int, uid, dc);
   virtual ~decl() = default;
 
   int get_feature() const;  
   int get_kind() const;
 
   int get_id() const;
-  void set_id(int);
 
   const decl* get_context() const;
   decl* get_context();
-  void set_context(decl&);
+  
+  const decl* get_semantic_context() const;
+  decl* get_semantic_context();
+  
+  const decl* get_lexical_context() const;
+  decl* get_lexical_context();
 
   const module& get_module() const;
   module& get_module();
@@ -118,12 +119,15 @@ struct decl
   
   int kind_;
   int id_;
-  decl* cxt_;
+  dc cxt_;
 };
 
 /// Initialize the declaration with kind k and a null context. This should 
-/// only ever be used by the module class.
+/// only ever be used by the constructor of the `module` class.
 inline decl::decl(int k) : kind_(k), id_(-1), cxt_() { }
+
+/// Initialize the declaration.
+inline decl::decl(int k, uid id, dc cxt) : kind_(k), id_(id), cxt_(cxt) { }
 
 /// Returns the language pack of the declaration.
 inline int decl::get_feature() const { return get_language(kind_); }
@@ -134,17 +138,23 @@ inline int decl::get_kind() const { return kind_; }
 /// Returns the unique id of the declaration.
 inline int decl::get_id() const { return id_; }
 
-/// Sets the unique id for this declaration.
-inline void decl::set_id(int n) { id_ = n; }
+/// Returns the semantic context of the declaration.
+inline const decl* decl::get_context() const { return cxt_.get_context(); }
 
-/// Returns the context of the declaration, or nullptr if this is a module.
-inline const decl* decl::get_context() const { return cxt_; }
+/// Returns the semantic context of the declaration.
+inline decl* decl::get_context() { return cxt_.get_context(); }
 
-/// Returns the context of the declaration, or nullptr if this is a module.
-inline decl* decl::get_context() { return cxt_; }
+/// Returns the semantic context of the declaration.
+inline const decl* decl::get_semantic_context() const { return cxt_.get_semantic_context(); }
 
-/// Sets the context of this declaration.
-inline void decl::set_context(decl& d) { cxt_ = &d; }
+/// Returns the semantic context of the declaration.
+inline decl* decl::get_semantic_context() { return cxt_.get_semantic_context(); }
+
+/// Returns the lexical context of the declaration.
+inline const decl* decl::get_lexical_context() const { return cxt_.get_lexical_context(); }
+
+/// Returns the lexical context of the declaration.
+inline decl* decl::get_lexical_context() { return cxt_.get_lexical_context(); }
 
 
 // -------------------------------------------------------------------------- //
@@ -158,23 +168,25 @@ using decl_seq = seq<decl>;
 // Named declarations
 
 // Determine how names are linked between translation units.
-enum {
-  // Standard forms of linkage
-  no_link,        // The name has no linkage
-  external_link,  // The symbol is visible between translation units
-  internal_link,  // The symbol is visible only within the defining translation
-
-  // Non-standard forms of linkage
-  private_link,   // The symbol is not visible outside the defining translation
+enum linkage {
+  /// The name has no linkage
+  no_link,
+  // The name is available between translation units
+  external_link,
+  // The name is available only within the defining translation
+  internal_link,
+  // The name is not available outside the defining translation
+  private_link,
 };
 
 // Represents the set of declarations that bind a name to an entity.
 struct named_decl : decl
 {
-  named_decl(int, name&);
+  named_decl(int, uid, dc, name&);
+  named_decl(int, uid, dc, linkage, name&);
 
-  void set_linkage(int);
-  int get_linkage() const;
+  void set_linkage(linkage);
+  linkage get_linkage() const;
   bool has_linkage() const;
   bool has_external_linkage() const;
   bool has_internal_linkage() const;
@@ -183,53 +195,68 @@ struct named_decl : decl
   const name& get_name() const;
   name& get_name();
 
-  int link_;
+  linkage link_;
   name* name_;
 };
 
-// Initialize the named declaration with kind k and name n.
+/// Initialize the named declaration with kind k and name n. By default all
+/// declarations have external linkage.
 inline 
-named_decl::named_decl(int k, name& n) 
-  : decl(k), link_(external_link), name_(&n) 
+named_decl::named_decl(int k, uid id, dc cxt, name& n) 
+  : decl(k, id, cxt), link_(external_link), name_(&n) 
 { }
 
-// Returns the declaration's name.
+/// Initialize the named declaration.
+inline 
+named_decl::named_decl(int k, uid id, dc cxt, linkage l, name& n) 
+  : decl(k, id, cxt), link_(l), name_(&n) 
+{ }
+
+/// Returns the declaration's name.
 inline const name& named_decl::get_name() const { return *name_; }
 
-// Returns the declaration's name.
+/// Returns the declaration's name.
 inline name& named_decl::get_name() { return *name_; }
 
-// Set the linkage for the declaration.
-inline void named_decl::set_linkage(int l) { link_ = l; }
+/// Set the linkage for the declaration.
+inline void named_decl::set_linkage(linkage l) { link_ = l; }
 
-inline int named_decl::get_linkage() const { return link_; }
+/// Returns the linkage for the declaration.
+inline linkage named_decl::get_linkage() const { return link_; }
 
-// Returns true if the name has any kind of linkage.
+/// Returns true if the name has any kind of linkage.
 inline bool named_decl::has_linkage() const { return link_ != no_link; }
 
-// Returns true if the name has external linkage.
+/// Returns true if the name has external linkage.
 inline bool named_decl::has_external_linkage() const { return link_ != no_link; }
 
-// Returns true if the name has internal linkage.
+/// Returns true if the name has internal linkage.
 inline bool named_decl::has_internal_linkage() const { return link_ != no_link; }
 
-//Returns true if the name has private linkage.
+/// Returns true if the name has private linkage.
 inline bool named_decl::has_private_linkage() const { return link_ != no_link; }
 
 
 // A helper class for declaring named declarations.
 template<int K>
-struct generic_named_decl : named_decl
+struct named_decl_impl : named_decl
 {
   static constexpr int node_kind = K;
 
-  generic_named_decl(name&);
+  named_decl_impl(uid, dc, name&);
+  named_decl_impl(uid, dc, linkage, name&);
 };
 
 template<int K>
 inline
-generic_named_decl<K>::generic_named_decl(name& n)
-  : named_decl(K, n)
+named_decl_impl<K>::named_decl_impl(uid id, dc cxt, name& n)
+  : named_decl(K, id, cxt, n)
+{ }
+
+template<int K>
+inline
+named_decl_impl<K>::named_decl_impl(uid id, dc cxt, linkage l, name& n)
+  : named_decl(K, id, cxt, l, n)
 { }
 
 
@@ -241,11 +268,10 @@ generic_named_decl<K>::generic_named_decl(name& n)
 /// Typed entities associate a value either directly (e.g., a constant) or
 /// indirectly (i.e., stored in a variable or accessed by a reference), or
 /// are functions.
-///
-/// The typed entity has an associated storage class.
 struct typed_decl : named_decl
 {
-  typed_decl(int, name&, type&);
+  typed_decl(int, uid, dc, name&, type&);
+  typed_decl(int, uid, dc, linkage, name&, type&);
 
   const type& get_type() const;
   type& get_type();
@@ -253,112 +279,148 @@ struct typed_decl : named_decl
   type* type_;
 };
 
-// Initialize the typed declaration with kind k, name n, and type t.
-//
-// The storage class is initially constant.
+/// Initialize the typed declaration with kind k, name n, and type t.
 inline
-typed_decl::typed_decl(int k, name& n, type& t)
-  : named_decl(k, n), type_(&t)
+typed_decl::typed_decl(int k, uid id, dc cxt, name& n, type& t)
+  : named_decl(k, id, cxt, n), type_(&t)
 { }
 
-// Returns the type of the declaration.
+/// Initialize the typed declaration.
+inline
+typed_decl::typed_decl(int k, uid id, dc cxt, linkage l, name& n, type& t)
+  : named_decl(k, id, cxt, l, n), type_(&t)
+{ }
+
+/// Returns the type of the declaration.
 inline const type& typed_decl::get_type() const { return *type_; }
 
-// Returns the type of the declaration.
+/// Returns the type of the declaration.
 inline type& typed_decl::get_type() { return *type_; }
 
 
-// A helper class for declaring named declarations.
+/// A helper class for defining typed declarations.
 template<int K>
-struct generic_typed_decl : typed_decl
+struct typed_decl_impl : typed_decl
 {
   static constexpr int node_kind = K;
 
-  generic_typed_decl(name&, type&);
+  typed_decl_impl(uid, dc, name&, type&);
+  typed_decl_impl(uid, dc, linkage, name&, type&);
 };
 
 template<int K>
 inline
-generic_typed_decl<K>::generic_typed_decl(name& n, type& t)
-  : typed_decl(K, n, t)
+typed_decl_impl<K>::typed_decl_impl(uid id, dc cxt, linkage l, name& n, type& t)
+  : typed_decl(K, id, cxt, l, n, t)
 { }
 
 
 // -------------------------------------------------------------------------- //
 // Value declarations
 
-
-// Storage classes.
-enum {
-  constant_storage,
-  static_storage,
+/// The storage class of a value declaration determines the time that an
+/// object's storage persists.
+enum storage {
+  /// Storage is allocated at the beginning of a function call and is 
+  /// deallocated when that function ends.
   automatic_storage,
+  /// Storage is allocated when the program begins and is deallocated when
+  /// the program terminates.
+  static_storage,
+  /// Storage is allocated when a thread begins and is deallocated when the
+  /// thread is ends.
   thread_storage,
 };
+
+/// Returns a default linkage specifier based on a storage class. Objects
+/// with automatic storage do not have linkage.
+inline linkage
+get_default_linkage(storage s)
+{
+  if (s == automatic_storage)
+    return no_link;
+  else
+    return external_link;
+}
 
 
 /// A value declaration associates a name with a value.
 ///
-/// Examples include variables and constants.
-///
-/// \todo Can an initializer be a non-expression? It could be a constant.
+/// \todo Merge the storage for the value class with the storage for the
+/// linkage specifier to save memory.
 struct value_decl : typed_decl
 {
-  enum {
-    /// The value is initialized by an expression, very specifically by
-    /// an initialization expression.
-    expr_defn,
-  };
-
-  value_decl(int, name&, type&);
-  value_decl(int, name&, type&, expr&);
+  value_decl(int, uid, dc, storage, name&, type&);
+  value_decl(int, uid, dc, storage, name&, type&, expr&);
+  value_decl(int, uid, dc, linkage, storage, name&, type&);
+  value_decl(int, uid, dc, linkage, storage, name&, type&, expr&);
 
   bool has_initializer() const;
-  defn get_initializer() const;
+  const expr& get_initializer() const;
+  expr& get_initializer();
 
-  void set_storage(int);
-  int get_storage() const;
-  bool has_storage() const;
+  void set_storage(storage);
+  storage get_storage() const;
   bool has_static_storage() const;
   bool has_automatic_storage() const;
   bool has_thread_storage() const;
 
-  defn def_;
-  int storage_;
+  storage storage_;
+  expr* def_;
 };
 
+/// Initialize this variable with default linkage and no definition.
 inline
-value_decl::value_decl(int k, name& n, type& t)
-  : typed_decl(k, n, t), def_(), storage_(automatic_storage)
+value_decl::value_decl(int k, uid id, dc cxt, storage s, name& n, type& t)
+  : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), def_()
 { }
 
+/// Initialize this value declaration with default linkage.
 inline
-value_decl::value_decl(int k, name& n, type& t, expr& e)
-  : typed_decl(k, n, t), def_(expr_defn, &e), storage_(automatic_storage)
+value_decl::value_decl(int k, uid id, dc cxt, storage s, name& n, type& t, expr& e)
+  : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), def_(&e)
 { }
+
+/// Initialize this value declaration.
+inline
+value_decl::value_decl(int k, uid id, dc cxt, linkage l, storage s, name& n, type& t)
+  : typed_decl(k, id, cxt, l, n, t), storage_(s), def_()
+{
+  assert(s == automatic_storage ? l == no_link : true);
+}
+
+/// Initialize this value declaration.
+inline
+value_decl::value_decl(int k, uid id, dc cxt, linkage l, storage s, name& n, type& t, expr& e)
+  : typed_decl(k, id, cxt, l, n, t), storage_(s), def_(&e)
+{
+  assert(s == automatic_storage ? l == no_link : true);
+}
 
 /// Returns true when declaration has a local definition.
-inline bool value_decl::has_initializer() const { return def_.is_present(); }
+inline bool value_decl::has_initializer() const { return def_; }
 
-// Returns the initializer of the value declaration.
-inline defn value_decl::get_initializer() const { return def_; }
+/// Returns the initializer of the value declaration. This is defined only
+/// when has_initializer() is true.
+inline const expr& value_decl::get_initializer() const { return *def_; }
 
-// Set the storage class of the declaration.
-inline void value_decl::set_storage(int sc) { storage_ = sc; }
+/// Returns the initializer of the value declaration. This is defined only
+/// when has_initializer() is true.
+inline expr& value_decl::get_initializer() { return *def_; }
 
-// Returns the storage class of the declaration.
-inline int value_decl::get_storage() const { return storage_; }
+/// Set the storage class of the declaration.
+inline void value_decl::set_storage(storage s) { storage_ = s; }
 
-// Returns true when the declaration has constant storage.
-inline bool value_decl::has_storage() const { return storage_ != constant_storage; }
+/// Returns the storage class of the declaration.
+inline storage value_decl::get_storage() const { return storage_; }
 
-// Returns true when the declaration has static storage.
+/// Returns true when the declaration has static storage.
 inline bool value_decl::has_static_storage() const { return storage_ & static_storage; }
 
-// Returns true when the declaration has automatic storage.
+/// Returns true when the declaration has automatic storage.
 inline bool value_decl::has_automatic_storage() const { return storage_ & automatic_storage; }
 
-// Returns true when the declaration has thread storage.
+/// Returns true when the declaration has thread storage.
 inline bool value_decl::has_thread_storage() const { return storage_ & thread_storage; }
 
 
@@ -366,49 +428,57 @@ inline bool value_decl::has_thread_storage() const { return storage_ & thread_st
 //
 // Examples include variables and constants.
 template<int K>
-struct generic_value_decl : value_decl
+struct value_decl_impl : value_decl
 {
   static constexpr int node_kind = K;
 
-  generic_value_decl(name&, type&);
-  generic_value_decl(name&, type&, expr&);
+  value_decl_impl(uid, dc, storage, name&, type&);
+  value_decl_impl(uid, dc, storage, name&, type&, expr&);
+  value_decl_impl(uid, dc, linkage, storage, name&, type&);
+  value_decl_impl(uid, dc, linkage, storage, name&, type&, expr&);
 };
 
 template<int K>
 inline
-generic_value_decl<K>::generic_value_decl(name& n, type& t)
-  : value_decl(K, n, t)
+value_decl_impl<K>::value_decl_impl(uid id, dc cxt, storage s, name& n, type& t)
+  : value_decl(K, id, cxt, s, n, t)
 { }
 
 template<int K>
 inline
-generic_value_decl<K>::generic_value_decl(name& n, type& t, expr& e)
-  : value_decl(K, n, t, e)
+value_decl_impl<K>::value_decl_impl(uid id, dc cxt, storage s, name& n, type& t, expr& e)
+  : value_decl(K, id, cxt, s, n, t, e)
+{ }
+
+template<int K>
+inline
+value_decl_impl<K>::value_decl_impl(uid id, dc cxt, linkage l, storage s, name& n, type& t)
+  : value_decl(K, id, cxt, l, s, n, t)
+{ }
+
+template<int K>
+inline
+value_decl_impl<K>::value_decl_impl(uid id, dc cxt, linkage l, storage s, name& n, type& t, expr& e)
+  : value_decl(K, id, cxt, l, s, n, t, e)
 { }
 
 
 // -------------------------------------------------------------------------- //
 // Mapping declarations
 
-/// Represents the mapping of inputs to outputs.
-///
-/// Examples of mappings are functions and axioms.
+/// Represents the mapping of inputs to outputs. Examples of mappings are 
+/// functions and axioms.
 ///
 /// Mappings can be defined by either expressions (to support functional
 /// programming) or statements (to support imperative programming).
 struct mapping_decl : typed_decl
 {
-  enum {
-    stmt_defn, // All mappings can be defined by a statements
-    expr_defn  // All mappings can be defined by an expression
-  };
-
-  mapping_decl(int, name&, type&, const decl_seq&, decl&);
-  mapping_decl(int, name&, type&, decl_seq&&, decl&);
-  mapping_decl(int, name&, type&, const decl_seq&, decl&, expr&);
-  mapping_decl(int, name&, type&, decl_seq&&, decl&, expr&);
-  mapping_decl(int, name&, type&, const decl_seq&, decl&, stmt&);
-  mapping_decl(int, name&, type&, decl_seq&&, decl&, stmt&);
+  mapping_decl(int, uid, dc, name&, type&, const decl_seq&, decl&);
+  mapping_decl(int, uid, dc, name&, type&, decl_seq&&, decl&);
+  mapping_decl(int, uid, dc, name&, type&, const decl_seq&, decl&, stmt&);
+  mapping_decl(int, uid, dc, name&, type&, decl_seq&&, decl&, stmt&);
+  mapping_decl(int, uid, dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
+  mapping_decl(int, uid, dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
 
   const decl_seq& get_parameters() const;
   decl_seq& get_parameters();
@@ -420,60 +490,103 @@ struct mapping_decl : typed_decl
   type& get_return_type();
 
   bool has_definition() const;
-  defn get_definition() const;
+  const stmt& get_definition() const;
+  stmt& get_definition();
+
+private:
+  void finish_parms();
+public:
 
   decl_seq parms_;
   decl* ret_;
-  defn def_;
+  stmt* def_;
 };
 
-inline
-mapping_decl::mapping_decl(int k, name& n, type& t, const decl_seq& p, decl& r)
-  : typed_decl(k, n, t), parms_(p), ret_(&r), def_()
-{ }
+// Parameters are generally created without contexts. Set the semantic context
+// of each parameter to this functions.
+inline void
+mapping_decl::finish_parms()
+{
+  for (decl& p : parms_) {
+    assert(!p.get_context());
+    p.cxt_ = dc(*this);
+  }
+  ret_->cxt_ = dc(*this);
+}
 
+/// Initialize this function declaration, having no definition. Undefined
+/// functions have external linkage by default.
 inline
-mapping_decl::mapping_decl(int k, name& n, type& t, decl_seq&& p, decl& r)
-  : typed_decl(k, n, t), parms_(std::move(p)), ret_(&r), def_()
-{ }
+mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r)
+  : typed_decl(k, id, cxt, n, t), parms_(p), ret_(&r), def_()
+{
+  finish_parms();
+}
 
+/// Initialize this function declaration, having no definition. Undefined
+/// functions have external linkage by default.
 inline
-mapping_decl::mapping_decl(int k, name& n, type& t, const decl_seq& p, decl& r, expr& e)
-  : typed_decl(k, n, t), parms_(p), ret_(&r), def_(expr_defn, &e)
-{ }
+mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r)
+  : typed_decl(k, id, cxt, n, t), parms_(std::move(p)), ret_(&r), def_()
+{ 
+  finish_parms();
+}
 
+/// Initialize this function declaration. The function has external linkage.
+/// linkage.
 inline
-mapping_decl::mapping_decl(int k, name& n, type& t, decl_seq&& p, decl& r, expr& e)
-  : typed_decl(k, n, t), parms_(std::move(p)), ret_(&r), def_(expr_defn, &e)
-{ }
+mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+  : typed_decl(k, id, cxt, n, t), parms_(p), ret_(&r), def_(&s)
+{ 
+  finish_parms();
+}
 
+/// Initialize this function declaration. The function has external linkage.
 inline
-mapping_decl::mapping_decl(int k, name& n, type& t, const decl_seq& p, decl& r, stmt& e)
-  : typed_decl(k, n, t), parms_(p), ret_(&r), def_(stmt_defn, &e)
-{ }
+mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+  : typed_decl(k, id, cxt, n, t), parms_(std::move(p)), ret_(&r), def_(&s)
+{ 
+  finish_parms();
+}
 
+/// Initialize this function declaration.
 inline
-mapping_decl::mapping_decl(int k, name& n, type& t, decl_seq&& p, decl& r, stmt& e)
-  : typed_decl(k, n, t), parms_(std::move(p)), ret_(&r), def_(stmt_defn, &e)
-{ }
+mapping_decl::mapping_decl(int k, uid id, dc cxt, linkage l, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+  : typed_decl(k, id, cxt, l, n, t), parms_(p), ret_(&r), def_(&s)
+{ 
+  finish_parms();
+}
 
-// Returns the mapping's parameters.
+/// Initialize this function declaration.
+inline
+mapping_decl::mapping_decl(int k, uid id, dc cxt, linkage l, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+  : typed_decl(k, id, cxt, l, n, t), parms_(std::move(p)), ret_(&r), def_(&s)
+{ 
+  finish_parms();
+}
+
+/// Returns the mapping's parameters.
 inline const decl_seq& mapping_decl::get_parameters() const { return parms_; }
 
-// Returns the mapping's parameters.
+/// Returns the mapping's parameters.
 inline decl_seq& mapping_decl::get_parameters() { return parms_; }
 
-// Returns the mappings return declaration.
+/// Returns the mappings return declaration.
 inline const decl& mapping_decl::get_return() const { return *ret_; }
 
-// Returns the mappings return declaration.
+/// Returns the mappings return declaration.
 inline decl& mapping_decl::get_return() { return *ret_; }
 
 /// Returns true if the function has a definition.
-inline bool mapping_decl::has_definition() const { return def_.is_present(); }
+inline bool mapping_decl::has_definition() const { return def_; }
 
-// Returns the definition of the mapping.
-inline defn mapping_decl::get_definition() const { return def_; }
+/// Returns the definition of the mapping. This is valid only if the function
+/// has_definition() returns true.
+inline const stmt& mapping_decl::get_definition() const { return *def_; }
+
+/// Returns the definition of the mapping. This is valid only if the function
+/// has_definition() returns true.
+inline stmt& mapping_decl::get_definition() { return *def_; }
 
 
 // A helper class for defining mapping declarations.
@@ -482,49 +595,48 @@ struct mapping_decl_impl : mapping_decl
 {
   static constexpr int node_kind = K;
 
-  mapping_decl_impl(name&, type&, const decl_seq&, decl&);
-  mapping_decl_impl(name&, type&, decl_seq&&, decl&);
-  mapping_decl_impl(name&, type&, const decl_seq&, decl&, expr&);
-  mapping_decl_impl(name&, type&, decl_seq&&, decl&, expr&);
-  mapping_decl_impl(name&, type&, const decl_seq&, decl&, stmt&);
-  mapping_decl_impl(name&, type&, decl_seq&&, decl&, stmt&);
+  mapping_decl_impl(uid, dc, name&, type&, const decl_seq&, decl&);
+  mapping_decl_impl(uid, dc, name&, type&, decl_seq&&, decl&);
+  mapping_decl_impl(uid, dc, name&, type&, const decl_seq&, decl&, stmt&);
+  mapping_decl_impl(uid, dc, name&, type&, decl_seq&&, decl&, stmt&);
+  mapping_decl_impl(uid, dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
+  mapping_decl_impl(uid, dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
 };
 
-
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r)
-  : mapping_decl(K, n, t, p, r)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r)
+  : mapping_decl(K, id, cxt, n, t, p, r)
 { }
 
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r)
-  : mapping_decl(K, n, t, std::move(p), r)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r)
+  : mapping_decl(K, id, cxt, n, t, std::move(p), r)
 { }
 
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r, expr& e)
-  : mapping_decl(K, n, t, p, r, e)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+  : mapping_decl(K, id, cxt, n, t, p, r, s)
 { }
 
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r, expr& e)
-  : mapping_decl(K, n, t, std::move(p), r, e)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+  : mapping_decl(K, id, cxt, n, t, std::move(p), r, s)
 { }
 
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, const decl_seq& p, decl& r, stmt& s)
-  : mapping_decl(K, n, t, p, r, s)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, linkage l, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
+  : mapping_decl(K, id, cxt, l, n, t, p, r, s)
 { }
 
 template<int K>
 inline
-mapping_decl_impl<K>::mapping_decl_impl(name& n, type& t, decl_seq&& p, decl& r, stmt& s)
-  : mapping_decl(K, n, t, std::move(p), r, s)
+mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, linkage l, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
+  : mapping_decl(K, id, cxt, l, n, t, std::move(p), r, s)
 { }
 
 

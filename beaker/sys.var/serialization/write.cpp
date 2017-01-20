@@ -74,22 +74,10 @@ write_algo::operator()(archive_writer& ar, const expr& e) const
 
 
 void
-write_var_decl(archive_writer& ar, const var_decl& d)
-{
-  write_name(ar, d.get_name());
-  write_type(ar, d.get_type());
-
-  defn def = d.get_initializer();
-  write_bool(ar, def.is_present());
-  if (def.is_present())
-    write_expr(ar, def.get_as<expr>());
-}
-
-void
 write_algo::operator()(archive_writer& ar, const decl& d) const
 {
   assert(is<var_decl>(d));
-  write_var_decl(ar, cast<var_decl>(d));
+  write_value_decl(ar, cast<var_decl>(d));
 }
 
 } // namespace sys_var
