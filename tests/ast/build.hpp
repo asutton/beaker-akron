@@ -95,29 +95,36 @@ struct builder
 
 
   // Declarations
-  auto& make_assert_decl(expr& e) { return bool_.make_assert_decl(e); }
+  auto& make_assert_decl(decl& cxt, expr& e) { return bool_.make_assert_decl(cxt, e); }
   
-  template<typename... Args>
-  auto& make_var_decl(Args&&... args) { return var_.make_var_decl(std::forward<Args>(args)...); }
+  // Declarations
+  sys_var::var_decl& make_global_var_decl(name&, type&, expr&);
+  sys_var::var_decl& make_global_var_decl(const char*, type&, expr&);
+  sys_var::var_decl& make_local_var_decl(decl&, name&, type&, expr&);
+  sys_var::var_decl& make_local_var_decl(decl&, const char*, type&, expr&);
 
-  template<typename... Args>
-  auto& make_fn_decl(Args&&... args) { return fn_.make_fn_decl(std::forward<Args>(args)...); }
-  
-  template<typename... Args>
-  auto& make_parm_decl(Args&&... args) { return fn_.make_parm_decl(std::forward<Args>(args)...); }
+  // Declarations
+  sys_fn::fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
+  sys_fn::fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, stmt&);
+  sys_fn::fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
+  sys_fn::fn_decl& make_fn_decl(const char*, type&, decl_seq&&, decl&, stmt&);
+
+  sys_fn::parm_decl& make_parm_decl(name&, type&);
+  sys_fn::parm_decl& make_parm_decl(const char*, type&);
 
   // Statements
+  auto& make_block_stmt() { return fn_.make_block_stmt(); }
   auto& make_block_stmt(const stmt_seq& s) { return fn_.make_block_stmt(s); }
   auto& make_block_stmt(stmt_seq&& ss) { return fn_.make_block_stmt(std::move(ss)); }
   auto& make_expr_stmt(expr& e) { return fn_.make_expr_stmt(e); }
   auto& make_decl_stmt(decl& d) { return fn_.make_decl_stmt(d); }
   auto& make_ret_stmt(expr& e) { return fn_.make_ret_stmt(e); }
 
-
   // Common snippets
-  decl& make_main(const stmt_seq&);
+  decl& make_main();
   stmt& make_return(int);
 
+  module* mod_;
   beaker::sys_void::builder& void_;
   beaker::sys_bool::builder& bool_;
   beaker::sys_int::builder& int_;
@@ -126,13 +133,369 @@ struct builder
   beaker::sys_fn::builder& fn_;
 };
 
-inline builder::builder(module& mod)
-  : void_(mod.get_builder<sys_void::builder>()),
+inline 
+builder::builder(module& mod)
+  : mod_(&mod),
+    void_(mod.get_builder<sys_void::builder>()),
     bool_(mod.get_builder<sys_bool::builder>()),
     int_(mod.get_builder<sys_int::builder>()),
     name_(mod.get_builder<sys_name::builder>()),
     var_(mod.get_builder<sys_var::builder>()),
     fn_(mod.get_builder<sys_fn::builder>())
 { }
+
+// -------------------------------------------------------------------------- //
+// Builder context
+
+/// Establishes a builder as the current global builder.
+struct global_builder
+{
+  static builder* current;
+
+  global_builder(builder& b)
+  {
+    assert(!current);
+    prev = current;
+    current = &b;
+  }
+
+  ~global_builder()
+  {
+    current = prev;
+  }
+
+  /// Returns the current builder.
+  static builder& get() { return *current; }
+
+  builder* prev;
+};
+
+
+// -------------------------------------------------------------------------- //
+// Expression template language.
+
+/// Represents a literal value.
+template<typename T>
+struct literal_et
+{
+  literal_et(bool b) : val(b) { }
+
+  operator expr&() 
+  { 
+    return global_builder::get().make_bool_expr(value(val)); 
+  }
+  
+  T val;
+};
+
+/// Represents a reference to a declaration.
+struct ref_et
+{
+  ref_et(decl& d) : d(&d) { }
+
+  operator expr&() 
+  {
+    return global_builder::get().make_ref_expr(*d);
+  }
+
+  decl* d;
+};
+
+// Kinds of unary operations.
+enum unary_op
+{
+  not_op,
+  comp_op,
+  neg_op,
+  pos_op
+};
+
+// Represents a unary expression.
+template<unary_op K, typename E>
+struct unary_et
+{
+  unary_et(E e) : arg(e) { }
+
+  operator expr&() 
+  { 
+    expr* e = &(expr&)arg;
+
+    // Unary expressions generally require values.
+    //
+    // FIXME: This actually depends on the operator.
+    if (is_reference_expression(*e))
+      e = &global_builder::get().make_deref_expr(*e);
+
+    switch (K) {
+      case not_op:
+        if (sys_bool::is_boolean_expression(*e))
+          return global_builder::get().make_bool_not_expr(*e);
+        else
+          assert(false && "invalid operand");
+        break;
+      default:
+        break;
+    }
+    assert(false && "operation not implemented");
+  }
+
+  E arg;
+};
+
+/// Kinds of binary expressions.
+enum binary_op
+{
+  // Relational operations
+  eq_op, ne_op, lt_op, gt_op, le_op, ge_op,
+
+  // Arithmetic operations
+  add_op, sub_op, mul_op, div_op, rem_op,
+
+  // Binary operations
+  and_op, or_op, xor_op, imp_op,
+
+  // Logical operations
+  and_if_op, or_if_op,
+};
+
+/// Returns true if e1 and e2 are boolean expressions.
+inline bool
+are_boolean(expr& e1, expr& e2)
+{
+  return sys_bool::is_boolean_expression(e1) && 
+         sys_bool::is_boolean_expression(e2);
+}
+
+/// Returns true if e1 and e2 are integer expressions.
+inline bool
+are_integer(expr& e1, expr& e2)
+{
+  return sys_int::is_integral_expression(e1) && 
+         sys_int::is_integral_expression(e2);
+}
+
+// Represents a binary expression.
+template<binary_op K, typename E1, typename E2>
+struct binary_et
+{
+  binary_et(E1 e1, E2 e2) : arg1(e1), arg2(e2) { }
+
+  operator expr&() 
+  {
+    expr* e1 = &(expr&)arg1;
+    expr* e2 = &(expr&)arg2;
+
+    // Binary expressions generally require objects, not references.
+    //
+    // FIXME: This actually depends on the operator (e.g., assignment).
+    if (is_reference_expression(*e1))
+      e1 = &global_builder::get().make_deref_expr(*e1);
+    if (is_reference_expression(*e2))
+      e2 = &global_builder::get().make_deref_expr(*e2);
+
+    switch (K) {
+      case eq_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_bool_eq_expr(*e1, *e2);
+        else if (are_integer(*e1, *e2))
+          return global_builder::get().make_int_eq_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+      
+      case ne_op:
+        if (are_integer(*e1, *e2))
+          return global_builder::get().make_int_ne_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+      
+      case lt_op:
+      case gt_op:
+      case le_op:
+      case ge_op:
+        assert(false && "operation not implemented");
+        break;
+
+      case add_op:
+      case sub_op:
+      case mul_op:
+      case div_op:
+      case rem_op:
+        assert(false && "operation not implemented");
+        break;
+
+      case and_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_bool_and_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+      
+      case or_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_bool_or_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+      
+      case xor_op:
+        assert(false && "operation not implemented");
+      
+      case imp_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_bool_imp_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+
+      case and_if_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_and_then_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+      
+      case or_if_op:
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_or_else_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
+
+      default:
+        assert(false && "operation not implemented");
+    }
+  }
+
+  E1 arg1;
+  E2 arg2;
+};
+
+
+/// Returns the literal `true`.
+inline literal_et<bool> true_() { return literal_et<bool>(true); }
+
+/// Returns the literal `false`.
+inline literal_et<bool> false_() { return literal_et<bool>(false); }
+
+
+template<typename T>
+struct is_expression_template : std::false_type { };
+
+template<typename T>
+struct is_expression_template<literal_et<T>> : std::true_type { };
+
+template<>
+struct is_expression_template<ref_et> : std::true_type { };
+
+template<unary_op K, typename E>
+struct is_expression_template<unary_et<K, E>> : std::true_type { };
+
+template<binary_op K, typename E1, typename E2>
+struct is_expression_template<binary_et<K, E1, E2>> : std::true_type { };
+
+/// Returns expression `!e`.
+template<typename E> 
+inline std::enable_if_t<
+  is_expression_template<E>::value, unary_et<not_op, E>
+>
+operator!(E e) 
+{ 
+  return unary_et<not_op, E>(e); 
+}
+
+/// Returns the expression `!d`.
+inline auto operator!(decl& d) { return !ref_et(d); }
+
+/// Returns expression `e1 == e2`.
+template<typename E1, typename E2> 
+inline std::enable_if_t<
+  is_expression_template<E1>::value && is_expression_template<E2>::value, 
+  binary_et<eq_op, E1, E2>
+>
+operator==(E1 e1, E2 e2) 
+{
+  return binary_et<eq_op, E1, E2>(e1, e2); 
+}
+
+template<typename E>
+inline auto operator==(decl& d, E e) { return ref_et(d) == e; }
+
+template<typename E>
+inline auto operator==(E e, decl& d) { return e == ref_et(d); }
+
+inline auto operator==(decl& d1, decl& d2) { return ref_et(d1) == ref_et(d2); }
+ 
+
+// -------------------------------------------------------------------------- //
+// Expression template language.
+
+inline stmt_seq&
+get_body(decl& d)
+{
+  stmt& s = cast<sys_fn::fn_decl>(d).get_definition();
+  return cast<sys_fn::block_stmt>(s).get_statements();
+}
+
+
+// -------------------------------------------------------------------------- //
+// Statement builder
+
+/// A helper class that can be used to create statements. This class is not
+/// constructed directly, but rather through the `add_stmts()` function.
+struct stmt_builder
+{
+  stmt_builder(decl& d)
+    : build(global_builder::get()), cxt(d), stmts(get_body(d))
+  { }
+
+  stmt_builder& var(decl*&, name&, type&, expr&);
+  stmt_builder& var(decl*&, const char*, type&, expr&);
+  stmt_builder& check(expr&);
+  
+  builder& build;
+  decl& cxt;
+  stmt_seq& stmts;
+};
+
+/// Create a statement that declares a local variable and adds that to the 
+/// builder's list of statements.  Saves a reference to the variable in `out`.
+inline stmt_builder& 
+stmt_builder::var(decl*& out, name& n, type& t, expr& e)
+{ 
+  assert(!out);
+  sys_var::var_decl& var = build.make_local_var_decl(cxt, n, t, e);
+  sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
+  stmts.push_back(stmt);
+  out = &var;
+  return *this;
+}
+
+/// Create a statement that declares a local variable and adds that to the 
+/// builder's list of statements.  Saves a reference to the variable in `out`.
+inline stmt_builder& 
+stmt_builder::var(decl*& out, const char* n, type& t, expr& e)
+{ 
+  assert(!out);
+  sys_var::var_decl& var = build.make_local_var_decl(cxt, n, t, e);
+  sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
+  stmts.push_back(stmt);
+  out = &var;
+  return *this;
+}
+
+inline stmt_builder& 
+stmt_builder::check(expr& e)
+{
+  sys_bool::assert_decl& decl = build.make_assert_decl(cxt, e);
+  sys_fn::decl_stmt& stmt = build.make_decl_stmt(decl);
+  stmts.push_back(stmt);
+  return *this;
+}
+
+
+/// Returns a statement builder for the given function.
+inline stmt_builder add_stmts(decl& d) { return {d}; }
 
 #endif

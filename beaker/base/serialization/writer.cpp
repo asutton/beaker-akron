@@ -318,6 +318,11 @@ void
 archive_writer::write_ref(const decl& d)
 {
   assert(decls.ids.size() == decls.bytes.size());
+
+  // Don't try to write references to the module.
+  if (is<module>(d))
+    return write_id(-1);
+
   auto iter = decls.ids.find(&d);
   if (iter == decls.ids.end()) {
     // If the declaration hasn't been seen yet generate a new id and initialize

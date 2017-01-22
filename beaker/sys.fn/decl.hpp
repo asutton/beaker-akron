@@ -48,8 +48,15 @@ struct fn_decl : mapping_decl_impl<fn_decl_kind>
 /// the parameter.
 struct parm_decl : value_decl_impl<parm_decl_kind>
 {
-  using value_decl_impl<parm_decl_kind>::value_decl_impl;
+  parm_decl(uid, name&, type&);
 };
+
+/// Initialize the parameter. Note that the declaration context is null
+/// until the parameter is added to a function.
+inline
+parm_decl::parm_decl(uid id, name& n, type& t)
+  : value_decl_impl<parm_decl_kind>(id, dc(), automatic_storage, n, t)
+{ }
 
 
 // -------------------------------------------------------------------------- //

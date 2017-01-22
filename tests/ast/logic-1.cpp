@@ -12,14 +12,16 @@
 using namespace beaker;
 
 static void
-check_canonical_types(builder& build)
+check_canonical_types()
 {
   // Check canonical types.
+  builder& build = global_builder::get();
   type& b1 = build.get_bool_type();
   type& b2 = build.get_bool_type();
   assert(&b1 == &b2);
 }
 
+#if 0
 // Build an assertion statement that e1 op e2 <=> r.
 static stmt*
 assert_eq(builder& build, int op, expr& e1, expr& e2, expr& r)
@@ -62,7 +64,7 @@ assert_eq(builder& build, int op, expr& e, expr& r)
   decl& d = build.make_assert_decl(eq);
   return &build.make_decl_stmt(d);
 }
-
+#endif
 
 int 
 main()
@@ -70,18 +72,26 @@ main()
   symbol_table syms;
   system_lang lang(syms);
   module mod(lang);
+  
+  // Create and establish a global builder context.
   builder build(mod);
+  global_builder global(build);
 
-  check_canonical_types(build);
+  check_canonical_types();
 
   type& b = build.get_bool_type();
 
-  // Store true and false values as variables to suppress constant
-  // folding during code generation (but not optimization).
-  decl_seq vars {
-    &build.make_var_decl("t", b, build.make_true_expr()), // var bool t = true
-    &build.make_var_decl("f", b, build.make_false_expr()), // var bool f = false
-  };
+  decl& main_ = build.make_main();
+
+  decl* t;
+  decl* f;
+  add_stmts(main_)
+    .var(t, "t", b, true_())
+    .var(f, "f", b, false_())
+    .check(!*f == *t)
+    .check(!*t == *f)
+  ;
+#if 0
   expr& t = build.make_deref_expr(build.make_ref_expr(vars[0]));
   expr& f = build.make_deref_expr(build.make_ref_expr(vars[1]));
 
@@ -131,15 +141,13 @@ main()
 
     &build.make_return(0)
   };
-
-  decl& main_ = build.make_main(stmts);
-  mod.add_declaration(main_);
+  #endif
 
   archive_writer ar;
   write_module(ar, mod);
   ar.save("out.bkm");
 
-  // generator gen("a.ll");
-  // generate(gen, mod);
-  // gen.print();
+  generator gen("a.ll");
+  generate(gen, mod);
+  gen.print();
 }

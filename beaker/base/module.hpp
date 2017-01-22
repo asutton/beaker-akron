@@ -78,6 +78,8 @@ struct id_generator
 /// to a translation unit in C/C++.
 struct module : decl, node_store
 {
+  static constexpr int node_kind = -1;
+
   module(language&);
   ~module();
 

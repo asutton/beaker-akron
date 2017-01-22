@@ -54,6 +54,7 @@ struct builder : basic_builder<sys_fn_lang>
   parm_decl& make_parm_decl(const char*, type&);
 
   // Statements
+  block_stmt& make_block_stmt();
   block_stmt& make_block_stmt(const stmt_seq&);
   block_stmt& make_block_stmt(stmt_seq&&);
   expr_stmt& make_expr_stmt(expr&);

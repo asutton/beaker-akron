@@ -182,7 +182,6 @@ enum linkage {
 // Represents the set of declarations that bind a name to an entity.
 struct named_decl : decl
 {
-  named_decl(int, uid, dc, name&);
   named_decl(int, uid, dc, linkage, name&);
 
   void set_linkage(linkage);
@@ -198,13 +197,6 @@ struct named_decl : decl
   linkage link_;
   name* name_;
 };
-
-/// Initialize the named declaration with kind k and name n. By default all
-/// declarations have external linkage.
-inline 
-named_decl::named_decl(int k, uid id, dc cxt, name& n) 
-  : decl(k, id, cxt), link_(external_link), name_(&n) 
-{ }
 
 /// Initialize the named declaration.
 inline 
@@ -228,13 +220,13 @@ inline linkage named_decl::get_linkage() const { return link_; }
 inline bool named_decl::has_linkage() const { return link_ != no_link; }
 
 /// Returns true if the name has external linkage.
-inline bool named_decl::has_external_linkage() const { return link_ != no_link; }
+inline bool named_decl::has_external_linkage() const { return link_ == external_link; }
 
 /// Returns true if the name has internal linkage.
-inline bool named_decl::has_internal_linkage() const { return link_ != no_link; }
+inline bool named_decl::has_internal_linkage() const { return link_ == internal_link; }
 
 /// Returns true if the name has private linkage.
-inline bool named_decl::has_private_linkage() const { return link_ != no_link; }
+inline bool named_decl::has_private_linkage() const { return link_ == private_link; }
 
 
 // A helper class for declaring named declarations.
@@ -243,15 +235,8 @@ struct named_decl_impl : named_decl
 {
   static constexpr int node_kind = K;
 
-  named_decl_impl(uid, dc, name&);
   named_decl_impl(uid, dc, linkage, name&);
 };
-
-template<int K>
-inline
-named_decl_impl<K>::named_decl_impl(uid id, dc cxt, name& n)
-  : named_decl(K, id, cxt, n)
-{ }
 
 template<int K>
 inline
@@ -270,7 +255,6 @@ named_decl_impl<K>::named_decl_impl(uid id, dc cxt, linkage l, name& n)
 /// are functions.
 struct typed_decl : named_decl
 {
-  typed_decl(int, uid, dc, name&, type&);
   typed_decl(int, uid, dc, linkage, name&, type&);
 
   const type& get_type() const;
@@ -278,12 +262,6 @@ struct typed_decl : named_decl
 
   type* type_;
 };
-
-/// Initialize the typed declaration with kind k, name n, and type t.
-inline
-typed_decl::typed_decl(int k, uid id, dc cxt, name& n, type& t)
-  : named_decl(k, id, cxt, n), type_(&t)
-{ }
 
 /// Initialize the typed declaration.
 inline
@@ -304,7 +282,6 @@ struct typed_decl_impl : typed_decl
 {
   static constexpr int node_kind = K;
 
-  typed_decl_impl(uid, dc, name&, type&);
   typed_decl_impl(uid, dc, linkage, name&, type&);
 };
 
@@ -351,8 +328,6 @@ get_default_linkage(storage s)
 struct value_decl : typed_decl
 {
   value_decl(int, uid, dc, storage, name&, type&);
-  value_decl(int, uid, dc, storage, name&, type&, expr&);
-  value_decl(int, uid, dc, linkage, storage, name&, type&);
   value_decl(int, uid, dc, linkage, storage, name&, type&, expr&);
 
   bool has_initializer() const;
@@ -369,27 +344,16 @@ struct value_decl : typed_decl
   expr* def_;
 };
 
-/// Initialize this variable with default linkage and no definition.
+/// Initialize this variable with no definition and default linkage. Note
+/// that this allows the construction of undefined automatic variables, which
+/// is useful for declaring parameters.
 inline
 value_decl::value_decl(int k, uid id, dc cxt, storage s, name& n, type& t)
   : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), def_()
 { }
 
-/// Initialize this value declaration with default linkage.
-inline
-value_decl::value_decl(int k, uid id, dc cxt, storage s, name& n, type& t, expr& e)
-  : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), def_(&e)
-{ }
-
-/// Initialize this value declaration.
-inline
-value_decl::value_decl(int k, uid id, dc cxt, linkage l, storage s, name& n, type& t)
-  : typed_decl(k, id, cxt, l, n, t), storage_(s), def_()
-{
-  assert(s == automatic_storage ? l == no_link : true);
-}
-
-/// Initialize this value declaration.
+/// Initialize this value declaration. Values with automatic storage shall
+/// have no linkage.
 inline
 value_decl::value_decl(int k, uid id, dc cxt, linkage l, storage s, name& n, type& t, expr& e)
   : typed_decl(k, id, cxt, l, n, t), storage_(s), def_(&e)
@@ -415,13 +379,13 @@ inline void value_decl::set_storage(storage s) { storage_ = s; }
 inline storage value_decl::get_storage() const { return storage_; }
 
 /// Returns true when the declaration has static storage.
-inline bool value_decl::has_static_storage() const { return storage_ & static_storage; }
+inline bool value_decl::has_static_storage() const { return storage_ == static_storage; }
 
 /// Returns true when the declaration has automatic storage.
-inline bool value_decl::has_automatic_storage() const { return storage_ & automatic_storage; }
+inline bool value_decl::has_automatic_storage() const { return storage_ == automatic_storage; }
 
 /// Returns true when the declaration has thread storage.
-inline bool value_decl::has_thread_storage() const { return storage_ & thread_storage; }
+inline bool value_decl::has_thread_storage() const { return storage_ == thread_storage; }
 
 
 // A helper class for declarations bound to values.
@@ -433,8 +397,6 @@ struct value_decl_impl : value_decl
   static constexpr int node_kind = K;
 
   value_decl_impl(uid, dc, storage, name&, type&);
-  value_decl_impl(uid, dc, storage, name&, type&, expr&);
-  value_decl_impl(uid, dc, linkage, storage, name&, type&);
   value_decl_impl(uid, dc, linkage, storage, name&, type&, expr&);
 };
 
@@ -442,18 +404,6 @@ template<int K>
 inline
 value_decl_impl<K>::value_decl_impl(uid id, dc cxt, storage s, name& n, type& t)
   : value_decl(K, id, cxt, s, n, t)
-{ }
-
-template<int K>
-inline
-value_decl_impl<K>::value_decl_impl(uid id, dc cxt, storage s, name& n, type& t, expr& e)
-  : value_decl(K, id, cxt, s, n, t, e)
-{ }
-
-template<int K>
-inline
-value_decl_impl<K>::value_decl_impl(uid id, dc cxt, linkage l, storage s, name& n, type& t)
-  : value_decl(K, id, cxt, l, s, n, t)
 { }
 
 template<int K>
@@ -475,8 +425,6 @@ struct mapping_decl : typed_decl
 {
   mapping_decl(int, uid, dc, name&, type&, const decl_seq&, decl&);
   mapping_decl(int, uid, dc, name&, type&, decl_seq&&, decl&);
-  mapping_decl(int, uid, dc, name&, type&, const decl_seq&, decl&, stmt&);
-  mapping_decl(int, uid, dc, name&, type&, decl_seq&&, decl&, stmt&);
   mapping_decl(int, uid, dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
   mapping_decl(int, uid, dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
 
@@ -514,42 +462,25 @@ mapping_decl::finish_parms()
   ret_->cxt_ = dc(*this);
 }
 
-/// Initialize this function declaration, having no definition. Undefined
-/// functions have external linkage by default.
+/// Initialize this mapping declaration, having no definition. When not
+/// defined, the mapping has external linkage by default.
 inline
 mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r)
-  : typed_decl(k, id, cxt, n, t), parms_(p), ret_(&r), def_()
+  : typed_decl(k, id, cxt, external_link, n, t), parms_(p), ret_(&r), def_()
 {
   finish_parms();
 }
 
-/// Initialize this function declaration, having no definition. Undefined
-/// functions have external linkage by default.
+/// Initialize this mapping declaration, having no definition. When not
+/// defined, the mapping has external linkage by default.
 inline
 mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r)
-  : typed_decl(k, id, cxt, n, t), parms_(std::move(p)), ret_(&r), def_()
+  : typed_decl(k, id, cxt, external_link, n, t), parms_(std::move(p)), ret_(&r), def_()
 { 
   finish_parms();
 }
 
-/// Initialize this function declaration. The function has external linkage.
-/// linkage.
-inline
-mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
-  : typed_decl(k, id, cxt, n, t), parms_(p), ret_(&r), def_(&s)
-{ 
-  finish_parms();
-}
-
-/// Initialize this function declaration. The function has external linkage.
-inline
-mapping_decl::mapping_decl(int k, uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
-  : typed_decl(k, id, cxt, n, t), parms_(std::move(p)), ret_(&r), def_(&s)
-{ 
-  finish_parms();
-}
-
-/// Initialize this function declaration.
+/// Initialize this mapping declaration.
 inline
 mapping_decl::mapping_decl(int k, uid id, dc cxt, linkage l, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
   : typed_decl(k, id, cxt, l, n, t), parms_(p), ret_(&r), def_(&s)
@@ -557,7 +488,7 @@ mapping_decl::mapping_decl(int k, uid id, dc cxt, linkage l, name& n, type& t, c
   finish_parms();
 }
 
-/// Initialize this function declaration.
+/// Initialize this mapping declaration.
 inline
 mapping_decl::mapping_decl(int k, uid id, dc cxt, linkage l, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
   : typed_decl(k, id, cxt, l, n, t), parms_(std::move(p)), ret_(&r), def_(&s)
@@ -597,8 +528,6 @@ struct mapping_decl_impl : mapping_decl
 
   mapping_decl_impl(uid, dc, name&, type&, const decl_seq&, decl&);
   mapping_decl_impl(uid, dc, name&, type&, decl_seq&&, decl&);
-  mapping_decl_impl(uid, dc, name&, type&, const decl_seq&, decl&, stmt&);
-  mapping_decl_impl(uid, dc, name&, type&, decl_seq&&, decl&, stmt&);
   mapping_decl_impl(uid, dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
   mapping_decl_impl(uid, dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
 };
@@ -613,18 +542,6 @@ template<int K>
 inline
 mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r)
   : mapping_decl(K, id, cxt, n, t, std::move(p), r)
-{ }
-
-template<int K>
-inline
-mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
-  : mapping_decl(K, id, cxt, n, t, p, r, s)
-{ }
-
-template<int K>
-inline
-mapping_decl_impl<K>::mapping_decl_impl(uid id, dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
-  : mapping_decl(K, id, cxt, n, t, std::move(p), r, s)
 { }
 
 template<int K>

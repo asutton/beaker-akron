@@ -126,10 +126,10 @@ builder::make_or_else_expr(expr& e1, expr& e2)
 
 /// Returns a new declaration `assert e` with module context.
 assert_decl&
-builder::make_assert_decl(expr& e)
+builder::make_assert_decl(dc cxt, expr& e)
 {
   assert(is_boolean_expression(e));
-  return make<assert_decl>(e);
+  return make<assert_decl>(generate_id(), cxt, e);
 }
 
 } // namespace sys_bool

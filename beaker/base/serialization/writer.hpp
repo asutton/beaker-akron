@@ -283,7 +283,7 @@ write_value_decl(archive_writer& ar, const value_decl& d)
 }
 
 // Write a mapping declaration to the current stream.
-void
+inline void
 write_mapping_decl(archive_writer& ar, const mapping_decl& d)
 {
   write_typed_decl(ar, d);
@@ -297,7 +297,6 @@ write_mapping_decl(archive_writer& ar, const mapping_decl& d)
     write_bool(ar, false);
   }
 }
-
 
 } // namespace beaker
 

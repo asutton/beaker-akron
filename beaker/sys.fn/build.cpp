@@ -99,7 +99,6 @@ builder::get_fn_type(decl_seq& p, decl& r)
 }
 
 
-
 /// FIXME: Guarantee that arguments match parameters.
 call_expr&
 builder::make_call_expr(expr& f, const expr_seq& a)
@@ -171,7 +170,7 @@ builder::make_fn_decl(dc cxt, const char* n, type& t, decl_seq&& p, decl& r)
 fn_decl&
 builder::make_fn_decl(dc cxt, name& n, type& t, const decl_seq& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(generate_id(), cxt, n, t, p, r, s);
+  return make<fn_decl>(generate_id(), cxt, external_link, n, t, p, r, s);
 }
 
 /// Returns a new function with external linkage and defined by a block 
@@ -187,7 +186,7 @@ builder::make_fn_decl(dc cxt, const char* n, type& t, const decl_seq& p, decl& r
 fn_decl&
 builder::make_fn_decl(dc cxt, name& n, type& t, decl_seq&& p, decl& r, stmt& s)
 {
-  return make<fn_decl>(generate_id(), cxt, n, t, std::move(p), r, s);
+  return make<fn_decl>(generate_id(), cxt, external_link, n, t, std::move(p), r, s);
 }
 
 /// Returns a new function with external linkage and defined by a block 
@@ -235,7 +234,7 @@ builder::make_fn_decl(dc cxt, linkage l, const char* n, type& t, decl_seq&& p, d
 parm_decl&
 builder::make_parm_decl(name& n, type& t)
 {
-  return make<parm_decl>(generate_id(), dc{}, automatic_storage, n, t);
+  return make<parm_decl>(generate_id(), n, t);
 }
 
 /// Returns a new parameter `t n`. Note that the declaration context of
@@ -244,6 +243,13 @@ parm_decl&
 builder::make_parm_decl(const char* n, type& t)
 {
   return make_parm_decl(get_name(n), t);
+}
+
+/// Returns a new block statement with statements s.
+block_stmt& 
+builder::make_block_stmt()
+{
+  return make<block_stmt>(stmt_seq{});
 }
 
 /// Returns a new block statement with statements s.
