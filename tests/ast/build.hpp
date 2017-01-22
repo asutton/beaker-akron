@@ -178,7 +178,7 @@ struct global_builder
 template<typename T>
 struct literal_et
 {
-  literal_et(bool b) : val(b) { }
+  explicit literal_et(const T b) : val(b) { }
 
   operator expr&() 
   { 
@@ -191,7 +191,7 @@ struct literal_et
 /// Represents a reference to a declaration.
 struct ref_et
 {
-  ref_et(decl& d) : d(&d) { }
+  explicit ref_et(decl& d) : d(&d) { }
 
   operator expr&() 
   {
@@ -381,52 +381,92 @@ inline literal_et<bool> false_() { return literal_et<bool>(false); }
 
 
 template<typename T>
-struct is_expression_template : std::false_type { };
+struct is_expression : std::false_type { };
 
 template<typename T>
-struct is_expression_template<literal_et<T>> : std::true_type { };
+struct is_expression<literal_et<T>> : std::true_type { };
 
 template<>
-struct is_expression_template<ref_et> : std::true_type { };
+struct is_expression<ref_et> : std::true_type { };
 
 template<unary_op K, typename E>
-struct is_expression_template<unary_et<K, E>> : std::true_type { };
+struct is_expression<unary_et<K, E>> : std::true_type { };
 
 template<binary_op K, typename E1, typename E2>
-struct is_expression_template<binary_et<K, E1, E2>> : std::true_type { };
+struct is_expression<binary_et<K, E1, E2>> : std::true_type { };
+
+template<typename T>
+constexpr bool is_expression_v = is_expression<T>::value;
+
+template<typename T1, typename T2>
+constexpr bool are_expressions_v = is_expression_v<T1> && is_expression_v<T2>;
+
+template<typename T, typename R = void>
+using enable_if_expression_t = std::enable_if_t<is_expression_v<T>, R>;
+
+template<typename T1, typename T2, typename R = void>
+using enable_if_expressions_t = std::enable_if_t<are_expressions_v<T1, T2>, R>;
+
+
+/// Returns expression `e1 == e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator==(E1 e1, E2 e2) { return binary_et<eq_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator==(decl& d, E e) { return ref_et(d) == e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator==(E e, decl& d) { return e == ref_et(d); }
+
+inline auto operator==(decl& d1, decl& d2) { return ref_et(d1) == ref_et(d2); }
+
+
+/// Returns expression `e1 & e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator&(E1 e1, E2 e2) { return binary_et<and_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator&(decl& d, E e) { return ref_et(d) & e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator&(E e, decl& d) { return e & ref_et(d); }
+
+inline auto operator&(decl& d1, decl& d2) { return ref_et(d1) & ref_et(d2); }
+
+
+/// Returns expression `e1 | e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator|(E1 e1, E2 e2) { return binary_et<or_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator|(decl& d, E e) { return ref_et(d) | e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator|(E e, decl& d) { return e | ref_et(d); }
+
+inline auto operator|(decl& d1, decl& d2) { return ref_et(d1) | ref_et(d2); }
+
+
+/// Returns expression `e1 ^ e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator^(E1 e1, E2 e2) { return binary_et<xor_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator^(decl& d, E e) { return ref_et(d) ^ e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator^(E e, decl& d) { return e ^ ref_et(d); }
+
+inline auto operator^(decl& d1, decl& d2) { return ref_et(d1) | ref_et(d2); }
+ 
 
 /// Returns expression `!e`.
-template<typename E> 
-inline std::enable_if_t<
-  is_expression_template<E>::value, unary_et<not_op, E>
->
-operator!(E e) 
-{ 
-  return unary_et<not_op, E>(e); 
-}
+template<typename E, typename = enable_if_expression_t<E>> 
+auto operator!(E e) { return unary_et<not_op, E>(e); }
 
 /// Returns the expression `!d`.
 inline auto operator!(decl& d) { return !ref_et(d); }
 
-/// Returns expression `e1 == e2`.
-template<typename E1, typename E2> 
-inline std::enable_if_t<
-  is_expression_template<E1>::value && is_expression_template<E2>::value, 
-  binary_et<eq_op, E1, E2>
->
-operator==(E1 e1, E2 e2) 
-{
-  return binary_et<eq_op, E1, E2>(e1, e2); 
-}
-
-template<typename E>
-inline auto operator==(decl& d, E e) { return ref_et(d) == e; }
-
-template<typename E>
-inline auto operator==(E e, decl& d) { return e == ref_et(d); }
-
-inline auto operator==(decl& d1, decl& d2) { return ref_et(d1) == ref_et(d2); }
- 
 
 // -------------------------------------------------------------------------- //
 // Expression template language.
@@ -442,6 +482,23 @@ get_body(decl& d)
 // -------------------------------------------------------------------------- //
 // Statement builder
 
+/// Output objects can be used to capture output arguments by as if by 
+/// reference. Initialization 
+template<typename T>
+struct out
+{
+  out& operator=(T& x) {
+    assert(!obj);
+    obj = &x;
+    return *this;
+  }
+
+  operator T&() { return *obj; }
+
+  T* obj = nullptr;
+};
+
+
 /// A helper class that can be used to create statements. This class is not
 /// constructed directly, but rather through the `add_stmts()` function.
 struct stmt_builder
@@ -450,8 +507,8 @@ struct stmt_builder
     : build(global_builder::get()), cxt(d), stmts(get_body(d))
   { }
 
-  stmt_builder& var(decl*&, name&, type&, expr&);
-  stmt_builder& var(decl*&, const char*, type&, expr&);
+  stmt_builder& var(out<decl>&, name&, type&, expr&);
+  stmt_builder& var(out<decl>&, const char*, type&, expr&);
   stmt_builder& check(expr&);
   
   builder& build;
@@ -462,26 +519,22 @@ struct stmt_builder
 /// Create a statement that declares a local variable and adds that to the 
 /// builder's list of statements.  Saves a reference to the variable in `out`.
 inline stmt_builder& 
-stmt_builder::var(decl*& out, name& n, type& t, expr& e)
+stmt_builder::var(out<decl>& var, name& n, type& t, expr& e)
 { 
-  assert(!out);
-  sys_var::var_decl& var = build.make_local_var_decl(cxt, n, t, e);
+  var = build.make_local_var_decl(cxt, n, t, e);
   sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
   stmts.push_back(stmt);
-  out = &var;
   return *this;
 }
 
 /// Create a statement that declares a local variable and adds that to the 
 /// builder's list of statements.  Saves a reference to the variable in `out`.
 inline stmt_builder& 
-stmt_builder::var(decl*& out, const char* n, type& t, expr& e)
+stmt_builder::var(out<decl>& var, const char* n, type& t, expr& e)
 { 
-  assert(!out);
-  sys_var::var_decl& var = build.make_local_var_decl(cxt, n, t, e);
+  var = build.make_local_var_decl(cxt, n, t, e);
   sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
   stmts.push_back(stmt);
-  out = &var;
   return *this;
 }
 

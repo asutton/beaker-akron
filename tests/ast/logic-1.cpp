@@ -83,13 +83,24 @@ main()
 
   decl& main_ = build.make_main();
 
-  decl* t;
-  decl* f;
+  out<decl> t;
+  out<decl> f;
   add_stmts(main_)
     .var(t, "t", b, true_())
     .var(f, "f", b, false_())
-    .check(!*f == *t)
-    .check(!*t == *f)
+    // // Truth table for !
+    .check(!f == t)
+    .check(!t == f)
+    // // Truth table for &
+    .check((t & t) == t)
+    .check((t & f) == f)
+    .check((f & t) == f)
+    .check((f & f) == f)
+    // Truth table for |
+    .check((t | t) == t)
+    .check((t | f) == t)
+    .check((f | t) == t)
+    .check((f | f) == f)
   ;
 #if 0
   expr& t = build.make_deref_expr(build.make_ref_expr(vars[0]));
