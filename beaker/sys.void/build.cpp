@@ -34,6 +34,13 @@ builder::make_void_expr(expr& e)
   return make<void_expr>(get_void_type(), e);
 }
 
+/// Returns a new expression `trap`.
+trap_expr&
+builder::make_trap_expr()
+{
+  return make<trap_expr>(get_void_type());
+}
+
 
 } // namespace sys_void
 } // namespace beaker

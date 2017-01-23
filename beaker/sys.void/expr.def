@@ -3,5 +3,6 @@
 
 def_expr(nop)
 def_expr(void)
+def_expr(trap)
 
 #undef def_expr

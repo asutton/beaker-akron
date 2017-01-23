@@ -28,6 +28,9 @@ print_algo::operator()(std::ostream& os, const expr& e) const
       break;
     case void_expr_kind:
       return print_prefix_expr(os, cast<void_expr>(e), "void");
+    case trap_expr_kind:
+      os << "trap";
+      break;
     default:
       break;
   }

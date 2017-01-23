@@ -24,6 +24,7 @@ struct builder : basic_builder<sys_void_lang>
   // Expressions
   nop_expr& make_nop_expr();
   void_expr& make_void_expr(expr&);
+  trap_expr& make_trap_expr();
 
   module* mod_;
   singleton_set<void_type>* void_;
