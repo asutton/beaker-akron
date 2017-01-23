@@ -5,6 +5,7 @@
 #include "../type.hpp"
 #include "../expr.hpp"
 
+#include <llvm/IR/Function.h>
 #include <llvm/IR/Intrinsics.h>
 
 
