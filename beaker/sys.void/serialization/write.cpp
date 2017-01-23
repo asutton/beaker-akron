@@ -28,6 +28,7 @@ write_algo::operator()(archive_writer& ar, const expr& e) const
 {
   switch (e.get_kind()) {
     case nop_expr_kind:
+    case trap_expr_kind:
       // Nothing to add.
       return;
     case void_expr_kind:
