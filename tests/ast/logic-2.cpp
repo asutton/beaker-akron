@@ -81,59 +81,43 @@ main()
 
   type& b = build.get_bool_type();
 
-  decl& main_ = build.make_main();
+  // TODO: Make it easier to define functions.
+  // Also, this should be replaced by a lambda expression so that we
+  // don't have to build this declaration separately.
+  decl_seq parms;
+  decl& ret = build.make_parm_decl("ret", b);
+  type& type = build.get_fn_type(parms, ret);
+  stmt& def = build.make_block_stmt({});
+  decl& fail = build.make_fn_decl("fail", type, parms, ret, def);
+  mod.add_declaration(fail);
+  add_stmts(fail)
+    .run(trap())
+  ;
 
+  decl& main_ = build.make_main();
   out<decl> t;
   out<decl> f;
   add_stmts(main_)
     .var(t, "t", b, true_())  // var bool t = true;
     .var(f, "f", b, false_()) // var bool f = false;
-    // // Truth table for !
-    .check(!f == t)
-    .check(!t == f)
-    // // Truth table for &
-    .check((t & t) == t)
-    .check((t & f) == f)
-    .check((f & t) == f)
-    .check((f & f) == f)
-    // Truth table for |
-    .check((t | t) == t)
-    .check((t | f) == t)
-    .check((f | t) == t)
-    .check((f | f) == f)
-    // Truth table for ^
-    .check((t ^ t) == f)
-    .check((t ^ f) == t)
-    .check((f ^ t) == t)
-    .check((f ^ f) == f)
-    // Truth table for =>
-    .check(imp(t, t) == t)
-    .check(imp(t, f) == f)
-    .check(imp(f, t) == t)
-    .check(imp(f, f) == t)
-    // Truth table for <=>
-    .check((t == t) == t)
-    .check((t == f) == f)
-    .check((f == t) == f)
-    .check((f == f) == t)
+    // Truth table for &&
+    .check((t && t) == t)
+    .check((t && f) == f)
+    .check((f && t) == f)
+    .check((f && f) == f)
+    
+    // Short-circuiting &&
+    .run(f && call(fail))
+
+    // Truth table for ||
+    .check((t || t) == t)
+    .check((t || f) == t)
+    .check((f || t) == t)
+    .check((f || f) == f)
+    
+    // Short circuiting for ||
+    .run(t || call(fail))
   ;
-
-#if 0
-    // Truth table for e1 & e2
-    assert_eq(build, sys_bool::and_then_expr_kind, t, t, t),
-    assert_eq(build, sys_bool::and_then_expr_kind, t, f, f),
-    assert_eq(build, sys_bool::and_then_expr_kind, f, t, f),
-    assert_eq(build, sys_bool::and_then_expr_kind, f, f, f),
-
-    // Truth table for e1 | e2
-    assert_eq(build, sys_bool::or_else_expr_kind, t, t, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, t, f, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, f, t, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, f, f, f),
-
-    &build.make_return(0)
-  };
-  #endif
 
   archive_writer ar;
   write_module(ar, mod);

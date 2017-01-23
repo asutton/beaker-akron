@@ -25,12 +25,12 @@ print_algo::operator()(std::ostream& os, const expr& e) const
   switch (e.get_kind()) {
     case nop_expr_kind:
       os << "nop";
-      break;
+      return;
     case void_expr_kind:
       return print_prefix_expr(os, cast<void_expr>(e), "void");
     case trap_expr_kind:
       os << "trap";
-      break;
+      return;
     default:
       break;
   }

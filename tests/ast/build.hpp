@@ -49,12 +49,14 @@ struct builder
   // Expressions
   auto& make_nop_expr() { return void_.make_nop_expr(); }
   auto& make_void_expr(expr& e) { return void_.make_void_expr(e); }
+  auto& make_trap_expr() { return void_.make_trap_expr(); }
   
   auto& make_true_expr() { return bool_.make_true_expr(); }
   auto& make_false_expr() { return bool_.make_true_expr(); }
   auto& make_bool_expr(const value& v) { return bool_.make_bool_expr(v); }
   auto& make_bool_and_expr(expr& e1, expr& e2) { return bool_.make_and_expr(e1, e2); }
   auto& make_bool_or_expr(expr& e1, expr& e2) { return bool_.make_or_expr(e1, e2); }
+  auto& make_bool_xor_expr(expr& e1, expr& e2) { return bool_.make_xor_expr(e1, e2); }
   auto& make_bool_not_expr(expr& e) { return bool_.make_not_expr(e); }
   auto& make_bool_imp_expr(expr& e1, expr& e2) { return bool_.make_imp_expr(e1, e2); }
   auto& make_bool_eq_expr(expr& e1, expr& e2) { return bool_.make_eq_expr(e1, e2); }
@@ -201,6 +203,32 @@ struct ref_et
   decl* d;
 };
 
+/// Kinds of nullary expressions.
+enum nullary_op 
+{
+  nop_op,
+  trap_op,
+};
+
+/// Represents a nullary expression.
+template<nullary_op K>
+struct nullary_et
+{
+  operator expr&()
+  {
+    switch (K) {
+      case nop_op:
+        return global_builder::get().make_nop_expr();
+      case trap_op:
+        return global_builder::get().make_trap_expr();
+      default:
+        break;
+      assert(false && "invalid operation");
+    }
+  }
+};
+
+
 // Kinds of unary operations.
 enum unary_op
 {
@@ -340,7 +368,11 @@ struct binary_et
         break;
       
       case xor_op:
-        assert(false && "operation not implemented");
+        if (are_boolean(*e1, *e2))
+          return global_builder::get().make_bool_xor_expr(*e1, *e2);
+        else
+          assert(false && "invalid operands");
+        break;
       
       case imp_op:
         if (are_boolean(*e1, *e2))
@@ -373,6 +405,39 @@ struct binary_et
 };
 
 
+template<int I, typename... Args>
+std::enable_if_t<(I < sizeof...(Args)), void>
+static inline get_args(expr_seq& args, const std::tuple<Args...>& src)
+{
+  expr& e = (expr&)std::get<I>(src);
+  args.push_back(e);
+  get_args<I + 1>(args, src);
+}
+
+template<int I, typename... Args>
+std::enable_if_t<(I == sizeof...(Args)), void>
+static inline get_args(expr_seq& args, const std::tuple<Args...>& src)
+{ }
+
+// Represents a function call. 
+template<typename F, typename... Args>
+struct call_et
+{
+  call_et(F f, const Args&... a) : e1(f), en(a...) { }
+
+  operator expr&()
+  {
+    expr& fn = (expr&)e1;
+    expr_seq args;
+    get_args<0>(args, en);
+    return global_builder::get().make_call_expr(fn, std::move(args));
+  }
+
+  F e1;
+  std::tuple<Args...> en;
+};
+
+
 /// Returns the literal `true`.
 inline literal_et<bool> true_() { return literal_et<bool>(true); }
 
@@ -389,11 +454,17 @@ struct is_expression<literal_et<T>> : std::true_type { };
 template<>
 struct is_expression<ref_et> : std::true_type { };
 
+template<unary_op K>
+struct is_expression<nullary_et<K>> : std::true_type { };
+
 template<unary_op K, typename E>
 struct is_expression<unary_et<K, E>> : std::true_type { };
 
 template<binary_op K, typename E1, typename E2>
 struct is_expression<binary_et<K, E1, E2>> : std::true_type { };
+
+template<typename E, typename... Es>
+struct is_expression<call_et<E, Es...>> : std::true_type { };
 
 template<typename T>
 constexpr bool is_expression_v = is_expression<T>::value;
@@ -404,11 +475,19 @@ constexpr bool are_expressions_v = is_expression_v<T1> && is_expression_v<T2>;
 template<typename T, typename R = void>
 using enable_if_expression_t = std::enable_if_t<is_expression_v<T>, R>;
 
+// FIXME: Make this variadic in order to support a better call expression.
 template<typename T1, typename T2, typename R = void>
 using enable_if_expressions_t = std::enable_if_t<are_expressions_v<T1, T2>, R>;
 
 
-/// Returns expression `e1 == e2`.
+/// Returns the expression `nop`.
+inline auto nop() { return nullary_et<nop_op>(); }
+
+/// Returns the expression `trap`.
+inline auto trap() { return nullary_et<trap_op>(); }
+
+
+/// Returns the expression `e1 == e2`.
 template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
 inline auto operator==(E1 e1, E2 e2) { return binary_et<eq_op, E1, E2>(e1, e2); }
 
@@ -421,7 +500,7 @@ auto operator==(E e, decl& d) { return e == ref_et(d); }
 inline auto operator==(decl& d1, decl& d2) { return ref_et(d1) == ref_et(d2); }
 
 
-/// Returns expression `e1 & e2`.
+/// Returns the expression `e1 & e2`.
 template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
 inline auto operator&(E1 e1, E2 e2) { return binary_et<and_op, E1, E2>(e1, e2); }
 
@@ -434,7 +513,7 @@ auto operator&(E e, decl& d) { return e & ref_et(d); }
 inline auto operator&(decl& d1, decl& d2) { return ref_et(d1) & ref_et(d2); }
 
 
-/// Returns expression `e1 | e2`.
+/// Returns the expression `e1 | e2`.
 template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
 inline auto operator|(E1 e1, E2 e2) { return binary_et<or_op, E1, E2>(e1, e2); }
 
@@ -447,7 +526,7 @@ auto operator|(E e, decl& d) { return e | ref_et(d); }
 inline auto operator|(decl& d1, decl& d2) { return ref_et(d1) | ref_et(d2); }
 
 
-/// Returns expression `e1 ^ e2`.
+/// Returns the expression `e1 ^ e2`.
 template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
 inline auto operator^(E1 e1, E2 e2) { return binary_et<xor_op, E1, E2>(e1, e2); }
 
@@ -457,15 +536,64 @@ auto operator^(decl& d, E e) { return ref_et(d) ^ e; }
 template<typename E, typename = enable_if_expression_t<E>>
 auto operator^(E e, decl& d) { return e ^ ref_et(d); }
 
-inline auto operator^(decl& d1, decl& d2) { return ref_et(d1) | ref_et(d2); }
+inline auto operator^(decl& d1, decl& d2) { return ref_et(d1) ^ ref_et(d2); }
  
 
-/// Returns expression `!e`.
+/// Returns the expression `e1 && e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator&&(E1 e1, E2 e2) { return binary_et<and_if_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator&&(decl& d, E e) { return ref_et(d) && e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator&&(E e, decl& d) { return e && ref_et(d); }
+
+inline auto operator&&(decl& d1, decl& d2) { return ref_et(d1) && ref_et(d2); }
+ 
+
+/// Returns the expression `e1 || e2`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto operator||(E1 e1, E2 e2) { return binary_et<or_if_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator||(decl& d, E e) { return ref_et(d) || e; }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto operator||(E e, decl& d) { return e || ref_et(d); }
+
+inline auto operator||(decl& d1, decl& d2) { return ref_et(d1) || ref_et(d2); }
+ 
+
+/// Returns the expression `!e`.
 template<typename E, typename = enable_if_expression_t<E>> 
 auto operator!(E e) { return unary_et<not_op, E>(e); }
 
 /// Returns the expression `!d`.
 inline auto operator!(decl& d) { return !ref_et(d); }
+
+
+/// Returns the abstract expression `e1 => e2`. Note that this is not directly
+/// supported by C++ syntax, so it's written in the lisp style: `imp(e1, e2)`.
+template<typename E1, typename E2, typename = enable_if_expressions_t<E1, E2>> 
+inline auto imp(E1 e1, E2 e2) { return binary_et<imp_op, E1, E2>(e1, e2); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto imp(decl& d, E e) { return imp(ref_et(d), e); }
+
+template<typename E, typename = enable_if_expression_t<E>>
+auto imp(E e, decl& d) { return imp(e, ref_et(d)); }
+
+inline auto imp(decl& d1, decl& d2) { return imp(ref_et(d1), ref_et(d2)); }
+
+
+/// Returns the function call expression E().
+///
+/// TODO: Make this variadic so it takes multiple arguments.
+template<typename E, typename = enable_if_expression_t<E>> 
+inline auto call(E e) { return call_et<E>(e); }
+
+inline auto call(decl& d) { return call(ref_et(d)); }
 
 
 // -------------------------------------------------------------------------- //
@@ -504,25 +632,35 @@ struct out
 struct stmt_builder
 {
   stmt_builder(decl& d)
-    : build(global_builder::get()), cxt(d), stmts(get_body(d))
+    : cxt(d), stmts(get_body(d))
   { }
+
+  stmt_builder& run(expr&);
 
   stmt_builder& var(out<decl>&, name&, type&, expr&);
   stmt_builder& var(out<decl>&, const char*, type&, expr&);
   stmt_builder& check(expr&);
   
-  builder& build;
   decl& cxt;
   stmt_seq& stmts;
 };
+
+/// Add an expression statement that evaluates e and discards the value.
+inline stmt_builder& 
+stmt_builder::run(expr& e)
+{
+  stmt& s = global_builder::get().make_expr_stmt(e);
+  stmts.push_back(s);
+  return *this;
+}
 
 /// Create a statement that declares a local variable and adds that to the 
 /// builder's list of statements.  Saves a reference to the variable in `out`.
 inline stmt_builder& 
 stmt_builder::var(out<decl>& var, name& n, type& t, expr& e)
 { 
-  var = build.make_local_var_decl(cxt, n, t, e);
-  sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
+  var = global_builder::get().make_local_var_decl(cxt, n, t, e);
+  sys_fn::decl_stmt& stmt = global_builder::get().make_decl_stmt(var);
   stmts.push_back(stmt);
   return *this;
 }
@@ -532,8 +670,8 @@ stmt_builder::var(out<decl>& var, name& n, type& t, expr& e)
 inline stmt_builder& 
 stmt_builder::var(out<decl>& var, const char* n, type& t, expr& e)
 { 
-  var = build.make_local_var_decl(cxt, n, t, e);
-  sys_fn::decl_stmt& stmt = build.make_decl_stmt(var);
+  var = global_builder::get().make_local_var_decl(cxt, n, t, e);
+  sys_fn::decl_stmt& stmt = global_builder::get().make_decl_stmt(var);
   stmts.push_back(stmt);
   return *this;
 }
@@ -541,8 +679,8 @@ stmt_builder::var(out<decl>& var, const char* n, type& t, expr& e)
 inline stmt_builder& 
 stmt_builder::check(expr& e)
 {
-  sys_bool::assert_decl& decl = build.make_assert_decl(cxt, e);
-  sys_fn::decl_stmt& stmt = build.make_decl_stmt(decl);
+  sys_bool::assert_decl& decl = global_builder::get().make_assert_decl(cxt, e);
+  sys_fn::decl_stmt& stmt = global_builder::get().make_decl_stmt(decl);
   stmts.push_back(stmt);
   return *this;
 }

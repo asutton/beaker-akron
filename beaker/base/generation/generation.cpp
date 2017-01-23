@@ -18,6 +18,8 @@
 #include <llvm/Support/raw_os_ostream.h>
 
 #include <algorithm>
+#include <iostream>
+#include <beaker/base/printing/print.hpp>
 
 
 namespace beaker {
@@ -139,9 +141,12 @@ generator::put_value(const decl& d, llvm::Value* v)
   }
 }
 
-// Returns the value associated with the declaration.
-//
-// The declaration must have been previously bound to a value.
+/// Returns the value associated with the declaration. The declaration must have 
+/// been previously bound to a value.
+///
+/// \todo Support out-of-order code generation. We should be able to step
+/// outside the current definition and generate a new declaration as needed,
+/// at least for global declarations.
 llvm::Value*
 generator::get_value(const decl& d)
 {
