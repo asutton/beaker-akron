@@ -1,8 +1,7 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include "lang.hpp"
-#include "build.hpp"
+#include "test.hpp"
 
 #include <beaker/base/printing/print.hpp>
 #include <beaker/base/generation/generation.hpp>
@@ -21,51 +20,6 @@ check_canonical_types()
   assert(&b1 == &b2);
 }
 
-#if 0
-// Build an assertion statement that e1 op e2 <=> r.
-static stmt*
-assert_eq(builder& build, int op, expr& e1, expr& e2, expr& r)
-{
-  expr* e;
-  switch (op) {
-    case sys_bool::and_expr_kind:
-      e = &build.make_bool_and_expr(e1, e2); 
-      break;
-    case sys_bool::or_expr_kind:
-      e = &build.make_bool_or_expr(e1, e2);
-      break;
-    case sys_bool::imp_expr_kind:
-      e = &build.make_bool_imp_expr(e1, e2);
-      break;
-    case sys_bool::eq_expr_kind:
-      e = &build.make_bool_eq_expr(e1, e2);
-      break;
-    case sys_bool::and_then_expr_kind:
-      e = &build.make_and_then_expr(e1, e2);
-      break;
-    case sys_bool::or_else_expr_kind:
-      e = &build.make_or_else_expr(e1, e2);
-      break;
-    default:
-      assert(false && "invalid expression");
-  }
-  expr& eq = build.make_bool_eq_expr(*e, r);
-  decl& d = build.make_assert_decl(eq);
-  return &build.make_decl_stmt(d);
-}
-
-// Build an assertion statement that op e1 <=> r.
-static stmt*
-assert_eq(builder& build, int op, expr& e, expr& r)
-{
-  assert(op == sys_bool::not_expr_kind);
-  expr& e0 = build.make_bool_not_expr(e);
-  expr& eq = build.make_bool_eq_expr(e0, r);
-  decl& d = build.make_assert_decl(eq);
-  return &build.make_decl_stmt(d);
-}
-#endif
-
 int 
 main()
 {
@@ -83,15 +37,19 @@ main()
 
   decl& main_ = build.make_main();
 
+  // NOTE: GCC may not sequence the initializatoin of t and f before their
+  // use if we don't declare them separately from adding them.
   out<decl> t;
   out<decl> f;
   add_stmts(main_)
     .var(t, "t", b, true_())  // var bool t = true;
     .var(f, "f", b, false_()) // var bool f = false;
-    // // Truth table for !
-    .check(!f == t)
-    .check(!t == f)
-    // // Truth table for &
+  ;
+  add_stmts(main_)
+    // Truth table for !
+    .check((!f) == t)
+    .check((!t) == f)
+    // Truth table for &
     .check((t & t) == t)
     .check((t & f) == f)
     .check((f & t) == f)
@@ -117,23 +75,6 @@ main()
     .check((f == t) == f)
     .check((f == f) == t)
   ;
-
-#if 0
-    // Truth table for e1 & e2
-    assert_eq(build, sys_bool::and_then_expr_kind, t, t, t),
-    assert_eq(build, sys_bool::and_then_expr_kind, t, f, f),
-    assert_eq(build, sys_bool::and_then_expr_kind, f, t, f),
-    assert_eq(build, sys_bool::and_then_expr_kind, f, f, f),
-
-    // Truth table for e1 | e2
-    assert_eq(build, sys_bool::or_else_expr_kind, t, t, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, t, f, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, f, t, t),
-    assert_eq(build, sys_bool::or_else_expr_kind, f, f, f),
-
-    &build.make_return(0)
-  };
-  #endif
 
   archive_writer ar;
   write_module(ar, mod);
