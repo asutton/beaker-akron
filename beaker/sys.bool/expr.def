@@ -4,6 +4,7 @@
 def_expr(bool)
 def_expr(and)
 def_expr(or)
+def_expr(xor)
 def_expr(not)
 def_expr(imp)
 def_expr(eq)

@@ -22,18 +22,14 @@ builder::get_bool_type()
   return bool_->get();
 }
 
-/// Returns a new literal `true`.
-///
-/// The type of the expression is `bool`.
+/// Returns a new boolean literal `true`.
 bool_expr&
 builder::make_true_expr()
 {
   return make<bool_expr>(get_bool_type(), value(1));
 }
 
-// Returns a new literal `false`.
-//
-// The type of the expression is `bool`.
+// Returns a new boolean literal `false`.
 bool_expr&
 builder::make_false_expr()
 {
@@ -69,6 +65,15 @@ builder::make_or_expr(expr& e1, expr& e2)
   assert(is_boolean_expression(e1));
   assert(is_boolean_expression(e2));
   return make<or_expr>(get_bool_type(), e1, e2);
+}
+
+/// Returns a new expression `e1 ^ e2`.
+xor_expr&
+builder::make_xor_expr(expr& e1, expr& e2)
+{
+  assert(is_boolean_expression(e1));
+  assert(is_boolean_expression(e2));
+  return make<xor_expr>(get_bool_type(), e1, e2);
 }
 
 /// Returns a new expression `!e`

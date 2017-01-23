@@ -47,6 +47,15 @@ generate_or_expr(generator& gen, const or_expr& e)
 }
 
 static cg::value 
+generate_xor_expr(generator& gen, const xor_expr& e)
+{
+  cg::value lhs = generate(gen, e.get_lhs());
+  cg::value rhs = generate(gen, e.get_rhs());
+  llvm::Builder ir(gen.get_current_block());
+  return ir.CreateXor(lhs, rhs);
+}
+
+static cg::value 
 generate_not_expr(generator& gen, const not_expr& e)
 {
   cg::value op = generate(gen, e.get_operand());

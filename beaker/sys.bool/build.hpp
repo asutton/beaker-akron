@@ -27,6 +27,7 @@ struct builder : basic_builder<sys_bool_lang>
   bool_expr& make_bool_expr(const value&);
   and_expr& make_and_expr(expr&, expr&);
   or_expr& make_or_expr(expr&, expr&);
+  xor_expr& make_xor_expr(expr&, expr&);
   not_expr& make_not_expr(expr&);
   imp_expr& make_imp_expr(expr&, expr&);
   eq_expr& make_eq_expr(expr&, expr&);

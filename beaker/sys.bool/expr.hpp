@@ -48,7 +48,7 @@ struct and_expr : generic_binary_expr<and_expr_kind>
 };
 
 
-/// Represents the expression `e1 | e2`. 
+/// Represents the boolean inclusive-or expression `e1 | e2`. 
 ///
 /// The operands `e1` and `e2` shall have type `bool` . The result type of the
 /// expression shall be `bool`.
@@ -58,6 +58,15 @@ struct and_expr : generic_binary_expr<and_expr_kind>
 struct or_expr : generic_binary_expr<or_expr_kind> 
 {
   using generic_binary_expr<or_expr_kind>::generic_binary_expr;
+};
+
+
+/// Represents the boolean exclusive-or expression `e1 ^ e2`. The operands shall
+/// be boolean expressions. The value of the expression is `false` when the
+/// operands have the same values and `true` otherwise.
+struct xor_expr : generic_binary_expr<xor_expr_kind> 
+{
+  using generic_binary_expr<xor_expr_kind>::generic_binary_expr;
 };
 
 

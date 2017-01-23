@@ -30,21 +30,28 @@ print_bool_expr(std::ostream& os, const bool_expr& e)
     os << "false";
 }
 
-// Pretty print the expression `e1 and e2`.
+// Pretty print the expression `e1 & e2`.
 static inline void
 print_and_expr(std::ostream& os, const and_expr& e)
 {
   print_infix_expr(os, e, "&");
 }
 
-// Pretty print the expression `e1 or e2`.
+// Pretty print the expression `e1 | e2`.
 static inline void
 print_or_expr(std::ostream& os, const or_expr& e)
 {
   print_infix_expr(os, e, "|");
 }
 
-// Pretty print the expression `not e`.
+// Pretty print the expression `e1 ^ e2`.
+static inline void
+print_xor_expr(std::ostream& os, const xor_expr& e)
+{
+  print_infix_expr(os, e, "^");
+}
+
+// Pretty print the expression `!e`.
 static inline void
 print_not_expr(std::ostream& os, const not_expr& e)
 {

@@ -32,6 +32,7 @@ write_algo::operator()(archive_writer& ar, const expr& e) const
       return write_bool_expr(ar, cast<bool_expr>(e));
     case and_expr_kind:
     case or_expr_kind:
+    case xor_expr_kind:
     case imp_expr_kind:
     case eq_expr_kind:
     case and_then_expr_kind:
