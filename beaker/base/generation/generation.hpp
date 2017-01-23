@@ -82,6 +82,7 @@ struct generator
   void leave_decl_context();
   llvm::Value* get_value(const decl&);
   void put_value(const decl&, llvm::Value*);
+  bool seen_decl(const decl&);
 
   // Current function.
   void define_function(llvm::Function*);

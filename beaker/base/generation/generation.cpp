@@ -69,7 +69,6 @@ generator::~generator()
 
   if (parent_) {
     // Merge any notes into the parent module before going away. 
-    // This guarantees that 
     parent_->notes_.insert(notes_.end(), notes_.begin(), notes_.end());
   }
   else {
@@ -151,8 +150,24 @@ llvm::Value*
 generator::get_value(const decl& d)
 {
   auto iter = decl_env_.find(&d);
-  assert(iter != decl_env_.end());
+  if (iter == decl_env_.end()) {
+    // If we haven't previously seen the declaration, step outside the current
+    // generation, generate the referenced declaration, and then return that
+    // value.
+    //
+    // FIXME: This doesn't actually work.
+    generator gen(*this);
+    cg::value val = generate(gen, d);
+    return val;
+  }
   return iter->second;
+}
+
+/// Returns true if we've already seen the declaratoin.
+bool
+generator::seen_decl(const decl& d)
+{
+  return decl_env_.find(&d) != decl_env_.end();
 }
 
 /// Define f to be a function by creating an entry block. This makes f
@@ -331,10 +346,16 @@ generate(generator& gen, const expr& e)
   return get_generate(e)(gen, e);
 }
 
-/// Generate an LLVM declaration for d.
+/// Generate an LLVM declaration for d. 
 cg::value
 generate(generator& gen, const decl& d)
 {
+  std::cout << "GENDECL\n";
+  print(d);
+  if (gen.seen_decl(d)) {
+    std::cout << "SEEN\n";
+    return gen.get_value(d);
+  }
   return get_generate(d)(gen, d);
 }
 
