@@ -124,7 +124,7 @@ struct decl
 
 /// Initialize the declaration with kind k and a null context. This should 
 /// only ever be used by the constructor of the `module` class.
-inline decl::decl(int k) : kind_(k), id_(-1), cxt_() { }
+inline decl::decl(int k) : kind_(k), id_(0), cxt_() { }
 
 /// Initialize the declaration.
 inline decl::decl(int k, uid id, dc cxt) : kind_(k), id_(id), cxt_(cxt) { }

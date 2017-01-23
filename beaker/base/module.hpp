@@ -68,8 +68,11 @@ builder_set::get()
 /// declaration order.
 struct id_generator
 {
-  int operator()() { return ++last; }
-  int last = 0;
+  int operator()() { return ++next; }
+
+  // Stores the next id to generate. Note that 0 is reserved for the
+  // module itself. This matters for the purpose of serialization.
+  int next = 1;
 };
 
 

@@ -21,7 +21,6 @@ namespace beaker {
 
 struct symbol;
 
-/// \todo Rename this to archive writer.
 struct archive_writer
 {
   using byte_stream = std::vector<std::uint8_t>;
@@ -45,9 +44,6 @@ struct archive_writer
     map ids;
     table bytes;
   };
-
-  using type_map = std::unordered_map<const type*, std::uint32_t>;
-  using decl_map = std::unordered_map<const decl*, std::uint32_t>;
 
   void write_id(std::uint32_t);
   void write_bool(bool);

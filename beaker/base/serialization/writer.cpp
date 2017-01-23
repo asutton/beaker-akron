@@ -106,26 +106,6 @@ write_algorithm::operator()(archive_writer&, const stmt&) const
 // -------------------------------------------------------------------------- //
 // Archive
 
-namespace {
-void
-print_bytes(const archive_writer::byte_stream& b)
-{
-  std::cout << std::hex;
-  std::cout << std::setfill('0');
-  unsigned int n = 0;
-  for (auto c : b) {
-    std::cout << std::setw(2) << (unsigned)c << ' ';
-    if (++n == 16) {
-      std::cout << '\n';
-      n = 0;
-    }
-  }
-  std::cout << '\n';
-  std::cout << std::dec;
-  std::cout << std::setfill(' ');
-}
-} // namespace
-
 // Returns the serialization algorithm associated with the node t.
 template<typename T>
 static inline const write_algorithm&
@@ -218,6 +198,12 @@ archive_writer::write_string(const symbol& s)
 void
 archive_writer::write_module(const module& m)
 {
+  // Create a declaration stream for the module and add its id (0) to the 
+  // declaration set. Activate that byte stream so that all top-level
+  // declarations are written into that stream.
+  decls.ids.emplace(&m, m.get_id());
+  decls.bytes.emplace_back();
+  activate_stream s(*this, decls.bytes);
   for (const decl& d : m.get_declarations())
     write_decl(d);
 }
@@ -299,17 +285,18 @@ void
 archive_writer::write_decl(const decl& d)
 {
   assert(decls.ids.size() == decls.bytes.size());
-  std::size_t id = decls.ids.size();
-  auto result = decls.ids.emplace(&d, id);
+  auto result = decls.ids.emplace(&d, d.get_id());
   if (result.second) {
     // We have not previously seen this declaration, so we can generate
     // a new byte stream for it and write it in place.
     decls.bytes.emplace_back();
-    {
-      activate_stream s(*this, decls.bytes);
-      save_decl(d);
-    }
+    activate_stream s(*this, decls.bytes);
+    save_decl(d);
   }
+
+  // Write the declaration id into the stream to indicate that the declaration
+  // was requested at this point.
+  write_id(d.get_id());
 }
 
 /// Write a reference to a declaration. If the declaration has not yet been
@@ -318,30 +305,18 @@ void
 archive_writer::write_ref(const decl& d)
 {
   assert(decls.ids.size() == decls.bytes.size());
-
-  // Don't try to write references to the module.
-  if (is<module>(d))
-    return write_id(-1);
-
   auto iter = decls.ids.find(&d);
   if (iter == decls.ids.end()) {
     // If the declaration hasn't been seen yet generate a new id and initialize
     // it's byte stream.
-    std::size_t id = decls.ids.size();
-    decls.ids.emplace(&d, id);
+    decls.ids.emplace(&d, d.get_id());
     decls.bytes.emplace_back();
-    {
-      // Write the declaration in a new stream.
-      activate_stream s(*this, decls.bytes);
-      save_decl(d);
-    }
-    // Write the id into the current stream.
-    write_id(id);
+    activate_stream s(*this, decls.bytes);
+    save_decl(d);
   }
-  else {
-    // Just write the type id into the stream.
-    write_id(iter->second);
-  }
+
+  // Write the declaration id as it appears.
+  write_id(d.get_id());
 }
 
 /// Write the statement into the stream.

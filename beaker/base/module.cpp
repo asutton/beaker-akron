@@ -10,7 +10,7 @@ namespace beaker {
 
 /// Initialize the module. 
 module::module(language& lang)
-  : decl(-1),
+  : decl(node_kind),
     lang_(&lang),
     build_(), 
     name_(nullptr), 
