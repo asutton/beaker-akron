@@ -24,9 +24,9 @@ enum {
 /// Represents the boolean literals `true` and `false`.
 ///
 /// The type of boolean literals shall be `bool`.
-struct bool_expr : generic_literal_expr<bool_expr_kind>
+struct bool_expr : literal_expr_impl<bool_expr_kind>
 {
-  using generic_literal_expr<bool_expr_kind>::generic_literal_expr;
+  using literal_expr_impl<bool_expr_kind>::literal_expr_impl;
 
   bool get_boolean() const;
 };
@@ -42,9 +42,9 @@ inline bool bool_expr::get_boolean() const { return get_value().get_integer(); }
 ///
 /// The value of the expression is `true` if and only if both `e1` and `e2` are 
 /// true.
-struct and_expr : generic_binary_expr<and_expr_kind> 
+struct and_expr : binary_expr_impl<and_expr_kind> 
 {
-  using generic_binary_expr<and_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<and_expr_kind>::binary_expr_impl;
 };
 
 
@@ -55,18 +55,18 @@ struct and_expr : generic_binary_expr<and_expr_kind>
 ///
 /// The value of the expression is `true` if `e1` is `true` `e2` is `true`, or 
 /// both are `true`.
-struct or_expr : generic_binary_expr<or_expr_kind> 
+struct or_expr : binary_expr_impl<or_expr_kind> 
 {
-  using generic_binary_expr<or_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<or_expr_kind>::binary_expr_impl;
 };
 
 
 /// Represents the boolean exclusive-or expression `e1 ^ e2`. The operands shall
 /// be boolean expressions. The value of the expression is `false` when the
 /// operands have the same values and `true` otherwise.
-struct xor_expr : generic_binary_expr<xor_expr_kind> 
+struct xor_expr : binary_expr_impl<xor_expr_kind> 
 {
-  using generic_binary_expr<xor_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<xor_expr_kind>::binary_expr_impl;
 };
 
 
@@ -77,9 +77,9 @@ struct xor_expr : generic_binary_expr<xor_expr_kind>
 ///
 /// The value of the expression is `true` if `e` is `false` and `false` 
 /// otherwise.
-struct not_expr : generic_unary_expr<not_expr_kind> 
+struct not_expr : unary_expr_impl<not_expr_kind> 
 {
-  using generic_unary_expr<not_expr_kind>::generic_unary_expr;
+  using unary_expr_impl<not_expr_kind>::unary_expr_impl;
 };
 
 
@@ -90,9 +90,9 @@ struct not_expr : generic_unary_expr<not_expr_kind>
 ///
 /// The value of the expression is `true` when `e1` and `e2` are `true` or
 /// when `e1` is `false`. Otherwise the value is `false`.
-struct imp_expr : generic_binary_expr<imp_expr_kind> 
+struct imp_expr : binary_expr_impl<imp_expr_kind> 
 {
-  using generic_binary_expr<imp_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<imp_expr_kind>::binary_expr_impl;
 };
 
 
@@ -103,9 +103,9 @@ struct imp_expr : generic_binary_expr<imp_expr_kind>
 ///
 /// The value of the expression is `true` only when `e1 and e2` are equal
 /// and `false` otherwise.
-struct eq_expr : generic_binary_expr<eq_expr_kind> 
+struct eq_expr : binary_expr_impl<eq_expr_kind> 
 {
-  using generic_binary_expr<eq_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<eq_expr_kind>::binary_expr_impl;
 };
 
 
@@ -115,9 +115,9 @@ struct eq_expr : generic_binary_expr<eq_expr_kind>
 /// `e3` shall be the same.
 ///
 /// The value of the expression...
-struct if_expr : generic_ternary_expr<if_expr_kind> 
+struct if_expr : ternary_expr_impl<if_expr_kind> 
 {
-  using generic_ternary_expr<if_expr_kind>::generic_ternary_expr;
+  using ternary_expr_impl<if_expr_kind>::ternary_expr_impl;
 
   const expr& get_condition() const;
   expr& get_condition();
@@ -153,9 +153,9 @@ inline expr& if_expr::get_false_value() { return get_third(); }
 /// Both `e1` and `e2` shall be boolean expressions.
 ///
 /// The expression `e1 && e2` is equivalent to `if e1 then e2 else false`.
-struct and_then_expr : generic_binary_expr<and_then_expr_kind> 
+struct and_then_expr : binary_expr_impl<and_then_expr_kind> 
 {
-  using generic_binary_expr<and_then_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<and_then_expr_kind>::binary_expr_impl;
 };
 
 
@@ -164,9 +164,9 @@ struct and_then_expr : generic_binary_expr<and_then_expr_kind>
 /// Both `e1` and `e2` shall be boolean expressions.
 ///
 /// The expression `e1 || e2` is equivalent to `if e1 then true else e2`.
-struct or_else_expr : generic_binary_expr<or_else_expr_kind> 
+struct or_else_expr : binary_expr_impl<or_else_expr_kind> 
 {
-  using generic_binary_expr<or_else_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<or_else_expr_kind>::binary_expr_impl;
 };
 
 

@@ -93,25 +93,25 @@ inline value& literal_expr::get_value() { return val_; }
 
 /// A helper class for defining literal expressions.
 template<int K>
-struct generic_literal_expr : literal_expr
+struct literal_expr_impl : literal_expr
 {
   static constexpr int node_kind = K;
 
-  generic_literal_expr(type& t, const value&);
-  generic_literal_expr(type& t, value&&);
+  literal_expr_impl(type& t, const value&);
+  literal_expr_impl(type& t, value&&);
 };
 
 // Initialize the the literal expression with the value v.
 template<int K>
 inline
-generic_literal_expr<K>::generic_literal_expr(type& t, const value& v)
+literal_expr_impl<K>::literal_expr_impl(type& t, const value& v)
   : literal_expr(K, t, v)
 { }
 
 // Initialize the the literal expression with the value v.
 template<int K>
 inline
-generic_literal_expr<K>::generic_literal_expr(type& t, value&& v)
+literal_expr_impl<K>::literal_expr_impl(type& t, value&& v)
   : literal_expr(K, t, std::move(v))
 { }
 
@@ -133,16 +133,16 @@ inline nullary_expr::nullary_expr(int k, type& t)
 
 // Represents a non-literal nullary expression with no operands.
 template<int K>
-struct generic_nullary_expr : nullary_expr
+struct nullary_expr_impl : nullary_expr
 {
   static constexpr int node_kind = K;
 
-  generic_nullary_expr(type&);
+  nullary_expr_impl(type&);
 };
 
 // Initialize the the nullary expression of kind k.
 template<int K>
-inline generic_nullary_expr<K>::generic_nullary_expr(type& t)
+inline nullary_expr_impl<K>::nullary_expr_impl(type& t)
   : nullary_expr(K, t)
 { }
 
@@ -183,15 +183,15 @@ inline expr& unary_expr::get_first() { return get_operand(); }
 
 // Represents an expression with a single operand.
 template<int K>
-struct generic_unary_expr : unary_expr {
+struct unary_expr_impl : unary_expr {
   static constexpr int node_kind = K;
 
-  generic_unary_expr(type&, expr&);
+  unary_expr_impl(type&, expr&);
 };
 
 // Initialize the the unary expression of kind k.
 template<int K>
-inline generic_unary_expr<K>::generic_unary_expr(type& t, expr& e)
+inline unary_expr_impl<K>::unary_expr_impl(type& t, expr& e)
   : unary_expr(K, t, e)
 { }
 
@@ -251,16 +251,16 @@ inline expr& binary_expr::get_second() { return get_rhs(); }
 
 // Represents an expression with two operands.
 template<int K>
-struct generic_binary_expr : binary_expr {
+struct binary_expr_impl : binary_expr {
   static constexpr int node_kind = K;
 
-  generic_binary_expr(type&, expr&, expr&);
+  binary_expr_impl(type&, expr&, expr&);
 };
 
 // Initialize the the binary expression of kind k.
 template<int K>
 inline
-generic_binary_expr<K>::generic_binary_expr(type& t, expr& e1, expr& e2)
+binary_expr_impl<K>::binary_expr_impl(type& t, expr& e1, expr& e2)
   : binary_expr(K, t, e1, e2)
 { }
 
@@ -311,16 +311,16 @@ inline expr& ternary_expr::get_third() { return *args_[2]; }
 
 // Represents an expression with two operands.
 template<int K>
-struct generic_ternary_expr : ternary_expr {
+struct ternary_expr_impl : ternary_expr {
   static constexpr int node_kind = K;
 
-  generic_ternary_expr(type&, expr&, expr&, expr& e3);
+  ternary_expr_impl(type&, expr&, expr&, expr& e3);
 };
 
 // Initialize the the binary expression of kind k.
 template<int K>
 inline
-generic_ternary_expr<K>::generic_ternary_expr(type& t, expr& e1, expr& e2, expr& e3)
+ternary_expr_impl<K>::ternary_expr_impl(type& t, expr& e1, expr& e2, expr& e3)
   : ternary_expr(K, t, e1, e2, e3)
 { }
 
@@ -369,16 +369,16 @@ nullary_init::get_object_type() { return get_type(); }
 
 /// A helper for creating initializers.
 template<int K>
-struct generic_nullary_init : nullary_init
+struct nullary_init_impl : nullary_init
 {
   static constexpr int node_kind = K;
 
-  generic_nullary_init(type&);
+  nullary_init_impl(type&);
 };
 
 template<int K>
 inline
-generic_nullary_init<K>::generic_nullary_init(type& t)
+nullary_init_impl<K>::nullary_init_impl(type& t)
   : nullary_init(K, t)
 { }
 
@@ -423,16 +423,16 @@ inline expr& unary_init::get_expression() { return *val_; }
 
 /// A helper for creating initializers.
 template<int K>
-struct generic_unary_init : unary_init
+struct unary_init_impl : unary_init
 {
   static constexpr int node_kind = K;
 
-  generic_unary_init(type&, expr&);
+  unary_init_impl(type&, expr&);
 };
 
 template<int K>
 inline
-generic_unary_init<K>::generic_unary_init(type& t, expr& e)
+unary_init_impl<K>::unary_init_impl(type& t, expr& e)
   : unary_init(K, t, e)
 { }
 

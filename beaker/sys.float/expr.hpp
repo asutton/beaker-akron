@@ -24,9 +24,9 @@ enum {
 /// Represents floating point literals.
 ///
 /// The type of the expression shall be a floating point type.
-struct float_expr : generic_literal_expr<float_expr_kind>
+struct float_expr : literal_expr_impl<float_expr_kind>
 {
-  using generic_literal_expr<float_expr_kind>::generic_literal_expr;
+  using literal_expr_impl<float_expr_kind>::literal_expr_impl;
 };
 
 
@@ -37,9 +37,9 @@ struct float_expr : generic_literal_expr<float_expr_kind>
 ///
 /// The value of the expression is `true` when the values of `e1` and `e2` 
 /// are equal.
-struct eq_expr : generic_binary_expr<eq_expr_kind> 
+struct eq_expr : binary_expr_impl<eq_expr_kind> 
 {
-  using generic_binary_expr<eq_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<eq_expr_kind>::binary_expr_impl;
 };
 
 
@@ -50,9 +50,9 @@ struct eq_expr : generic_binary_expr<eq_expr_kind>
 ///
 /// The value of the expression is `true` when the values of `e1` and `e2` 
 /// are different.
-struct ne_expr : generic_binary_expr<ne_expr_kind> 
+struct ne_expr : binary_expr_impl<ne_expr_kind> 
 {
-  using generic_binary_expr<ne_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<ne_expr_kind>::binary_expr_impl;
 };
 
 
@@ -63,9 +63,9 @@ struct ne_expr : generic_binary_expr<ne_expr_kind>
 ///
 /// The value of the expression is `true` when the value of `e1` is less than
 /// the value of `e2`.
-struct lt_expr : generic_binary_expr<lt_expr_kind> 
+struct lt_expr : binary_expr_impl<lt_expr_kind> 
 {
-  using generic_binary_expr<lt_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<lt_expr_kind>::binary_expr_impl;
 };
 
 
@@ -76,9 +76,9 @@ struct lt_expr : generic_binary_expr<lt_expr_kind>
 ///
 /// The value of the expression is `true` when the value of `e1` is greater 
 /// than the value of `e2`.
-struct gt_expr : generic_binary_expr<gt_expr_kind> 
+struct gt_expr : binary_expr_impl<gt_expr_kind> 
 {
-  using generic_binary_expr<gt_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<gt_expr_kind>::binary_expr_impl;
 };
 
 
@@ -89,9 +89,9 @@ struct gt_expr : generic_binary_expr<gt_expr_kind>
 ///
 /// The value of the expression is `true` when the value of `e1` is less than
 /// or equal to the value of `e2`.
-struct le_expr : generic_binary_expr<le_expr_kind> 
+struct le_expr : binary_expr_impl<le_expr_kind> 
 {
-  using generic_binary_expr<le_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<le_expr_kind>::binary_expr_impl;
 };
 
 
@@ -102,9 +102,9 @@ struct le_expr : generic_binary_expr<le_expr_kind>
 ///
 /// The value of the expression is `true` when the value of `e1` is greater
 /// than or equal to the value of `e2`.
-struct ge_expr : generic_binary_expr<ge_expr_kind> 
+struct ge_expr : binary_expr_impl<ge_expr_kind> 
 {
-  using generic_binary_expr<ge_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<ge_expr_kind>::binary_expr_impl;
 };
 
 
@@ -114,54 +114,54 @@ struct ge_expr : generic_binary_expr<ge_expr_kind>
 /// an arithmetic type. The type of the expression shall also be `t`.
 ///
 /// The value of the expression is the sum of the values of `e1` and `e2`.
-struct add_expr : generic_binary_expr<add_expr_kind> 
+struct add_expr : binary_expr_impl<add_expr_kind> 
 {
-  using generic_binary_expr<add_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<add_expr_kind>::binary_expr_impl;
 };
 
 
 /// Represents the expression `e1 - e2`.
 ///
 /// \todo Document me.
-struct sub_expr : generic_binary_expr<sub_expr_kind> 
+struct sub_expr : binary_expr_impl<sub_expr_kind> 
 {
-  using generic_binary_expr<sub_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<sub_expr_kind>::binary_expr_impl;
 };
 
 
 /// Represents the expression `e1 * e2`.
 ///
 /// \todo Document me.
-struct mul_expr : generic_binary_expr<mul_expr_kind> 
+struct mul_expr : binary_expr_impl<mul_expr_kind> 
 {
-  using generic_binary_expr<mul_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<mul_expr_kind>::binary_expr_impl;
 };
 
 
 /// Represents the expression `e1 / e2`.
 ///
 /// \todo Document me.
-struct div_expr : generic_binary_expr<div_expr_kind> 
+struct div_expr : binary_expr_impl<div_expr_kind> 
 {
-  using generic_binary_expr<div_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<div_expr_kind>::binary_expr_impl;
 };
 
 
 /// Represents the negation expression `-e`.
 ///
 /// \todo Document me.
-struct neg_expr : generic_unary_expr<neg_expr_kind> 
+struct neg_expr : unary_expr_impl<neg_expr_kind> 
 {
-  using generic_unary_expr<neg_expr_kind>::generic_unary_expr;
+  using unary_expr_impl<neg_expr_kind>::unary_expr_impl;
 };
 
 
 /// Represents the reciprocal expression `/e`.
 ///
 /// \todo Document me.
-struct rec_expr : generic_unary_expr<rec_expr_kind> 
+struct rec_expr : unary_expr_impl<rec_expr_kind> 
 {
-  using generic_unary_expr<rec_expr_kind>::generic_unary_expr;
+  using unary_expr_impl<rec_expr_kind>::unary_expr_impl;
 };
 
 

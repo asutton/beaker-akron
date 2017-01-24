@@ -21,25 +21,25 @@ enum {
 
 /// The expression `nop`. The type of the expression is `void`. It has no 
 /// effect. 
-struct nop_expr : generic_nullary_expr<nop_expr_kind>
+struct nop_expr : nullary_expr_impl<nop_expr_kind>
 {
-  using generic_nullary_expr<nop_expr_kind>::generic_nullary_expr;
+  using nullary_expr_impl<nop_expr_kind>::nullary_expr_impl;
 };
 
 
 /// The expression `void(e)`. The type of the expression is `void`. The value 
 /// of `e` is discarded.
-struct void_expr : generic_unary_expr<void_expr_kind>
+struct void_expr : unary_expr_impl<void_expr_kind>
 {
-  using generic_unary_expr<void_expr_kind>::generic_unary_expr;
+  using unary_expr_impl<void_expr_kind>::unary_expr_impl;
 };
 
 
 /// Causes the program to abort, either through a trap or a call to the
 /// abort() function.
-struct trap_expr : generic_nullary_expr<trap_expr_kind>
+struct trap_expr : nullary_expr_impl<trap_expr_kind>
 {
-  using generic_nullary_expr<trap_expr_kind>::generic_nullary_expr;
+  using nullary_expr_impl<trap_expr_kind>::nullary_expr_impl;
 };
 
 

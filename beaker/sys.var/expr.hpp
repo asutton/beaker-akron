@@ -86,9 +86,9 @@ struct deref_expr : conversion_expr<deref_expr_kind>
 /// result of the expression is the reference `e1`. 
 ///
 /// This is a copy constructor for scalar types.
-struct assign_expr : generic_binary_expr<assign_expr_kind>
+struct assign_expr : binary_expr_impl<assign_expr_kind>
 {
-  using generic_binary_expr<assign_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<assign_expr_kind>::binary_expr_impl;
 };
 
 
@@ -97,18 +97,18 @@ struct assign_expr : generic_binary_expr<assign_expr_kind>
 
 /// Represents the trivial initialization of an object. Trivial initialization
 /// leaves an object partially formed (i.e., with indeterminate value).
-struct nop_init : generic_nullary_init<nop_init_kind>
+struct nop_init : nullary_init_impl<nop_init_kind>
 {
-  using generic_nullary_init<nop_init_kind>::generic_nullary_init;
+  using nullary_init_impl<nop_init_kind>::nullary_init_impl;
 };
 
 
 /// Represents the zero initialization of an object.
 ///
 /// Note that we can produce a reasonable zero value for all types.
-struct zero_init : generic_nullary_init<zero_init_kind>
+struct zero_init : nullary_init_impl<zero_init_kind>
 {
-  using generic_nullary_init<zero_init_kind>::generic_nullary_init;
+  using nullary_init_impl<zero_init_kind>::nullary_init_impl;
 };
 
 
@@ -117,9 +117,9 @@ struct zero_init : generic_nullary_init<zero_init_kind>
 /// Copy initialization transfers the contents in the initializing expression
 /// to the initialized object. The type of the expression shall be the same as 
 /// that of the object being initialized.
-struct copy_init : generic_unary_init<copy_init_kind>
+struct copy_init : unary_init_impl<copy_init_kind>
 {
-  using generic_unary_init<copy_init_kind>::generic_unary_init;
+  using unary_init_impl<copy_init_kind>::unary_init_impl;
 };
 
 
@@ -128,9 +128,9 @@ struct copy_init : generic_unary_init<copy_init_kind>
 /// Reference initialization binds the initialized reference to the initializing
 /// expression (i.e., the address computed by that expression). The type of the 
 /// expression shall be the same as that of the object being initialized.
-struct ref_init : generic_unary_init<ref_init_kind>
+struct ref_init : unary_init_impl<ref_init_kind>
 {
-  using generic_unary_init<ref_init_kind>::generic_unary_init;
+  using unary_init_impl<ref_init_kind>::unary_init_impl;
 };
 
 } // namespace sys_var

@@ -73,9 +73,9 @@ inline expr_seq& call_expr::get_arguments() { return args_; }
 ///
 /// The value of the expression is `true` when the values of `e1` and `e2` 
 /// denote the same function (symbol).
-struct eq_expr : generic_binary_expr<eq_expr_kind> 
+struct eq_expr : binary_expr_impl<eq_expr_kind> 
 {
-  using generic_binary_expr<eq_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<eq_expr_kind>::binary_expr_impl;
 };
 
 
@@ -86,9 +86,9 @@ struct eq_expr : generic_binary_expr<eq_expr_kind>
 ///
 /// The value of the expression is `true` when the values of `e1` and `e2` 
 /// denote the same function (symbol).
-struct ne_expr : generic_binary_expr<ne_expr_kind> 
+struct ne_expr : binary_expr_impl<ne_expr_kind> 
 {
-  using generic_binary_expr<ne_expr_kind>::generic_binary_expr;
+  using binary_expr_impl<ne_expr_kind>::binary_expr_impl;
 };
 
 
