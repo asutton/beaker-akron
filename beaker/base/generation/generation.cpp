@@ -150,16 +150,21 @@ llvm::Value*
 generator::get_value(const decl& d)
 {
   auto iter = decl_env_.find(&d);
+  assert(!seen_decl(d));
+#if 0
   if (iter == decl_env_.end()) {
     // If we haven't previously seen the declaration, step outside the current
     // generation, generate the referenced declaration, and then return that
     // value.
     //
-    // FIXME: This doesn't actually work.
+    // FIXME: This doesn't actually work. Rewrite the generator so that it's
+    // internal state (current function, loop info, etc.) can be stacked
+    // using RAII guards.
     generator gen(*this);
     cg::value val = generate(gen, d);
     return val;
   }
+#endif
   return iter->second;
 }
 
@@ -350,12 +355,7 @@ generate(generator& gen, const expr& e)
 cg::value
 generate(generator& gen, const decl& d)
 {
-  std::cout << "GENDECL\n";
-  print(d);
-  if (gen.seen_decl(d)) {
-    std::cout << "SEEN\n";
-    return gen.get_value(d);
-  }
+  // FIXME: Don't generate the declaration more than once.
   return get_generate(d)(gen, d);
 }
 
