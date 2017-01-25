@@ -31,6 +31,9 @@ include(sys.name/CMakeLists.txt)
 include(sys.var/CMakeLists.txt)
 include(sys.fn/CMakeLists.txt)
 
+# Aggregates
+include(sys.tuple/CMakeLists.txt)
+
 # Lexical support
 include(lex/CMakeLists.txt)
 

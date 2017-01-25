@@ -220,7 +220,6 @@ generator::set_current_block(llvm::BasicBlock* b)
 }
 
 
-
 /// Create a local object for the type `t`. Local variables are always inserted
 /// into the front of the entry block.
 cg::value

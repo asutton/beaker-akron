@@ -5,6 +5,7 @@
 #define BEAKER_BASE_PRINTING_PRINT_HPP
 
 #include <beaker/base/lang.hpp>
+#include <beaker/base/seq.hpp>
 
 #include <iosfwd>
 
@@ -34,6 +35,9 @@ struct print_algorithm : algorithm
   virtual void operator()(std::ostream&, const stmt&) const;
 };
 
+void print(std::ostream& os, char);
+void print(std::ostream& os, const char*);
+
 void print(const name&);
 void print(const type&);
 void print(const expr&);
@@ -52,6 +56,17 @@ void print_grouped_expr(std::ostream&, const expr&);
 void print_prefix_expr(std::ostream&, const unary_expr&, const char*);
 void print_suffix_expr(std::ostream&, const unary_expr&, const char*);
 void print_infix_expr(std::ostream&, const binary_expr&, const char*);
+
+template<typename T>
+void 
+print_comma_separated(std::ostream& os, const seq<T>& s)
+{
+  for (auto iter = s.begin(); iter != s.end(); ++iter) {
+    print(os, *iter);
+    if (std::next(iter) != s.end())
+      print(os, ',');
+  }
+}
 
 } // namespace beaker
 

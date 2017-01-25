@@ -50,6 +50,17 @@ print_algorithm::operator()(std::ostream& os, const stmt& s) const
   assert(false && "not defined");
 }
 
+void
+print(std::ostream& os, char c)
+{
+  os << c;
+}
+
+void
+print(std::ostream& os, const char* str)
+{
+  os << str;
+}
 
 void
 print(const name& n)

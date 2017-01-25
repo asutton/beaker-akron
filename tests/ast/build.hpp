@@ -12,6 +12,7 @@
 #include <beaker/sys.name/ast.hpp>
 #include <beaker/sys.var/ast.hpp>
 #include <beaker/sys.fn/ast.hpp>
+#include <beaker/sys.tuple/ast.hpp>
 
 
 /// Synthesize the builders of the language into a single object.
@@ -45,6 +46,8 @@ struct builder
   auto& get_fn_type(const type_seq& ts, type& t) { return fn_.get_fn_type(ts, t); }
   auto& get_fn_type(type_seq&& ts, type& t) { return fn_.get_fn_type(std::move(ts), t); }
   auto& get_fn_type(decl_seq& ds, decl& d) { return fn_.get_fn_type(ds, d); }
+  auto& get_tuple_type(const type_seq& ts) { return tup_.get_tuple_type(ts); }
+  auto& get_tuple_type(type_seq&& ts) { return tup_.get_tuple_type(std::move(ts)); }
 
   // Expressions
   auto& make_nop_expr() { return void_.make_nop_expr(); }
@@ -88,6 +91,9 @@ struct builder
   auto& make_call_expr(expr& e, expr_seq&& es) { return fn_.make_call_expr(e, std::move(es)); }
   auto& make_fn_eq_expr(expr& e1, expr& e2) { return fn_.make_eq_expr(e1, e2); }
   auto& make_fn_ne_expr(expr& e1, expr& e2) { return fn_.make_ne_expr(e1, e2); }
+
+  auto& make_tuple_expr(const expr_seq& es) { return tup_.make_tuple_expr(es); }
+  auto& make_tuple_expr(expr_seq&& es) { return tup_.make_tuple_expr(std::move(es)); }
 
   // Initializers
   auto& make_nop_init(type& t) { return var_.make_nop_init(t); }
@@ -133,6 +139,7 @@ struct builder
   beaker::sys_name::builder& name_;
   beaker::sys_var::builder& var_;
   beaker::sys_fn::builder& fn_;
+  beaker::sys_tuple::builder& tup_;
 };
 
 inline 
@@ -143,7 +150,8 @@ builder::builder(module& mod)
     int_(mod.get_builder<sys_int::builder>()),
     name_(mod.get_builder<sys_name::builder>()),
     var_(mod.get_builder<sys_var::builder>()),
-    fn_(mod.get_builder<sys_fn::builder>())
+    fn_(mod.get_builder<sys_fn::builder>()),
+    tup_(mod.get_builder<sys_tuple::builder>())
 { }
 
 // -------------------------------------------------------------------------- //

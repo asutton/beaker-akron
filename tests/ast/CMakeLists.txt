@@ -30,7 +30,11 @@ add_beaker_test(test-ast-logic-2 logic-2.cpp)
 # add_beaker_test(test-ast-numeric-1 numeric-1.cpp)
 
 
-# Out-of order declaration
+# Tuples
+add_beaker_test(test-ast-tuple-1 tuple-1.cpp)
+
+
+# Out-of order code generation
 add_beaker_test(test-ast-order-1 order-1.cpp)
 
 
