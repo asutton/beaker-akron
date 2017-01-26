@@ -55,7 +55,7 @@ struct builder
   auto& make_trap_expr() { return void_.make_trap_expr(); }
   
   auto& make_true_expr() { return bool_.make_true_expr(); }
-  auto& make_false_expr() { return bool_.make_true_expr(); }
+  auto& make_false_expr() { return bool_.make_false_expr(); }
   auto& make_bool_expr(const value& v) { return bool_.make_bool_expr(v); }
   auto& make_bool_and_expr(expr& e1, expr& e2) { return bool_.make_and_expr(e1, e2); }
   auto& make_bool_or_expr(expr& e1, expr& e2) { return bool_.make_or_expr(e1, e2); }
@@ -94,6 +94,7 @@ struct builder
 
   auto& make_tuple_expr(const expr_seq& es) { return tup_.make_tuple_expr(es); }
   auto& make_tuple_expr(expr_seq&& es) { return tup_.make_tuple_expr(std::move(es)); }
+  auto& make_proj_expr(expr& e, int n) { return tup_.make_proj_expr(e, n); }
 
   // Initializers
   auto& make_nop_init(type& t) { return var_.make_nop_init(t); }

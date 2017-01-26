@@ -39,6 +39,9 @@ struct tuple_expr : expr
   const expr_seq& get_elements() const;
   expr_seq& get_elements();
 
+  const expr& get_element(int) const;
+  expr& get_element(int);
+
   expr_seq elems_;
 };
 
@@ -52,25 +55,36 @@ tuple_expr::tuple_expr(type& t, expr_seq&& es)
   : expr(node_kind, t), elems_(std::move(es))
 { }
 
-// Returns the sequence of elemens in the tuple expression.
+/// Returns the sequence of elemens in the tuple expression.
 inline const expr_seq& tuple_expr::get_elements() const { return elems_; }
 
-// Returns the sequence of elemens in the tuple expression.
+/// Returns the sequence of elemens in the tuple expression.
 inline expr_seq& tuple_expr::get_elements() { return elems_; }
 
+/// Returns the nth subexpression of the tuple.
+inline const expr& tuple_expr::get_element(int n) const { return elems_[n]; }
 
-/// Represents the projection `e.n` where `e` is denotes a tuple and `n`
-/// is the nth element requested.
+/// Returns the nth subexpression of the tuple.
+inline expr& tuple_expr::get_element(int n) { return elems_[n]; }
+
+
+/// Represents the projection `e.n` where `e` is a tuple or a reference to
+/// a tuple, and and `n` is an integer greater than or equal to 0 and less than 
+/// the number of elements in that tuple.
 ///
-/// \todo The abstract syntax does not permint `n` to be a constant expression,
+/// If `e` has tuple type `{t1, t2, ...}`, the type of the expression is the
+/// type of the nth element `tn`, and the value is that of the nth subobject. 
+/// If `e` is a reference to a tuple type, then the type of the expression is
+/// is `tn&` and the value is a reference to the nth subobject.
+///
+/// \todo When `e` is a non-reference type, the type of the expression should
+/// be an expiring reference. Note that this implies that tuples are always
+/// stored objects.
+///
+/// \todo The abstract syntax does not permit `n` to be a constant expression,
 /// and trying to use `e.n` as concrete syntax also does not work. I think that
 /// the operator `e.[n]` would satisfy both requirements (and work for arrays
 /// also). It would also support generalized projection (see below).
-///
-/// \todo I think that if `e` is has object type, then `e.n` would produce
-/// an expiring reference. Otherwise, I believe the expression should be an
-/// lvalue. Note that we don't have expiring references, so the result of
-/// the expression would be an rvalue (i.e., requiring a copy).
 ///
 /// \todo Make a generalized version of this algorithm that projects a sequence
 /// of elements (e.g., `e.[3, 1, 0]`). That seems like it could be useful.

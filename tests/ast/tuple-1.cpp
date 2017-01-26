@@ -42,18 +42,29 @@ main()
   expr& e2 = build.make_int_expr(i32, 5);
   expr& e3 = build.make_false_expr();
 
-  decl& main_ = build.make_main();
+  expr& t1 = build.make_tuple_expr({ // {true, 5, false}
+    &build.make_copy_init(e1), 
+    &build.make_copy_init(e2),
+    &build.make_copy_init(e3)
+  });
+  expr& p1 = build.make_proj_expr(t1, 1); // t1.1 ~> 5
 
-  // NOTE: GCC may not sequence the initializatoin of t and f before their
-  // use if we don't declare them separately from adding them.
-  out<decl> t;
-  out<decl> f;
+  expr& t2 = build.make_tuple_expr({ // {5, true}
+    &build.make_copy_init(e2), 
+    &build.make_copy_init(e1)
+  });
+  expr& p2 = build.make_proj_expr(t2, 1); // t2.1 ~> 5
+
+  expr& t3 = build.make_tuple_expr({ // {false, 5}
+    &build.make_copy_init(e3),
+    &build.make_copy_init(e2) 
+  });
+
+  decl& main_ = build.make_main();
   add_stmts(main_)
-    .run(build.make_tuple_expr({
-      &build.make_copy_init(e1), 
-      &build.make_copy_init(e2),
-      &build.make_copy_init(e3)
-    }))
+    .run(p2)
+    .run(t3)
+    .ret(p1)
   ;
 
   archive_writer ar;

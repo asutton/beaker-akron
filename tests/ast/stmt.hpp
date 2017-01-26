@@ -27,6 +27,7 @@ struct stmt_builder
   stmt_builder& var(out<decl>&, name&, type&, expr&);
   stmt_builder& var(out<decl>&, const char*, type&, expr&);
   stmt_builder& check(expr&);
+  stmt_builder& ret(expr&);
   
   decl& cxt;
   stmt_seq& stmts;
@@ -67,6 +68,14 @@ stmt_builder::check(expr& e)
   sys_bool::assert_decl& decl = global_builder::get().make_assert_decl(cxt, e);
   sys_fn::decl_stmt& stmt = global_builder::get().make_decl_stmt(decl);
   stmts.push_back(stmt);
+  return *this;
+}
+
+inline stmt_builder&
+stmt_builder::ret(expr& e)
+{
+  stmt& s = global_builder::get().make_ret_stmt(e);
+  stmts.push_back(s);
   return *this;
 }
 

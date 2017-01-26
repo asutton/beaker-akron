@@ -35,6 +35,9 @@ struct tuple_type : object_type_impl<tuple_type_kind>
   const type_seq& get_element_types() const;
   type_seq& get_element_types();
 
+  const type& get_element_type(int) const;
+  type& get_element_type(int);
+
   type_seq elems_;
 };
 
@@ -53,6 +56,13 @@ inline const type_seq& tuple_type::get_element_types() const { return elems_; }
 
 // Returns the sequence of element types.
 inline type_seq& tuple_type::get_element_types() { return elems_; }
+
+/// Returns the nth element type.
+inline const type& tuple_type::get_element_type(int n) const { return elems_[n]; }
+
+/// Returns the nth element type.
+inline type& tuple_type::get_element_type(int n) { return elems_[n]; }
+
 
 } // namespace sys_tuple
 } // namespace beaker

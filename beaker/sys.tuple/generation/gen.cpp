@@ -53,10 +53,33 @@ generate_tuple_expr(generator& gen, const tuple_expr& e)
   return obj;
 }
 
+// Returns the projection of the nth term from the object denoted by `e`. Since
+// tuples are always stored, the generated object will always be a reference.
 cg::value
 generate_proj_expr(generator& gen, const proj_expr& e)
 {
-  assert(false && "not implemented");
+  cg::value obj = generate(gen, e.get_object());
+  
+  // Get the nth sub-object.
+  llvm::Builder ir(gen.get_current_block());
+  cg::value sub = ir.CreateConstGEP2_32(obj, 0, e.get_element());
+  
+  if (is_reference_expression(e.get_object())) {
+    // When e is a reference, return a referene to the subobject.
+    return sub;
+  }
+  else {
+    // Otherwise, return the value of the object. This also depends on whether
+    // or not the type of the nth element is indirect or not.
+    const type& t = e.get_object().get_type();
+    const tuple_type& tt = cast<tuple_type>(t);
+    const type& et = tt.get_element_type(e.get_element());
+    cg::type elem = generate(gen, et);
+    if (elem.is_indirect())
+      return sub;
+    else
+      return ir.CreateLoad(sub);
+  }
 }
 
 cg::value
