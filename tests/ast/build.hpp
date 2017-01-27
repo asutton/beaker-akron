@@ -13,6 +13,7 @@
 #include <beaker/sys.var/ast.hpp>
 #include <beaker/sys.fn/ast.hpp>
 #include <beaker/sys.tuple/ast.hpp>
+#include <beaker/sys.mod/ast.hpp>
 
 
 /// Synthesize the builders of the language into a single object.
@@ -112,7 +113,6 @@ struct builder
   sys_var::var_decl& make_local_var_decl(decl&, name&, type&, expr&);
   sys_var::var_decl& make_local_var_decl(decl&, const char*, type&, expr&);
 
-  // Declarations
   sys_fn::fn_decl& make_fn_decl(name&, type&, const decl_seq&, decl&, stmt&);
   sys_fn::fn_decl& make_fn_decl(const char*, type&, const decl_seq&, decl&, stmt&);
   sys_fn::fn_decl& make_fn_decl(name&, type&, decl_seq&&, decl&, stmt&);
@@ -120,6 +120,10 @@ struct builder
 
   sys_fn::parm_decl& make_parm_decl(name&, type&);
   sys_fn::parm_decl& make_parm_decl(const char*, type&);
+
+  auto& make_module_decl(name& n) { return module_.make_module_decl(n); }
+  auto& make_module_decl(const char* n) { return module_.make_module_decl(n); }
+  auto& make_import_decl(module& m) { return module_.make_import_decl(m); }
 
   // Statements
   auto& make_block_stmt() { return fn_.make_block_stmt(); }
@@ -141,6 +145,7 @@ struct builder
   beaker::sys_var::builder& var_;
   beaker::sys_fn::builder& fn_;
   beaker::sys_tuple::builder& tup_;
+  beaker::sys_mod::builder& module_;
 };
 
 inline 
@@ -152,7 +157,8 @@ builder::builder(module& mod)
     name_(mod.get_builder<sys_name::builder>()),
     var_(mod.get_builder<sys_var::builder>()),
     fn_(mod.get_builder<sys_fn::builder>()),
-    tup_(mod.get_builder<sys_tuple::builder>())
+    tup_(mod.get_builder<sys_tuple::builder>()),
+    module_(mod.get_builder<sys_mod::builder>())
 { }
 
 // -------------------------------------------------------------------------- //

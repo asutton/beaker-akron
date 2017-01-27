@@ -25,11 +25,7 @@ struct builder : basic_builder<sys_mod_lang>
   // Declarations
   module_decl& make_module_decl(name&);
   module_decl& make_module_decl(const char*);
-
-  import_decl& make_import_decl(name&);
-  import_decl& make_import_decl(const char*);
-
-  module* mod_;
+  import_decl& make_import_decl(module&);
 };
 
 } // namespace sys_mod

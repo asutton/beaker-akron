@@ -10,6 +10,7 @@
 #include <beaker/sys.var/ast.hpp>
 #include <beaker/sys.fn/ast.hpp>
 #include <beaker/sys.tuple/ast.hpp>
+#include <beaker/sys.mod/ast.hpp>
 
 
 system_lang::system_lang(symbol_table& s)
@@ -22,5 +23,6 @@ system_lang::system_lang(symbol_table& s)
   add_feature<sys_var::feature>();
   add_feature<sys_fn::feature>();
   add_feature<sys_tuple::feature>();
+  add_feature<sys_mod::feature>();
 }
 

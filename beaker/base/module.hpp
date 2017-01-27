@@ -96,6 +96,7 @@ struct module : decl, node_store
 
   const name& get_module_name() const;
   name& get_module_name();
+  void set_module_name(name&);
 
   const decl_seq& get_declarations() const;
   decl_seq& get_declarations();
@@ -130,6 +131,9 @@ inline const name& module::get_module_name() const { return *name_; }
 
 /// Returns the name of the module.
 inline name& module::get_module_name() { return *name_; }
+
+/// Sets the module name.
+inline void module::set_module_name(name& n) { name_ = &n; }
 
 /// Returns the declarations in the module.
 inline const decl_seq& module::get_declarations() const { return decls_; }

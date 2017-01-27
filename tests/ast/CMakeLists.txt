@@ -22,7 +22,6 @@ endmacro()
 # add_beaker_test(test-ast-fn-2 fn-2.cpp)
 # add_beaker_test(test-ast-fn-3 fn-3.cpp)
 
-
 # Logical terms
 add_beaker_test(test-ast-logic-1 logic-1.cpp)
 add_beaker_test(test-ast-logic-2 logic-2.cpp)
@@ -33,6 +32,9 @@ add_beaker_test(test-ast-logic-2 logic-2.cpp)
 # Tuples
 add_beaker_test(test-ast-tuple-1 tuple-1.cpp)
 
+
+# Modules
+add_beaker_test(test-ast-module-1 module-1.cpp)
 
 # Out-of order code generation
 add_beaker_test(test-ast-order-1 order-1.cpp)

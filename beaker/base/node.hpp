@@ -36,27 +36,31 @@ struct node_store
 /// Returns the allocator for the node store.
 inline allocator& node_store::get_allocator() { return alloc_; }
 
-/// Register a new singleton set for the given node id. Only a single set
-/// can be registered with such a node.
+/// Register a new singleton set for the given node id. If such a set already
+/// exists, then return the existing set.
 template<typename T>
 singleton_set<T>&
 node_store::make_singleton_set()
 {
   constexpr int k = T::node_kind;
-  assert(map_.count(k) == 0);
-  void* p = map_[k] = new singleton_set<T>(alloc_);
+  auto result = map_.emplace(k, nullptr);
+  if (result.second)
+    result.first->second = new singleton_set<T>(alloc_);
+  void* p = result.first->second;
   return *reinterpret_cast<singleton_set<T>*>(p);
 }
 
-/// Register a new canonical set for the given node id. Only a single set
-/// can be registered with such a node.
+/// Register a new canonical set for the given node id. If such a set already
+/// exists, then return the existing set.
 template<typename T>
 canonical_set<T>&
 node_store::make_canonical_set()
 {
   constexpr int k = T::node_kind;
-  assert(map_.count(k) == 0);
-  void* p = map_[k] = new canonical_set<T>(alloc_);
+  auto result = map_.emplace(k, nullptr);
+  if (result.second)
+    result.first->second = new canonical_set<T>(alloc_);
+  void* p = result.first->second;
   return *reinterpret_cast<canonical_set<T>*>(p);
 }
 

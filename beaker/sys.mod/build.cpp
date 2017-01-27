@@ -27,11 +27,14 @@ builder::get_name(const char* str)
   return get_name_builder(*this).get_name(str);
 }
 
-/// Returns a new module declaration.
+/// Returns a new module declaration. This also updates the module with
+/// the declared value.
 module_decl&
 builder::make_module_decl(name& n)
 {
-  return make<module_decl>(generate_id(), *mod_, n);
+  module_decl& ret = make<module_decl>(generate_id(), *mod_, n);
+  get_module().set_module_name(n);
+  return ret;
 }
 
 /// Returns a new module declaration.
@@ -43,15 +46,9 @@ builder::make_module_decl(const char* n)
 
 /// Returns a new import declaration.
 import_decl&
-builder::make_import_decl(name& n)
+builder::make_import_decl(module& m)
 {
-  return make<import_decl>(generate_id(), *mod_, n);
-}
-
-import_decl&
-builder::make_import_decl(const char* n)
-{
-  return make_import_decl(get_name(n));
+  return make<import_decl>(generate_id(), *mod_, m);
 }
 
 

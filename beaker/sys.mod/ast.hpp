@@ -4,8 +4,8 @@
 #ifndef BEAKER_SYS_MOD_AST_HPP
 #define BEAKER_SYS_MOD_AST_HPP
 
-#include <beaker/sys.bool/lang.hpp>
-#include <beaker/sys.bool/decl.hpp>
-#include <beaker/sys.bool/build.hpp>
+#include <beaker/sys.mod/lang.hpp>
+#include <beaker/sys.mod/decl.hpp>
+#include <beaker/sys.mod/build.hpp>
 
 #endif
