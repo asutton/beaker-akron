@@ -6,8 +6,7 @@
 #include "expr.hpp"
 #include "decl.hpp"
 
-#include <beaker/sys.name/name.hpp>
-#include <beaker/sys.name/build.hpp>
+#include <beaker/sys.name/ast.hpp>
 
 
 namespace beaker {
