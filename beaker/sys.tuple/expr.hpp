@@ -106,7 +106,9 @@ struct proj_expr : expr
 inline
 proj_expr::proj_expr(type& t, expr& e, int n)
   : expr(node_kind, t), obj_(e), elem_(n)
-{ }
+{ 
+  assert(0 <= n); 
+}
 
 /// Returns the tuple object of the expression.
 inline const expr& proj_expr::get_object() const { return obj_; }

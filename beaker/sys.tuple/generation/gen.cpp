@@ -44,7 +44,11 @@ generate_tuple_expr(generator& gen, const tuple_expr& e)
   for (int i = 0; i < args.size(); ++i) {
       // Get the address of the sub-object being initialized.
       llvm::Builder ir(gen.get_current_block());
-      cg::value sub = ir.CreateConstGEP2_32(obj, 0, i);
+      llvm::Value *ix[] {
+        ir.getInt32(0),
+        ir.getInt32(i)
+      };
+      cg::value sub = ir.CreateInBoundsGEP(obj, ix);
 
       // Initialize the sub-object.
       generator::init_guard guard(gen, sub);
@@ -58,21 +62,27 @@ generate_tuple_expr(generator& gen, const tuple_expr& e)
 cg::value
 generate_proj_expr(generator& gen, const proj_expr& e)
 {
+  const type& t = e.get_object().get_type();
+  const tuple_type& tt = cast<tuple_type>(t);
+  assert(e.get_element() < tt.get_element_types().size());
+
   cg::value obj = generate(gen, e.get_object());
   
   // Get the nth sub-object.
   llvm::Builder ir(gen.get_current_block());
-  cg::value sub = ir.CreateConstGEP2_32(obj, 0, e.get_element());
+  llvm::Value *ix[] {
+    ir.getInt32(0),
+    ir.getInt32(e.get_element())
+  };
+  cg::value sub = ir.CreateInBoundsGEP(obj, ix);
   
   if (is_reference_expression(e.get_object())) {
-    // When e is a reference, return a referene to the subobject.
+    // When e is a reference, return a reference to the subobject.
     return sub;
   }
   else {
     // Otherwise, return the value of the object. This also depends on whether
     // or not the type of the nth element is indirect or not.
-    const type& t = e.get_object().get_type();
-    const tuple_type& tt = cast<tuple_type>(t);
     const type& et = tt.get_element_type(e.get_element());
     cg::type elem = generate(gen, et);
     if (elem.is_indirect())
