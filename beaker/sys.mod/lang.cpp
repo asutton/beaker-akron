@@ -5,6 +5,7 @@
 #include "build.hpp"
 #include "printing/print.hpp"
 #include "serialization/write.hpp"
+#include "generation/gen.hpp"
 
 
 namespace beaker {
@@ -17,6 +18,7 @@ feature::feature(language& lang)
   : feature_impl<sys_mod_lang>(lang, make_builder)
 {
   add_algorithm<print_algo>();
+  add_algorithm<gen_algo>();
   add_algorithm<write_algo>();
 }
 

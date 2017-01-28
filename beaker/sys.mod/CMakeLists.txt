@@ -8,5 +8,6 @@ add_beaker_module(
   ast.cpp
   fwd.cpp
   printing/print.cpp
+  generation/gen.cpp
   serialization/write.cpp
 )

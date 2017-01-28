@@ -27,6 +27,10 @@ struct archive_writer
   using stream_table = std::vector<byte_stream>;
 
   // A reference to a stream.
+  //
+  // TODO: This seems very fragile. Activating a stream always means selecting
+  // the most recently added stream to a table. This interaction could be made
+  // a bit more robust.
   struct stream_ref 
   {
     stream_table* table = nullptr;
@@ -41,6 +45,7 @@ struct archive_writer
   {
     using map = std::unordered_map<T, std::uint32_t>;
     using table = stream_table;
+
     map ids;
     table bytes;
   };
@@ -57,16 +62,26 @@ struct archive_writer
   void write_type(const type&);
   void write_expr(const expr&);
   void write_decl(const decl&);
-  void write_ref(const decl&);
   void write_stmt(const stmt&);
+
+  void write_ref(const module&);
+  void write_ref(const decl&);
 
   void save(const char*);
 
-  void save_type(const type&);
-  void save_decl(const decl&);
+  std::uint32_t save_module(const module&);
+  std::uint32_t get_module(const module&);
+  
+  std::uint32_t save_type(const type&);
+  std::uint32_t get_type(const type&);
+  
+  std::uint32_t save_decl(const decl&);
+  std::uint32_t get_decl(const decl&);
 
   byte_stream& get_active_stream();
 
+  const module* mod_; // The current module.
+  encoding<const module*> mods;
   encoding<const type*> types;
   encoding<const decl*> decls;
   encoding<std::string> strings;

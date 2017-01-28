@@ -150,7 +150,9 @@ llvm::Value*
 generator::get_value(const decl& d)
 {
   auto iter = decl_env_.find(&d);
-  assert(!seen_decl(d));
+  assert(iter != decl_env_.end());
+  return iter->second;
+
 #if 0
   if (iter == decl_env_.end()) {
     // If we haven't previously seen the declaration, step outside the current
@@ -165,7 +167,6 @@ generator::get_value(const decl& d)
     return val;
   }
 #endif
-  return iter->second;
 }
 
 /// Returns true if we've already seen the declaratoin.

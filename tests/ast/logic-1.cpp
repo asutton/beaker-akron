@@ -29,15 +29,16 @@ main()
   
   // Create and establish a global builder context.
   builder build(mod);
-  global_builder global(build);
+  mod.add_declaration(build.make_module_decl("logic-1"));
 
+  global_builder global(build);
   check_canonical_types();
 
   type& b = build.get_bool_type();
 
   decl& main_ = build.make_main();
 
-  // NOTE: GCC may not sequence the initializatoin of t and f before their
+  // NOTE: GCC may not sequence the initialization of t and f before their
   // use if we don't declare them separately from adding them.
   out<decl> t;
   out<decl> f;

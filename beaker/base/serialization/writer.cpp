@@ -192,20 +192,61 @@ archive_writer::write_string(const symbol& s)
   write_string(s.get_spelling());
 }
 
+
+// Encode the module m and return its id.
+std::uint32_t
+archive_writer::save_module(const module& m)
+{
+  std::size_t id = mods.bytes.size();
+  mods.bytes.emplace_back();
+  activate_stream s(*this, mods.bytes);
+  write_name(m.get_module_name());
+  return id;
+}
+
+// Get the encoded id for the module m. This will encode the module if it
+// has not already been encoded.
+std::uint32_t
+archive_writer::get_module(const module& m)
+{
+  assert(mods.ids.size() == mods.bytes.size());
+  std::size_t id = mods.bytes.size();
+  auto result = mods.ids.emplace(&m, id);
+  if (result.second)
+    return save_module(m);
+  else
+    return result.first->second;
+}
+
 /// Write the contents of a module to the archive.
 ///
 /// \todo Write language features and options into a metadata block.
 void
 archive_writer::write_module(const module& m)
 {
-  // Create a declaration stream for the module and add its id (0) to the 
-  // declaration set. Activate that byte stream so that all top-level
-  // declarations are written into that stream.
+  assert(!mod_);
+  mod_ = &m;
+
+  // Ensure that this module name is the first in the module table. 
+  save_module(m);
+
+  // Encode the module. Note that all modules have id 0, so this will
+  // always be the first declaration in the declaration table.
   decls.ids.emplace(&m, m.get_id());
   decls.bytes.emplace_back();
   activate_stream s(*this, decls.bytes);
   for (const decl& d : m.get_declarations())
     write_decl(d);
+
+  mod_ = nullptr;
+}
+
+/// Write a reference to a module. Modules can be referenced by certain kinds
+/// of declarations (e.g., imports) and references to imported declarations.
+void
+archive_writer::write_ref(const module& m)
+{
+  write_id(get_module(m));
 }
 
 /// Write the name into the current stream.
@@ -218,11 +259,29 @@ archive_writer::write_name(const name& n)
 
 /// Actually save the type. This encodes the type's kind and dispatches
 /// to the type for encoding.
-void
+std::uint32_t
 archive_writer::save_type(const type& t)
 {
+  std::size_t id = types.bytes.size();
+  types.bytes.emplace_back();
+  activate_stream s(*this, types.bytes);
   write_int(t.get_kind());
   get_write(t)(*this, t);
+  return id;
+}
+
+/// Returns the encoded id for a type. If the type has not been encoded, then
+/// that is done before returning.
+std::uint32_t
+archive_writer::get_type(const type& t)
+{
+  assert(types.ids.size() == types.bytes.size());
+  std::size_t id = types.bytes.size();
+  auto result = types.ids.emplace(&t, id);
+  if (result.second)
+    return save_type(t);
+  else
+    return result.first->second;
 }
 
 /// Write a reference to a type. Note that types are not top-level entities,
@@ -232,26 +291,7 @@ archive_writer::save_type(const type& t)
 void
 archive_writer::write_type(const type& t)
 {
-  assert(types.ids.size() == types.bytes.size());
-  auto iter = types.ids.find(&t);
-  if (iter == types.ids.end()) {
-    // If the type hasn't been seen yet generate a new id and initialize
-    // it's byte stream.
-    std::size_t id = types.ids.size();
-    types.ids.emplace(&t, id);
-    types.bytes.emplace_back();
-    {
-      // Step outside of the current stream and generate the type.
-      activate_stream s(*this, types.bytes);
-      save_type(t);
-    }
-    // Write the id into the current stream.
-    write_id(id);
-  }
-  else {
-    // Just write the type id into the stream.
-    write_id(iter->second);
-  }
+  write_id(get_type(t));
 }
 
 /// Write the expression into the stream. This writes the kind and type
@@ -264,59 +304,65 @@ archive_writer::write_expr(const expr& e)
   get_write(e)(*this, e);
 }
 
-/// Actually save the declaration into the current stream. Serialize the
-/// node kind before its contents.
-void
+/// Encode the declaration into a new stream. This assumes that the declaration
+/// has already been inserted into the map.
+std::uint32_t
 archive_writer::save_decl(const decl& d)
 {
+  assert(decls.ids.count(&d));
+  decls.bytes.emplace_back();
   write_int(d.get_kind());
   write_int(d.get_id());
   write_ref(*d.get_semantic_context());
   write_ref(*d.get_lexical_context());
   get_write(d)(*this, d); // Dispatch
+  return d.get_id();
 }
 
-/// Writes a declaration into the current stream. This must only be used
-/// when writing declaration from declaration contexts, not types or
-/// expressions. Use write_ref() in those cases.
-///
-/// In the case of forward references, we don't actually need to do anything.
-void
-archive_writer::write_decl(const decl& d)
+/// Returns the encoded id for the declaration. If the declaration has not
+/// yet been encoded, it is encoded as needed.
+std::uint32_t
+archive_writer::get_decl(const decl& d)
 {
   assert(decls.ids.size() == decls.bytes.size());
   auto result = decls.ids.emplace(&d, d.get_id());
-  if (result.second) {
-    // We have not previously seen this declaration, so we can generate
-    // a new byte stream for it and write it in place.
-    decls.bytes.emplace_back();
-    activate_stream s(*this, decls.bytes);
+  if (result.second)
     save_decl(d);
-  }
-
-  // Write the declaration id into the stream to indicate that the declaration
-  // was requested at this point.
-  write_id(d.get_id());
+  return d.get_id();
 }
 
-/// Write a reference to a declaration. If the declaration has not yet been
-/// serialized, do so now.
+/// Writes a declaration into the current stream. This must only be used
+/// when writing declarations from declaration contexts, not references to
+/// those declarations. Use write_ref() in those cases.
+void
+archive_writer::write_decl(const decl& d)
+{
+  assert(&d.get_module() == mod_);
+  write_id(get_decl(d));
+}
+
+/// Write a reference to a declaration. If the declaration is defined in this
+/// module and has not yet been serialized, this will cause the declaration
+/// to be serialized. 
 void
 archive_writer::write_ref(const decl& d)
 {
   assert(decls.ids.size() == decls.bytes.size());
-  auto iter = decls.ids.find(&d);
-  if (iter == decls.ids.end()) {
-    // If the declaration hasn't been seen yet generate a new id and initialize
-    // it's byte stream.
-    decls.ids.emplace(&d, d.get_id());
-    decls.bytes.emplace_back();
-    activate_stream s(*this, decls.bytes);
-    save_decl(d);
-  }
 
-  // Write the declaration id as it appears.
-  write_id(d.get_id());
+  const module& mod = d.get_module();
+  if (&mod == mod_) {
+    // If the declaration is defined in this module, then encode the reference
+    // as the pair (true, decl-id). 
+    write_bool(true);
+    write_id(get_decl(d));
+  }
+  else {
+    // If the declaration is not in the module, then encode the reference
+    // a the triple (false, module-id, decl-id).
+    write_bool(false);
+    write_id(get_module(mod));
+    write_id(d.get_id());
+  }
 }
 
 /// Write the statement into the stream.
@@ -326,7 +372,6 @@ archive_writer::write_stmt(const stmt& s)
   write_int(s.get_kind());
   get_write(s)(*this, s);
 }
-
 
 // Note that the offset of serialized entities uses 32 bits! We almost 
 // certainly don't need 64 bits, but I won't guarantee that we can live with 
@@ -363,6 +408,7 @@ void
 archive_writer::save(const char* path)
 {
   stream_table blocks {
+    serialize_block(mods.bytes),
     serialize_block(types.bytes),
     serialize_block(decls.bytes),
     serialize_block(strings.bytes)
