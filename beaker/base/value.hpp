@@ -60,6 +60,7 @@ struct value
   value& operator=(const value&);
   value& operator=(value&&);
 
+  bool is_void() const;
   bool is_integer() const;
   bool is_float() const;
 
@@ -124,13 +125,16 @@ value::operator=(value&& v)
   return *this;
 }
 
-// Returns the true if the value is an integer.
+/// Returns true if this is the void value.
+inline bool value::is_void() const { return kind_ == void_value_kind; }
+
+/// Returns the true if the value is an integer.
 inline bool value::is_integer() const { return kind_ == integer_value_kind; }
 
-// Returns true if the value is a floating point value.
+/// Returns true if the value is a floating point value.
 inline bool value::is_float() const { return kind_ == float_value_kind; }
 
-// Returns the integer representation of the value.
+/// Returns the integer representation of the value.
 inline integer_value
 value::get_integer() const 
 { 

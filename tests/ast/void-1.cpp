@@ -8,10 +8,6 @@
 
 #include <beaker/sys.void/ast.hpp>
 
-// #include <beaker/base/generation/generation.hpp>
-// #include <beaker/base/serialization/writer.hpp>
-
-
 using namespace beaker;
 
 // Check that two terms are not equal.

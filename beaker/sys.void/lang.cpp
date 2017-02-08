@@ -6,6 +6,7 @@
 #include "expr.hpp"
 #include "build.hpp"
 #include "printing/print.hpp"
+#include "evaluation/evaluate.hpp"
 // #include "generation/gen.hpp"
 // #include "serialization/write.hpp"
 
@@ -33,6 +34,11 @@ feature::add_semantics(language& lang)
   print.exprs->add_overrider<nop_expr>(print_nop_expr);
   print.exprs->add_overrider<void_expr>(print_void_expr);
   print.exprs->add_overrider<trap_expr>(print_trap_expr);
+
+  auto& eval = lang.get_algorithm<evaluate_algorithm>();
+  eval.exprs->add_overrider<nop_expr>(evaluate_nop_expr);
+  eval.exprs->add_overrider<void_expr>(evaluate_void_expr);
+  eval.exprs->add_overrider<trap_expr>(evaluate_trap_expr);
 }
 
 beaker::builder&

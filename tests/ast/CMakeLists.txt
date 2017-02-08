@@ -12,6 +12,11 @@ endmacro()
 
 
 # Unit tests
+
+add_beaker_test(test-ast-void-1 void-1.cpp)
+add_beaker_test(test-ast-void-2 void-2.cpp)
+
+
 # add_beaker_test(test-ast-assert-1 assert-1.cpp)
 # add_beaker_test(test-ast-assert-2 assert-2.cpp) # NOTE: Expected to abort.
 # add_beaker_test(test-ast-var-1 var-1.cpp)
@@ -22,8 +27,6 @@ endmacro()
 # add_beaker_test(test-ast-fn-2 fn-2.cpp)
 # add_beaker_test(test-ast-fn-3 fn-3.cpp)
 
-#
-add_beaker_test(test-ast-void-1 void-1.cpp)
 
 # Logical terms
 # add_beaker_test(test-ast-logic-1 logic-1.cpp)

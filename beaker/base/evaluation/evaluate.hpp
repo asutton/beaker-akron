@@ -13,6 +13,8 @@ namespace beaker {
 
 /// Represents an error that occurred during evaluation. These exceptions can
 /// be caught and suppressed to support compile-time evaluation.
+///
+/// \todo: Allow errors to indicate declarations and statements also.
 struct evaluation_error : error
 {
   using error::error;
