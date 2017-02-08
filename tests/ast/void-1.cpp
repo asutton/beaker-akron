@@ -14,6 +14,39 @@
 
 using namespace beaker;
 
+// Check that two terms are not equal.
+template<typename T>
+void 
+check_different(const language& lang, const T& t1, const T& t2)
+{
+  assert(!equal(lang, t1, t2));
+}
+
+// Check if two terms are equal and hash equivalent.
+template<typename T>
+void 
+check_equal(const language& lang, const T& t1, const T& t2)
+{
+  // Check equality
+  assert(equal(lang, t1, t2));
+
+  // Check hash equivalence.
+  hasher h1;
+  hash(lang, h1, t1);
+  hasher h2;
+  hash(lang, h2, t2);
+  assert((std::size_t)h1 == (std::size_t)h2);
+}
+
+// Check if two terms are identical (the same object), and also equal.
+template<typename T>
+void
+check_identical(const language& lang, const T& t1, const T& t2)
+{
+  assert(&t1 == &t2);
+  check_equal(lang, t1, t2);
+}
+
 int 
 main()
 {
@@ -24,13 +57,12 @@ main()
   module mod(lang);
   auto& vb = mod.get_builder<sys_void::feature>();
 
-  type& t1 = vb.get_void_type();
-  type& t2 = vb.get_void_type();
-  assert(equal(lang, t1, t2));
+  check_identical(lang, vb.get_void_type(), vb.get_void_type());
 
-  hasher h1;
-  hash(lang, h1, t1);
-  hasher h2;
-  hash(lang, h2, t2);
-  assert((std::size_t)h1 == (std::size_t)h2);
+  auto& nop = vb.make_nop_expr();
+  auto& trap = vb.make_trap_expr();
+  check_equal(lang, nop, vb.make_nop_expr());
+  check_equal(lang, trap, vb.make_trap_expr());
+  check_equal(lang, vb.make_void_expr(nop), vb.make_void_expr(nop));
+  check_different(lang, vb.make_void_expr(nop), vb.make_void_expr(trap));
 }

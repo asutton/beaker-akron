@@ -55,13 +55,19 @@ inline void
 hash_base_type(const language&, hasher&, const base_type&)
 { }
 
+struct nullary_expr;
 struct unary_expr;
 struct binary_expr;
 struct ternary_expr;
 
+/// Append no additional information for nullary expressions.
+inline void
+hash_nullary_expr(const language&, hasher&, const nullary_expr&)
+{ }
+
 void hash_unary_expr(const language&, hasher&, const unary_expr&);
 void hash_binary_expr(const language&, hasher&, const binary_expr&);
-void hash_ternary_expr(const language&, hasher&, const binary_expr&);
+void hash_ternary_expr(const language&, hasher&, const ternary_expr&);
 
 } // namespace beaker
 

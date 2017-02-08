@@ -8,6 +8,7 @@
 #include "decl.hpp"
 #include "stmt.hpp"
 #include "comparison/equal.hpp"
+#include "comparison/hash.hpp"
 
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
@@ -21,6 +22,7 @@ static void init_type_hierarchy(inheritance_hierarchy&);
 static void init_expr_hierarchy(inheritance_hierarchy&);
 static void init_decl_hierarchy(inheritance_hierarchy&);
 static void init_equal_algorithm(language&);
+static void init_hash_algorithm(language&);
 
 language::language(symbol_table& syms, const feature_list& feats)
   : algorithm_set(), feature_set(feats), node_store(), syms_(&syms)
@@ -35,6 +37,7 @@ language::language(symbol_table& syms, const feature_list& feats)
 
   // Define the initial set of algorithms.
   init_equal_algorithm(*this);
+  init_hash_algorithm(*this);
 
   // Add the semantics for terms defined by features.
   for (feature* f : get_features())
@@ -77,12 +80,23 @@ init_decl_hierarchy(inheritance_hierarchy& hier)
 void
 init_equal_algorithm(language& lang)
 {
-  equal_algorithm& algo = lang.add_algorithm<equal_algorithm>(lang);
+  auto& algo = lang.add_algorithm<equal_algorithm>(lang);
   algo.types->add_overrider<base_type>(equal_base_type);
   algo.exprs->add_overrider<nullary_expr>(equal_nullary_expr);
   algo.exprs->add_overrider<unary_expr>(equal_unary_expr);
   algo.exprs->add_overrider<binary_expr>(equal_binary_expr);
   algo.exprs->add_overrider<ternary_expr>(equal_ternary_expr);
+}
+
+void
+init_hash_algorithm(language& lang)
+{
+  auto& algo = lang.add_algorithm<hash_algorithm>(lang);
+  algo.types->add_overrider<base_type>(hash_base_type);
+  algo.exprs->add_overrider<nullary_expr>(hash_nullary_expr);
+  algo.exprs->add_overrider<unary_expr>(hash_unary_expr);
+  algo.exprs->add_overrider<binary_expr>(hash_binary_expr);
+  algo.exprs->add_overrider<ternary_expr>(hash_ternary_expr);
 }
 
 } // namespace beaker
