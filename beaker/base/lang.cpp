@@ -10,6 +10,7 @@
 #include "comparison/equal.hpp"
 #include "comparison/hash.hpp"
 #include "printing/print.hpp"
+#include "evaluation/evaluate.hpp"
 
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
@@ -26,6 +27,7 @@ static void init_semantics(language&);
 static void init_equal_algorithm(language&);
 static void init_hash_algorithm(language&);
 static void init_print_algorithm(language&);
+static void init_evaluate_algorithm(language&);
 
 language::language(symbol_table& syms, const feature_list& feats)
   : algorithm_set(), feature_set(feats), node_store(), syms_(&syms)
@@ -88,6 +90,7 @@ init_semantics(language& lang)
   init_equal_algorithm(lang);
   init_hash_algorithm(lang);
   init_print_algorithm(lang);
+  init_evaluate_algorithm(lang);
 
   // Add the semantics for terms defined by features.
   for (feature* f : lang.get_features())
@@ -121,6 +124,12 @@ init_print_algorithm(language& lang)
 {
   // FIXME: Add a default override for modules.
   lang.add_algorithm<print_algorithm>(lang);
+}
+
+void
+init_evaluate_algorithm(language& lang)
+{
+  lang.add_algorithm<evaluate_algorithm>(lang);
 }
 
 } // namespace beaker
