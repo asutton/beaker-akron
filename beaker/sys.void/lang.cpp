@@ -5,8 +5,7 @@
 #include "type.hpp"
 #include "expr.hpp"
 #include "build.hpp"
-
-// #include "printing/print.hpp"
+#include "printing/print.hpp"
 // #include "generation/gen.hpp"
 // #include "serialization/write.hpp"
 
@@ -29,6 +28,11 @@ feature::add_terms(language& lang)
 void 
 feature::add_semantics(language& lang)
 {
+  auto& print = lang.get_algorithm<print_algorithm>();
+  print.types->add_overrider<void_type>(print_void_type);
+  print.exprs->add_overrider<nop_expr>(print_nop_expr);
+  print.exprs->add_overrider<void_expr>(print_void_expr);
+  print.exprs->add_overrider<trap_expr>(print_trap_expr);
 }
 
 beaker::builder&

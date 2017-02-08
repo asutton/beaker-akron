@@ -12,29 +12,27 @@ namespace beaker {
 namespace sys_void {
 
 void
-print_algo::operator()(std::ostream& os, const type& t) const
+print_void_type(pretty_printer& pp, const void_type& t)
 {
-  assert(is_void_type(t));
-  os << "void";
+  pp.print("void");
 }
 
+void
+print_nop_expr(pretty_printer& pp, const nop_expr& e)
+{
+  pp.print("nop");
+}
 
 void
-print_algo::operator()(std::ostream& os, const expr& e) const
+print_void_expr(pretty_printer& pp, const void_expr& e)
 {
-  switch (e.get_kind()) {
-    case nop_expr_kind:
-      os << "nop";
-      return;
-    case void_expr_kind:
-      return print_prefix_expr(os, cast<void_expr>(e), "void");
-    case trap_expr_kind:
-      os << "trap";
-      return;
-    default:
-      break;
-  }
-  assert(false && "not a void expression");
+  print_builtin_call_expr(pp, "void", e.get_operand());
+}
+
+void
+print_trap_expr(pretty_printer& pp, const trap_expr& e)
+{
+  pp.print("trap");
 }
 
 } // namespace sys_void

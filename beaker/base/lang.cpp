@@ -9,39 +9,43 @@
 #include "stmt.hpp"
 #include "comparison/equal.hpp"
 #include "comparison/hash.hpp"
+#include "printing/print.hpp"
 
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
 
-#include <iostream>
-
 
 namespace beaker {
 
+static void init_terms(language&);
 static void init_type_hierarchy(inheritance_hierarchy&);
 static void init_expr_hierarchy(inheritance_hierarchy&);
 static void init_decl_hierarchy(inheritance_hierarchy&);
+
+static void init_semantics(language&);
 static void init_equal_algorithm(language&);
 static void init_hash_algorithm(language&);
+static void init_print_algorithm(language&);
 
 language::language(symbol_table& syms, const feature_list& feats)
   : algorithm_set(), feature_set(feats), node_store(), syms_(&syms)
 {
-  init_type_hierarchy(types_);
-  init_expr_hierarchy(exprs_);
-  init_decl_hierarchy(decls_);
+  init_terms(*this);
+  init_semantics(*this);
+}
+
+// Initialize the terms of the language and their relationships.
+void
+init_terms(language& lang)
+{
+  // Add default hierarchies.
+  init_type_hierarchy(lang.get_types());
+  init_expr_hierarchy(lang.get_expressions());
+  init_decl_hierarchy(lang.get_declarations());
 
   // Add the terms defined by the features to class hierarchies.
-  for (feature* f : get_features())
-    f->add_terms(*this);
-
-  // Define the initial set of algorithms.
-  init_equal_algorithm(*this);
-  init_hash_algorithm(*this);
-
-  // Add the semantics for terms defined by features.
-  for (feature* f : get_features())
-    f->add_terms(*this);
+  for (feature* f : lang.get_features())
+    f->add_terms(lang);
 }
 
 void
@@ -78,6 +82,19 @@ init_decl_hierarchy(inheritance_hierarchy& hier)
 }
 
 void
+init_semantics(language& lang)
+{
+  // Define the initial set of algorithms.
+  init_equal_algorithm(lang);
+  init_hash_algorithm(lang);
+  init_print_algorithm(lang);
+
+  // Add the semantics for terms defined by features.
+  for (feature* f : lang.get_features())
+    f->add_semantics(lang);
+}
+
+void
 init_equal_algorithm(language& lang)
 {
   auto& algo = lang.add_algorithm<equal_algorithm>(lang);
@@ -97,6 +114,13 @@ init_hash_algorithm(language& lang)
   algo.exprs->add_overrider<unary_expr>(hash_unary_expr);
   algo.exprs->add_overrider<binary_expr>(hash_binary_expr);
   algo.exprs->add_overrider<ternary_expr>(hash_ternary_expr);
+}
+
+void
+init_print_algorithm(language& lang)
+{
+  // FIXME: Add a default override for modules.
+  lang.add_algorithm<print_algorithm>(lang);
 }
 
 } // namespace beaker

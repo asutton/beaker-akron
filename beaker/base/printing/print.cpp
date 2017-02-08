@@ -2,184 +2,215 @@
 // All rights reserved
 
 #include "print.hpp"
-
-#include <beaker/base/name.hpp>
-#include <beaker/base/type.hpp>
-#include <beaker/base/expr.hpp>
-#include <beaker/base/decl.hpp>
-#include <beaker/base/stmt.hpp>
-#include <beaker/base/module.hpp>
+#include "../name.hpp"
+#include "../type.hpp"
+#include "../expr.hpp"
+#include "../decl.hpp"
+#include "../stmt.hpp"
 
 #include <iostream>
 
 
 namespace beaker {
 
-/// The default behavior is not defined.
-void
-print_algorithm::operator()(std::ostream& os, const name& n) const
-{
-  assert(false && "not defined");
-}
+// -------------------------------------------------------------------------- //
+// Pretty printer
 
-/// The default behavior is not defined.
-void
-print_algorithm::operator()(std::ostream& os, const type& t) const
-{
-  assert(false && "not defined");
-}
+pretty_printer::pretty_printer(const language& lang)
+  : pretty_printer(lang, std::cout)
+{ }
 
-/// The default behavior is not defined.
-void
-print_algorithm::operator()(std::ostream& os, const expr& e) const
-{
-  assert(false && "not defined");
-}
+pretty_printer::pretty_printer(const language& lang, std::ostream& os)
+  : lang(lang), os(os)
+{ }
 
-/// The default behavior is not defined.
+/// Print a single character.
 void
-print_algorithm::operator()(std::ostream& os, const decl& d) const
-{
-  assert(false && "not defined");
-}
-
-/// The default behavior is not defined.
-void
-print_algorithm::operator()(std::ostream& os, const stmt& s) const
-{
-  assert(false && "not defined");
-}
-
-void
-print(std::ostream& os, char c)
+pretty_printer::print(char c)
 {
   os << c;
 }
 
+/// Print a string.
 void
-print(std::ostream& os, const char* str)
+pretty_printer::print(const char* str)
 {
   os << str;
 }
 
+/// Print an integer value
 void
-print(const name& n)
+pretty_printer::print(int n)
 {
-  print(std::cout, n);
-  std::cout << '\n';
+  os << n;
+}
+
+/// Prints a newline character.
+void
+pretty_printer::print_newline()
+{
+  os << '\n';
 }
 
 void
-print(const type& t)
+pretty_printer::print_space()
 {
-  print(std::cout, t);
-  std::cout << '\n';
+  os << ' ';
 }
 
-void
-print(const expr& e)
-{
-  print(std::cout, e);
-  std::cout << '\n';
-}
+// -------------------------------------------------------------------------- //
+// Disaptch
 
-void
-print(const decl& d)
-{
-  print(std::cout, d);
-  std::cout << '\n';
-}
-
-void
-print(const stmt& s)
-{
-  print(std::cout, s);
-  std::cout << '\n';
-}
-
-/// Pretty print the module m.
-void
-print(const module& m)
-{
-  print(std::cout, m);
-}
-
-// Returns the printing algorithm associated with the node t.
-template<typename T>
+// Returns the equality algorithm associated with the node t.
 static inline const print_algorithm&
-get_print(const T& t)
+get_algorithm(const language& lang)
 {
-  feature& feat = language::get_feature(t);
-  return feat.template get_algorithm<print_algorithm>();
+  return lang.get_algorithm<print_algorithm>();
 }
 
-/// Pretty print the name n.
+// Generates the dispatch table for the algorithm
+print_algorithm::print_algorithm(language& lang)
+  : names(new name_table(lang.get_names())),
+    types(new type_table(lang.get_types())),
+    exprs(new expr_table(lang.get_expressions())),
+    decls(new decl_table(lang.get_declarations())),
+    stmts(new stmt_table(lang.get_statements()))
+{ }
+
+/// Pretty print the name `n`.
 void
-print(std::ostream& os, const name& n)
+print(pretty_printer& pp, const name& n)
 {
-  get_print(n)(os, n);
+  const auto& tab = *get_algorithm(pp.lang).names;
+  auto fn = tab.get_overrider(n);
+  fn(pp, n);
 }
 
-/// Pretty print the type t.
+/// Pretty print the type `t`.
 void
-print(std::ostream& os, const type& t)
+print(pretty_printer& pp, const type& t)
 {
-  get_print(t)(os, t);
+  const auto& tab = *get_algorithm(pp.lang).types;
+  auto fn = tab.get_overrider(t);
+  fn(pp, t);
 }
 
-/// Pretty print the expression e.
+/// Pretty print the expression `e`.
 void
-print(std::ostream& os, const expr& e)
+print(pretty_printer& pp, const expr& e)
 {
-  get_print(e)(os, e);
+  const auto& tab = *get_algorithm(pp.lang).exprs;
+  auto fn = tab.get_overrider(e);
+  fn(pp, e);
 }
 
-/// Pretty print the declaration d.
+/// Pretty print the declaration `d`.
 void
-print(std::ostream& os, const decl& d)
+print(pretty_printer& pp, const decl& d)
 {
-  get_print(d)(os, d);
+  const auto& tab = *get_algorithm(pp.lang).decls;
+  auto fn = tab.get_overrider(d);
+  fn(pp, d);
 }
 
-/// Pretty print the statement s.
+/// Pretty print the statement `s`.
 void
-print(std::ostream& os, const stmt& s)
+print(pretty_printer& pp, const stmt& s)
 {
-  get_print(s)(os, s);
+  const auto& tab = *get_algorithm(pp.lang).stmts;
+  auto fn = tab.get_overrider(s);
+  fn(pp, s);
 }
 
-/// Pretty print the module m.
+/// Print an expression enclosed by the given characters.
 void
-print(std::ostream& os, const module& m)
+print_enclosed_expr(pretty_printer& pp, const expr& e, char l, char r)
 {
-  for (const decl& d : m.get_declarations())
-    print(os, d);
+  pp.print(l);
+  print(pp, e);
+  pp.print(r);
 }
 
-// Print an expression with explicit grouping.
+/// Print an expression that resembles a call to a builtin function.
 void
-print_grouped_expr(std::ostream& os, const expr& e)
+print_builtin_call_expr(pretty_printer& pp, const char* fn, const expr& e)
 {
-  os << '(';
-  print(os, e);
-  os << ')';
+  pp.print(fn);
+  print_enclosed_expr(pp, e, '(', ')');
 }
 
-// Pretty print a prefix unary operator.
+/// Print an expression enclosed by parentheses.
 void
-print_prefix_expr(std::ostream& os, const unary_expr& e, const char* op)
+print_grouped_expr(pretty_printer& pp, const expr& e)
 {
-  os << op;
-  print_grouped_expr(os, e.get_operand());
+  if (is_terminal_expression(e))
+    print(pp, e);
+  else
+    print_enclosed_expr(pp, e, '(', ')');
+}
+
+/// Pretty print a prefix unary operator spelled by `op`. The operand is
+/// printed with enclosed parentheses.
+void
+print_prefix_expr(pretty_printer& pp, const unary_expr& e, const char* op)
+{
+  pp.print(op);
+  print_grouped_expr(pp, e.get_operand());
 }
 
 // Pretty print an infix binary expression.
 void
-print_infix_expr(std::ostream& os, const binary_expr& e, const char* op)
+print_infix_expr(pretty_printer& pp, const binary_expr& e, const char* op)
 {
-  print_grouped_expr(os, e.get_lhs());
-  os << ' ' << op << ' ';
-  print_grouped_expr(os, e.get_rhs());
+  print_grouped_expr(pp, e.get_lhs());
+  pp.print_space();
+  pp.print(op);
+  pp.print_space();
+  print_grouped_expr(pp, e.get_rhs());
+}
+
+
+// -------------------------------------------------------------------------- //
+// Additional functions
+
+void
+print(const language& lang, const name& n)
+{
+  pretty_printer pp(lang, std::cout);
+  print(pp, n);
+  pp.print_newline();
+}
+
+void
+print(const language& lang, const type& t)
+{
+  pretty_printer pp(lang, std::cout);
+  print(pp, t);
+  pp.print_newline();
+}
+
+void
+print(const language& lang, const expr& e)
+{
+  pretty_printer pp(lang, std::cout);
+  print(pp, e);
+  pp.print_newline();
+}
+
+void
+print(const language& lang, const decl& d)
+{
+  pretty_printer pp(lang, std::cout);
+  print(pp, d);
+  pp.print_newline();
+}
+
+void
+print(const language& lang, const stmt& s)
+{
+  pretty_printer pp(lang, std::cout);
+  print(pp, s);
+  pp.print_newline();
 }
 
 

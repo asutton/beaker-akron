@@ -485,6 +485,16 @@ bool is_object_expression(const expr&);
 bool is_reference_expression(const expr&);
 bool is_function_expression(const expr&);
 
+/// Returns true if `e` is either a literal or nullary expression. For the
+/// purpose of pretty printing, terminal expressions are not enclosed in
+/// parentheses.
+inline bool
+is_terminal_expression(const expr& e)
+{
+  return dynamic_cast<const literal_expr*>(&e) ||
+         dynamic_cast<const nullary_expr*>(&e);
+}
+
 } // namespace beaker
 
 

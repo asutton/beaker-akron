@@ -8,7 +8,7 @@ add_beaker_module(
   build.cpp
   ast.cpp
   fwd.cpp
-  # printing/print.cpp
+  printing/print.cpp
   # generation/gen.cpp
   # serialization/write.cpp
 )

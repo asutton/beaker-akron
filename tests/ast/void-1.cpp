@@ -3,11 +3,11 @@
 
 #include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
+#include <beaker/base/printing/print.hpp>
 #include <beaker/util/symbol_table.hpp>
 
 #include <beaker/sys.void/ast.hpp>
 
-// #include <beaker/base/printing/print.hpp>
 // #include <beaker/base/generation/generation.hpp>
 // #include <beaker/base/serialization/writer.hpp>
 
@@ -63,6 +63,14 @@ main()
   auto& trap = vb.make_trap_expr();
   check_equal(lang, nop, vb.make_nop_expr());
   check_equal(lang, trap, vb.make_trap_expr());
-  check_equal(lang, vb.make_void_expr(nop), vb.make_void_expr(nop));
-  check_different(lang, vb.make_void_expr(nop), vb.make_void_expr(trap));
+  auto& void_nop = vb.make_void_expr(nop);
+  check_equal(lang, void_nop, vb.make_void_expr(nop));
+  auto& void_trap = vb.make_void_expr(trap);
+  check_different(lang, void_nop, void_trap);
+
+  print(lang, vb.get_void_type());
+  print(lang, nop);
+  print(lang, trap);
+  print(lang, void_nop);
+  print(lang, void_trap);
 }
