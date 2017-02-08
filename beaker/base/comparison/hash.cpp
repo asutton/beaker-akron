@@ -53,6 +53,13 @@ hash(const language& lang, hasher& h, const expr& e)
 // -------------------------------------------------------------------------- //
 // Overrides
 
+/// Hash a literal 
+void
+hash_literal_expr(const language& lang, hasher& h, const literal_expr& e)
+{
+  hash(h, e.get_value());
+}
+
 /// Hash a unary expression e into h.
 void
 hash_unary_expr(const language& lang, hasher& h, const unary_expr& e)

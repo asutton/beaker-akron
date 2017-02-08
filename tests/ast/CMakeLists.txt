@@ -12,9 +12,10 @@ endmacro()
 
 
 # Unit tests
-
 add_beaker_test(test-ast-void-1 void-1.cpp)
 add_beaker_test(test-ast-void-2 void-2.cpp)
+
+add_beaker_test(test-ast-bool-1 bool-1.cpp)
 
 
 # add_beaker_test(test-ast-assert-1 assert-1.cpp)

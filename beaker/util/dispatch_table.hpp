@@ -68,7 +68,9 @@ inline auto
 dispatch_table<F>::get_overrider(const T* arg) const -> fn_type*
 {
   class_node& c = hier->node(typeid(*arg));
-  return fetch_overrider(c);
+  fn_type* fn = fetch_overrider(c);
+  assert(fn && "no overrider installed");
+  return fn;
 }
 
 /// Returns the overrider for the polymorphic argument.
@@ -122,6 +124,8 @@ dispatch_table<F>::install_overrider(class_node& c, G* fn)
   tab[c.id] = reinterpret_cast<fn_type*>(fn);
 }
 
+/// \todo Failing to find an overrider should always trigger an error, not
+/// just in debug mode.
 template<typename F>
 auto
 dispatch_table<F>::fetch_overrider(const class_node& c) const -> fn_type*
@@ -129,7 +133,6 @@ dispatch_table<F>::fetch_overrider(const class_node& c) const -> fn_type*
   assert(0 <= c.id && c.id < tab.size());
   return tab[c.id];
 }
-
 
 } // namespace beaker
 

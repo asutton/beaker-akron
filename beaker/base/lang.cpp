@@ -102,6 +102,9 @@ init_equal_algorithm(language& lang)
 {
   auto& algo = lang.add_algorithm<equal_algorithm>(lang);
   algo.types->add_overrider<base_type>(equal_base_type);
+  algo.types->add_overrider<object_type>(equal_object_type);
+  
+  algo.exprs->add_overrider<literal_expr>(equal_literal_expr);
   algo.exprs->add_overrider<nullary_expr>(equal_nullary_expr);
   algo.exprs->add_overrider<unary_expr>(equal_unary_expr);
   algo.exprs->add_overrider<binary_expr>(equal_binary_expr);
@@ -113,6 +116,9 @@ init_hash_algorithm(language& lang)
 {
   auto& algo = lang.add_algorithm<hash_algorithm>(lang);
   algo.types->add_overrider<base_type>(hash_base_type);
+  algo.types->add_overrider<object_type>(hash_object_type);
+  
+  algo.exprs->add_overrider<literal_expr>(hash_literal_expr);
   algo.exprs->add_overrider<nullary_expr>(hash_nullary_expr);
   algo.exprs->add_overrider<unary_expr>(hash_unary_expr);
   algo.exprs->add_overrider<binary_expr>(hash_binary_expr);

@@ -49,12 +49,20 @@ hash(const language& lang, hasher& h, const seq<T>& s)
 }
 
 struct base_type;
+struct object_type;
 
 /// Append no additional information for base types.
 inline void
 hash_base_type(const language&, hasher&, const base_type&)
 { }
 
+/// Append no additional information for base types. This must be overriden
+/// if the object type has additional properties.
+inline void
+hash_object_type(const language&, hasher&, const object_type&)
+{ }
+
+struct literal_expr;
 struct nullary_expr;
 struct unary_expr;
 struct binary_expr;
@@ -65,6 +73,7 @@ inline void
 hash_nullary_expr(const language&, hasher&, const nullary_expr&)
 { }
 
+void hash_literal_expr(const language&, hasher&, const literal_expr&);
 void hash_unary_expr(const language&, hasher&, const unary_expr&);
 void hash_binary_expr(const language&, hasher&, const binary_expr&);
 void hash_ternary_expr(const language&, hasher&, const ternary_expr&);

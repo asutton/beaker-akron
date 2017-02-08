@@ -4,14 +4,13 @@
 #include "build.hpp"
 #include "type.hpp"
 #include "expr.hpp"
-#include "decl.hpp"
 
 
 namespace beaker {
 namespace sys_bool {
 
 builder::builder(module& m)
-  : basic_builder<sys_bool_lang>(m),
+  : beaker::builder(m),
     bool_(&get_language().make_singleton_set<bool_type>()) 
 { }
 
@@ -76,12 +75,12 @@ builder::make_xor_expr(expr& e1, expr& e2)
   return make<xor_expr>(get_bool_type(), e1, e2);
 }
 
-/// Returns a new expression `!e`
+/// Returns a new expression `!e1`
 not_expr&
-builder::make_not_expr(expr& e)
+builder::make_not_expr(expr& e1)
 {
-  assert(is_boolean_expression(e));
-  return make<not_expr>(get_bool_type(), e);
+  assert(is_boolean_expression(e1));
+  return make<not_expr>(get_bool_type(), e1);
 }
 
 /// Returns a new expression `e1 => e2`.
@@ -107,7 +106,7 @@ if_expr&
 builder::make_if_expr(expr& e1, expr& e2, expr& e3)
 {
   assert(is_boolean_expression(e1));
-  assert(equivalent(e2.get_type(), e3.get_type()));
+  assert(equal(get_language(), e2.get_type(), e3.get_type()));
   return make<if_expr>(e2.get_type(), e1, e2, e3);
 }
 
@@ -130,11 +129,11 @@ builder::make_or_else_expr(expr& e1, expr& e2)
 }
 
 /// Returns a new declaration `assert e` with module context.
-assert_decl&
-builder::make_assert_decl(dc cxt, expr& e)
+assert_expr&
+builder::make_assert_expr(expr& e1)
 {
-  assert(is_boolean_expression(e));
-  return make<assert_decl>(generate_id(), cxt, e);
+  assert(is_boolean_expression(e1));
+  return make<assert_expr>(get_bool_type(), e1);
 }
 
 } // namespace sys_bool

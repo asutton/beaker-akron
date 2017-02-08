@@ -9,12 +9,10 @@ namespace beaker {
 namespace sys_bool {
 
 struct feature;
-#define def_type(T) struct T##_type;
-#define def_expr(E) struct E##_expr;
-#define def_decl(D) struct D##_decl;
+#define def_type(T, B) struct T ## _type;
+#define def_expr(E, B) struct E ## _expr;
 #include "type.def"
 #include "expr.def"
-#include "decl.def"
 struct builder;
 
 } // namespace sys_bool

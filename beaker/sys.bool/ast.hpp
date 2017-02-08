@@ -7,7 +7,6 @@
 #include <beaker/sys.bool/lang.hpp>
 #include <beaker/sys.bool/type.hpp>
 #include <beaker/sys.bool/expr.hpp>
-#include <beaker/sys.bool/decl.hpp>
 #include <beaker/sys.bool/build.hpp>
 
 #endif

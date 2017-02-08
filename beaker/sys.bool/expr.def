@@ -1,15 +1,16 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(bool)
-def_expr(and)
-def_expr(or)
-def_expr(xor)
-def_expr(not)
-def_expr(imp)
-def_expr(eq)
-def_expr(if)
-def_expr(and_then)
-def_expr(or_else)
+def_expr(bool, literal)
+def_expr(and, binary)
+def_expr(or, binary)
+def_expr(xor, binary)
+def_expr(not, unary)
+def_expr(imp, binary)
+def_expr(eq, binary)
+def_expr(if, ternary)
+def_expr(and_then, binary)
+def_expr(or_else, binary)
+def_expr(assert, unary)
 
 #undef def_expr

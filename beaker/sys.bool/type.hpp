@@ -13,7 +13,7 @@ namespace sys_bool {
 enum 
 {
   first_type_kind = sys_bool_lang_block,
-#define def_type(e) e ## _type_kind,
+#define def_type(T, B) T ## _type_kind,
 #include "type.def"
   last_type_kind
 };

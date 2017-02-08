@@ -12,9 +12,7 @@ namespace sys_void {
 
 struct builder;
 
-/// A feature defines an extensible set of terms that can be used with the
-/// beaker language runtime. In particular, this exposes a core set of 
-/// algorithms and facilities needed to operate on those terms.
+/// Adds support for void expressions.
 struct feature : beaker::feature
 {
   using builder_type = builder;

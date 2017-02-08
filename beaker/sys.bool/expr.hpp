@@ -12,7 +12,7 @@ namespace sys_bool {
 
 enum {
   first_expr_kind = sys_bool_lang_block,
-#define def_expr(e) e ## _expr_kind,
+#define def_expr(E, B) E ## _expr_kind,
 #include "expr.def"
   last_expr_kind
 };
@@ -148,25 +148,31 @@ inline const expr& if_expr::get_false_value() const { return get_third(); }
 inline expr& if_expr::get_false_value() { return get_third(); }
 
 
-/// Represents the expression `e1 && e2`.
-///
-/// Both `e1` and `e2` shall be boolean expressions.
-///
-/// The expression `e1 && e2` is equivalent to `if e1 then e2 else false`.
+/// Represents the expression `e1 && e2`. Both `e1` and `e2` shall be boolean 
+/// expressions. The expression `e1 && e2` is equivalent to `if e1 then e2 else 
+/// false`.
 struct and_then_expr : binary_expr_impl<and_then_expr_kind> 
 {
   using binary_expr_impl<and_then_expr_kind>::binary_expr_impl;
 };
 
 
-/// Represents the expression `e1 || e2`. 
-///
-/// Both `e1` and `e2` shall be boolean expressions.
-///
-/// The expression `e1 || e2` is equivalent to `if e1 then true else e2`.
+/// Represents the expression `e1 || e2`. Both `e1` and `e2` shall be boolean 
+/// expressions. The expression `e1 || e2` is equivalent to `if e1 then true 
+/// else e2`.
 struct or_else_expr : binary_expr_impl<or_else_expr_kind> 
 {
   using binary_expr_impl<or_else_expr_kind>::binary_expr_impl;
+};
+
+
+/// Represents the expressoin `assert(e)`. The expression `e` shall have type
+/// bool. If the value of `e` is `false`, the behavior of the program is 
+/// undefined. The value of the expression is `true` (i.e., it has type 
+/// `bool`).
+struct assert_expr : unary_expr_impl<assert_expr_kind>
+{
+  using unary_expr_impl<assert_expr_kind>::unary_expr_impl;
 };
 
 

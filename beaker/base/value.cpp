@@ -1,23 +1,26 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_COMMON_VALUE_HPP
-#define BEAKER_COMMON_VALUE_HPP
+#include "value.hpp"
+
+#include <beaker/util/hash.hpp>
 
 
 namespace beaker {
 
-// Represents the compile-time value of an object.
-//
-// Values are used to represent literals, constants, and to perform
-// compile-time evaluation. A value can be one of several different 
-// kinds: integers, reals, and composites.
-struct value
+void
+hash(hasher& h, const value& v)
 {
-
-};
+  hash(h, (int)v.get_kind()); // FIXME: Shouldn't have to cast.
+  switch (v.get_kind()) {
+    case void_value_kind:
+      return;
+    case int_value_kind:
+      return hash(h, v.get_integer());
+    case float_value_kind:
+      return hash(h, v.get_float());
+  }
+  assert(false && "invalid value kind");
+}
 
 } // namespace beaker
-
-
-#endif

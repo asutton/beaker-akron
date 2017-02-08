@@ -9,6 +9,9 @@
 
 namespace beaker {
 
+// -------------------------------------------------------------------------- //
+// Dispatch
+
 // Returns the equality algorithm associated with the node t.
 static inline const equal_algorithm&
 get_algorithm(const language& lang)
@@ -56,6 +59,12 @@ equal(const language& lang, const expr& a, const expr& b)
 
 // -------------------------------------------------------------------------- //
 // Overrides
+
+bool 
+equal_literal_expr(const language& lang, const literal_expr& a, const literal_expr& b)
+{
+  return a.get_value() == b.get_value();
+}
 
 bool 
 equal_unary_expr(const language& lang, const unary_expr& a, const unary_expr& b)

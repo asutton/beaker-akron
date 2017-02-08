@@ -16,7 +16,7 @@ namespace beaker {
 enum value_kind 
 {
   void_value_kind,
-  integer_value_kind,
+  int_value_kind,
   float_value_kind,
 };
 
@@ -60,6 +60,7 @@ struct value
   value& operator=(const value&);
   value& operator=(value&&);
 
+  value_kind get_kind() const;
   bool is_void() const;
   bool is_integer() const;
   bool is_float() const;
@@ -96,12 +97,12 @@ value::value(value&& v)
 // without this constructor.
 inline
 value::value(int n)
-  : kind_(integer_value_kind), data_(integer_value(n))
+  : kind_(int_value_kind), data_(integer_value(n))
 { }
 
 inline
 value::value(integer_value n)
-  : kind_(integer_value_kind), data_(n)
+  : kind_(int_value_kind), data_(n)
 { }
 
 inline
@@ -125,11 +126,14 @@ value::operator=(value&& v)
   return *this;
 }
 
+/// Returns the kind of value.
+inline value_kind value::get_kind() const { return kind_; }
+
 /// Returns true if this is the void value.
 inline bool value::is_void() const { return kind_ == void_value_kind; }
 
 /// Returns the true if the value is an integer.
-inline bool value::is_integer() const { return kind_ == integer_value_kind; }
+inline bool value::is_integer() const { return kind_ == int_value_kind; }
 
 /// Returns true if the value is a floating point value.
 inline bool value::is_float() const { return kind_ == float_value_kind; }
@@ -149,6 +153,43 @@ value::get_float() const
   assert(is_float());
   return data_.f;
 }
+
+
+// -------------------------------------------------------------------------- //
+// Equality comparison
+
+/// Two values are when they have the same kind and underlying value.
+inline bool
+operator==(const value& a, const value& b)
+{
+  if (a.get_kind() != b.get_kind())
+    return false;
+  switch (a.get_kind()) {
+    case void_value_kind:
+      return true;
+    case int_value_kind:
+      return a.get_integer() == b.get_integer();
+    case float_value_kind:
+      return a.get_float() == b.get_float();
+    default:
+      break;
+  }
+  assert(false && "invalid value kind");
+}
+
+inline bool
+operator!=(const value& a, const value& b)
+{
+  return !(a == b);
+}
+
+
+// -------------------------------------------------------------------------- //
+// Hashing
+
+struct hasher;
+
+void hash(hasher&, const value&);
 
 } // namespace beaker
 

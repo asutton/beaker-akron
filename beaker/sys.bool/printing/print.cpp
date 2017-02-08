@@ -4,127 +4,103 @@
 #include "print.hpp"
 #include "../type.hpp"
 #include "../expr.hpp"
-#include "../decl.hpp"
-
-#include <iostream>
 
 
 namespace beaker {
 namespace sys_bool {
 
+/// Pretty print the type `bool`.
 void
-print_algo::operator()(std::ostream& os, const type& t) const
+print_bool_type(pretty_printer& pp, const bool_type& t)
 {
-  assert(is_boolean_type(t));
-  os << "bool";
+  pp.print("bool");
 }
 
-
 // Pretty print the boolean expression e.
-static void
-print_bool_expr(std::ostream& os, const bool_expr& e)
+void
+print_bool_expr(pretty_printer& pp, const bool_expr& e)
 {
   if (e.get_boolean())
-    os << "true";
+    pp.print("true");
   else
-    os << "false";
+    pp.print("false");
 }
 
 // Pretty print the expression `e1 & e2`.
-static inline void
-print_and_expr(std::ostream& os, const and_expr& e)
+void
+print_and_expr(pretty_printer& pp, const and_expr& e)
 {
-  print_infix_expr(os, e, "&");
+  print_infix_expr(pp, e, "&");
 }
 
 // Pretty print the expression `e1 | e2`.
-static inline void
-print_or_expr(std::ostream& os, const or_expr& e)
+void
+print_or_expr(pretty_printer& pp, const or_expr& e)
 {
-  print_infix_expr(os, e, "|");
+  print_infix_expr(pp, e, "|");
 }
 
 // Pretty print the expression `e1 ^ e2`.
-static inline void
-print_xor_expr(std::ostream& os, const xor_expr& e)
+void
+print_xor_expr(pretty_printer& pp, const xor_expr& e)
 {
-  print_infix_expr(os, e, "^");
+  print_infix_expr(pp, e, "^");
 }
 
 // Pretty print the expression `!e`.
-static inline void
-print_not_expr(std::ostream& os, const not_expr& e)
+void
+print_not_expr(pretty_printer& pp, const not_expr& e)
 {
-  print_prefix_expr(os, e, "!");
+  print_prefix_expr(pp, e, "!");
 }
 
 // Pretty print the expression `e1 => e2`.
-static inline void
-print_imp_expr(std::ostream& os, const imp_expr& e)
+void
+print_imp_expr(pretty_printer& pp, const imp_expr& e)
 {
-  print_infix_expr(os, e, "=>");
+  print_infix_expr(pp, e, "=>");
 }
 
 // Pretty print the expression `e1 <=> e2`.
-static inline void
-print_eq_expr(std::ostream& os, const eq_expr& e)
+void
+print_eq_expr(pretty_printer& pp, const eq_expr& e)
 {
-  print_infix_expr(os, e, "<=>");
+  print_infix_expr(pp, e, "<=>");
 }
 
 // Pretty print the expression `e1 ? e2 : e3`.
-static inline void
-print_if_expr(std::ostream& os, const if_expr& e)
+void
+print_if_expr(pretty_printer& pp, const if_expr& e)
 {
-  print_grouped_expr(os, e.get_condition());
-  os << ' ' << '?' << ' ';
-  print_grouped_expr(os, e.get_true_value());
-  os << ' ' << ':' << ' ';
-  print_grouped_expr(os, e.get_false_value());
+  print_grouped_expr(pp, e.get_condition());
+  pp.print_space();
+  pp.print('?');
+  pp.print_space();
+  print_grouped_expr(pp, e.get_true_value());
+  pp.print_space();
+  pp.print(':');
+  pp.print_space();
+  print_grouped_expr(pp, e.get_false_value());
 }
 
 // Pretty print the expression `e1 && e2`.
-static inline void
-print_and_then_expr(std::ostream& os, const and_then_expr& e)
+void
+print_and_then_expr(pretty_printer& pp, const and_then_expr& e)
 {
-  print_infix_expr(os, e, "&&");
+  print_infix_expr(pp, e, "&&");
 }
 
 // Pretty print the expression `e1 || e2`.
-static inline void
-print_or_else_expr(std::ostream& os, const or_else_expr& e)
+void
+print_or_else_expr(pretty_printer& pp, const or_else_expr& e)
 {
-  print_infix_expr(os, e, "||");
+  print_infix_expr(pp, e, "||");
 }
 
 void
-print_algo::operator()(std::ostream& os, const expr& e) const
+print_assert_expr(pretty_printer& pp, const assert_expr& e)
 {
-  switch (e.get_kind()) {
-#define def_expr(E) \
-    case E ## _expr_kind: \
-      return print_ ## E ## _expr(os, cast<E ## _expr>(e));
-#include "../expr.def"
-    default:
-      break;
-  }
-  assert(false && "not a boolean expression");
-}
-
-
-static void
-print_assert_decl(std::ostream& os, const assert_decl& d)
-{
-  os << "assert ";
-  print(os, d.get_assertion());
-  os << ';' << '\n';
-}
-
-void
-print_algo::operator()(std::ostream& os, const decl& d) const
-{
-  assert(is<assert_decl>(d));
-  print_assert_decl(os, cast<assert_decl>(d));
+  print_builtin_call_expr(pp, "assert", e.get_operand());
 }
 
 } // namespace sys_bool

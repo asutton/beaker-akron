@@ -12,9 +12,7 @@
 namespace beaker {
 namespace sys_bool {
 
-/// Provides access to resources needed to construct, validate, and
-/// evaluate logical terms.
-struct builder : basic_builder<sys_bool_lang>
+struct builder : beaker::builder
 {
   builder(module&);
 
@@ -34,11 +32,8 @@ struct builder : basic_builder<sys_bool_lang>
   if_expr& make_if_expr(expr&, expr&, expr&);
   and_then_expr& make_and_then_expr(expr&, expr&);
   or_else_expr& make_or_else_expr(expr&, expr&);
+  assert_expr& make_assert_expr(expr&);
 
-  // Declarations
-  assert_decl& make_assert_decl(dc, expr&);
-
-  module* mod_;
   singleton_set<bool_type>* bool_;
 };
 

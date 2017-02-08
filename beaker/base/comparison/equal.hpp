@@ -53,6 +53,7 @@ equal(const language& lang, const seq<T>& a, const seq<T>& b)
 }
 
 struct base_type;
+struct object_type;
 
 /// The same base types are always equal.
 inline bool 
@@ -61,6 +62,15 @@ equal_base_type(const language&, const base_type&, const base_type&)
   return true;
 }
 
+/// The same object types are always equal. This must be overriden if the
+/// object types have properties that cause their values to differ.
+inline bool 
+equal_object_type(const language&, const object_type&, const object_type&)
+{
+  return true;
+}
+
+struct literal_expr;
 struct nullary_expr;
 struct unary_expr;
 struct binary_expr;
@@ -73,6 +83,7 @@ equal_nullary_expr(const language&, const nullary_expr&, const nullary_expr&)
   return true;
 }
 
+bool equal_literal_expr(const language&, const literal_expr&, const literal_expr&);
 bool equal_unary_expr(const language&, const unary_expr&, const unary_expr&);
 bool equal_binary_expr(const language&, const binary_expr&, const binary_expr&);
 bool equal_ternary_expr(const language&, const ternary_expr&, const ternary_expr&);
