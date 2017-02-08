@@ -32,7 +32,7 @@ struct bool_expr : literal_expr_impl<bool_expr_kind>
 };
 
 /// Returns the boolean value of the expression.
-inline bool bool_expr::get_boolean() const { return get_value().get_integer(); }
+inline bool bool_expr::get_boolean() const { return get_value().get_int(); }
 
 
 /// Represents the expression `e1 & e2`. 

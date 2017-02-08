@@ -5,6 +5,8 @@
 
 #include <beaker/util/hash.hpp>
 
+#include <iostream>
+
 
 namespace beaker {
 
@@ -16,9 +18,24 @@ hash(hasher& h, const value& v)
     case void_value_kind:
       return;
     case int_value_kind:
-      return hash(h, v.get_integer());
+      return hash(h, v.get_int());
     case float_value_kind:
       return hash(h, v.get_float());
+  }
+  assert(false && "invalid value kind");
+}
+
+
+std::ostream&
+operator<<(std::ostream& os, const value& val)
+{
+  switch (val.get_kind()) {
+    case void_value_kind:
+      return os << "<void>";
+    case int_value_kind:
+      return os << "<int " << val.get_int() << '>';
+    case float_value_kind:
+      return os << "<float " << val.get_float() << '>';
   }
   assert(false && "invalid value kind");
 }

@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <iosfwd>
 #include <vector>
 
 
@@ -65,7 +66,7 @@ struct value
   bool is_integer() const;
   bool is_float() const;
 
-  integer_value get_integer() const;
+  integer_value get_int() const;
   float_value get_float() const;
 
   value_kind kind_;
@@ -140,7 +141,7 @@ inline bool value::is_float() const { return kind_ == float_value_kind; }
 
 /// Returns the integer representation of the value.
 inline integer_value
-value::get_integer() const 
+value::get_int() const 
 { 
   assert(is_integer());
   return data_.z;
@@ -168,7 +169,7 @@ operator==(const value& a, const value& b)
     case void_value_kind:
       return true;
     case int_value_kind:
-      return a.get_integer() == b.get_integer();
+      return a.get_int() == b.get_int();
     case float_value_kind:
       return a.get_float() == b.get_float();
     default:
@@ -190,6 +191,12 @@ operator!=(const value& a, const value& b)
 struct hasher;
 
 void hash(hasher&, const value&);
+
+
+// -------------------------------------------------------------------------- //
+// Streaming
+
+std::ostream& operator<<(std::ostream&, const value&);
 
 } // namespace beaker
 

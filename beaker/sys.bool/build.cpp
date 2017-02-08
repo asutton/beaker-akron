@@ -42,7 +42,7 @@ bool_expr&
 builder::make_bool_expr(const value& v)
 {
   assert(v.is_integer());
-  if (v.get_integer())
+  if (v.get_int())
     return make_true_expr();
   else
     return make_false_expr(); 

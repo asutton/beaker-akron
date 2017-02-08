@@ -101,6 +101,29 @@ void print(const language&, const expr&);
 void print(const language&, const decl&);
 void print(const language&, const stmt&);
 
+
+// -------------------------------------------------------------------------- //
+// Iostream integration
+
+template<typename T>
+struct pretty_print_term
+{
+  const language& lang;
+  const T& term;
+};
+
+template<typename T>
+inline auto pretty(const language& l, const T& t) { return pretty_print_term<T>{l, t}; }
+
+template<typename C, typename T, typename U>
+std::basic_ostream<C, T>&
+operator<<(std::basic_ostream<C, T>& os, pretty_print_term<U> t)
+{
+  pretty_printer pp(t.lang, os);
+  print(pp, t.term);
+  return os;
+}
+
 } // namespace beaker
 
 
