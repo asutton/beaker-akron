@@ -55,7 +55,7 @@ struct class_node
   std::type_index ti;
   seq_type base;
   seq_type derived;
-  int id = -1;   // A computed index.
+  std::size_t id = -1;   // A computed index.
   int color = 0; // Scratch data used by algorithms
 };
 

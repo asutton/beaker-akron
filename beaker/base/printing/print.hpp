@@ -48,11 +48,11 @@ struct pretty_printer
 /// printing (although we could almost certainly abuse it to do so).
 struct print_algorithm : algorithm
 {
-  using name_table = dispatch_table<bool(pretty_printer&, const name&)>;
-  using type_table = dispatch_table<bool(pretty_printer&, const type&)>;
-  using expr_table = dispatch_table<bool(pretty_printer&, const expr&)>;
-  using decl_table = dispatch_table<bool(pretty_printer&, const decl&)>;
-  using stmt_table = dispatch_table<bool(pretty_printer&, const stmt&)>;
+  using name_table = dispatch_table<void(pretty_printer&, const name&)>;
+  using type_table = dispatch_table<void(pretty_printer&, const type&)>;
+  using expr_table = dispatch_table<void(pretty_printer&, const expr&)>;
+  using decl_table = dispatch_table<void(pretty_printer&, const decl&)>;
+  using stmt_table = dispatch_table<void(pretty_printer&, const stmt&)>;
 
   print_algorithm(language&);
   

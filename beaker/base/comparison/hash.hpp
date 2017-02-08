@@ -22,9 +22,9 @@ struct binary_expr;
 /// hash algorithm.
 struct hash_algorithm : algorithm
 {
-  using name_table = dispatch_table<bool(const language&, hasher&, const name&)>;
-  using type_table = dispatch_table<bool(const language&, hasher&, const type&)>;
-  using expr_table = dispatch_table<bool(const language&, hasher&, const expr&)>;
+  using name_table = dispatch_table<void(const language&, hasher&, const name&)>;
+  using type_table = dispatch_table<void(const language&, hasher&, const type&)>;
+  using expr_table = dispatch_table<void(const language&, hasher&, const expr&)>;
 
   hash_algorithm(language&);
   

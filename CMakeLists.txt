@@ -12,7 +12,7 @@ project(beaker VERSION 0.0 LANGUAGES CXX)
 enable_testing()
 
 # set(BEAKER_SAN_FLAGS "-fsanitize=address -fsanitize=memory -fsanitize=leak")
-set(BEAKER_SAN_FLAGS "-fsanitize=address")
+# set(BEAKER_SAN_FLAGS "-fsanitize=address")
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14 ${BEAKER_SAN_FLAGS}")
 
 # Determine architecture.

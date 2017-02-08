@@ -2,6 +2,7 @@
 # All rights reserved
 
 add_beaker_module(
+  error.cpp
   value.cpp
   node.cpp
   lang.cpp
@@ -15,6 +16,7 @@ add_beaker_module(
   comparison/equal.cpp
   comparison/hash.cpp
   printing/print.cpp
+  evaluation/evaluate.cpp
   # generation/generation.cpp
   # generation/type.cpp
   # generation/value.cpp
