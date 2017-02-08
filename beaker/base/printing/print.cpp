@@ -40,7 +40,7 @@ pretty_printer::print(const char* str)
 
 /// Print an integer value
 void
-pretty_printer::print(int n)
+pretty_printer::print(std::intmax_t n)
 {
   os << n;
 }

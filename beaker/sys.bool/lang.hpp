@@ -21,6 +21,7 @@ struct feature : beaker::feature
   void add_semantics(language&) override;
   beaker::builder& make_builder(module&) const override;
 };
+
 } // namespace sys_bool
 } // namespace beaker
 

@@ -12,7 +12,7 @@ namespace sys_int {
 
 enum {
   first_expr_kind = sys_int_lang_block,
-#define def_expr(e) e ## _expr_kind,
+#define def_expr(E, B) E ## _expr_kind,
 #include "expr.def"
   last_expr_kind
 };
@@ -31,7 +31,7 @@ struct int_expr : literal_expr_impl<int_expr_kind>
 };
 
 /// Returns the integer value of the expression.
-inline std::intmax_t int_expr::get_integer() const { return get_value().get_integer(); }
+inline std::intmax_t int_expr::get_integer() const { return get_value().get_int(); }
 
 
 /// Represents the expression `e1 == e2`.
@@ -172,6 +172,8 @@ struct neg_expr : unary_expr_impl<neg_expr_kind>
 /// Represents the reciprocal expression `/e`.
 ///
 /// \todo Document me.
+///
+/// \todo Is this even useful for integers? It's 0 in all cases but 2.
 struct rec_expr : unary_expr_impl<rec_expr_kind> 
 {
   using unary_expr_impl<rec_expr_kind>::unary_expr_impl;

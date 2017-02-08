@@ -1,19 +1,19 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(int)
-def_expr(eq)
-def_expr(ne)
-def_expr(lt)
-def_expr(gt)
-def_expr(le)
-def_expr(ge)
-def_expr(add)
-def_expr(sub)
-def_expr(mul)
-def_expr(div)
-def_expr(rem)
-def_expr(neg)
-def_expr(rec)
+def_expr(int, literal)
+def_expr(eq, binary)
+def_expr(ne, binary)
+def_expr(lt, binary)
+def_expr(gt, binary)
+def_expr(le, binary)
+def_expr(ge, binary)
+def_expr(add, binary)
+def_expr(sub, binary)
+def_expr(mul, binary)
+def_expr(div, binary)
+def_expr(rem, binary)
+def_expr(neg, unary)
+def_expr(rec, unary)
 
 #undef def_expr

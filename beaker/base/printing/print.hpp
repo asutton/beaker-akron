@@ -7,6 +7,7 @@
 #include <beaker/base/lang.hpp>
 #include <beaker/base/seq.hpp>
 
+#include <cstdint>
 #include <iosfwd>
 
 
@@ -32,7 +33,7 @@ struct pretty_printer
 
   void print(char);
   void print(const char*);
-  void print(int);
+  void print(std::intmax_t);
 
   void print_space();
   void print_newline();

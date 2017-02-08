@@ -23,7 +23,7 @@ include(base/CMakeLists.txt)
 # System types and expressions expressions
 include(sys.void/CMakeLists.txt)
 include(sys.bool/CMakeLists.txt)
-# include(sys.int/CMakeLists.txt)
+include(sys.int/CMakeLists.txt)
 # include(sys.float/CMakeLists.txt)
 
 # System declarations

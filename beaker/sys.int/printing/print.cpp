@@ -12,50 +12,109 @@ namespace beaker {
 namespace sys_int {
 
 void 
-print_algo::operator()(std::ostream& os, const type& t) const
+print_nat_type(pretty_printer& pp, const nat_type& t)
 {
-  switch (t.get_kind()) {
-#define def_type(T) \
-    case T ## _type_kind: \
-      os << #T << cast<T ## _type>(t).get_precision(); return;
-#include "../type.def"
-    default:
-      break;
-  }
-  assert(false && "not a numeric type");
+  pp.print("nat");
+  pp.print((std::intmax_t)t.get_precision()); // FIXME: Remove this cast
+}
+
+void 
+print_int_type(pretty_printer& pp, const int_type& t)
+{
+  pp.print("int");
+  pp.print((std::intmax_t)t.get_precision()); // FIXME: Remove this cast
+}
+
+void 
+print_mod_type(pretty_printer& pp, const mod_type& t)
+{
+  pp.print("mod");
+  pp.print((std::intmax_t)t.get_precision()); // FIXME: Remove this cast
+}
+
+
+void
+print_int_expr(pretty_printer& pp, const int_expr& e)
+{
+  pp.print(e.get_integer());
 }
 
 void
-print_int_expr(std::ostream& os, const int_expr& e)
+print_eq_expr(pretty_printer& pp, const eq_expr& e)
 {
-  os << e.get_value().get_integer();
+  print_infix_expr(pp, e, "==");
 }
 
-/// \todo Finish implementing me.
 void
-print_algo::operator()(std::ostream& os, const expr& e) const
+print_ne_expr(pretty_printer& pp, const ne_expr& e)
 {
-  switch (e.get_kind()) {
-    case int_expr_kind:
-      return print_int_expr(os, cast<int_expr>(e));
+  print_infix_expr(pp, e, "!=");
+}
 
-    case eq_expr_kind:
-      return print_infix_expr(os, cast<eq_expr>(e), "==");
-    case ne_expr_kind:
-      return print_infix_expr(os, cast<ne_expr>(e), "!=");
-    case lt_expr_kind:
-      return print_infix_expr(os, cast<lt_expr>(e), "<");
-    case gt_expr_kind:
-      return print_infix_expr(os, cast<gt_expr>(e), ">");
-    case le_expr_kind:
-      return print_infix_expr(os, cast<le_expr>(e), "<=");
-    case ge_expr_kind:
-      return print_infix_expr(os, cast<ge_expr>(e), ">=");
-    
-    default:
-      break;
-  }
-  assert(false && "not an integral expression");
+void
+print_lt_expr(pretty_printer& pp, const lt_expr& e)
+{
+  print_infix_expr(pp, e, "<");
+}
+
+void
+print_gt_expr(pretty_printer& pp, const gt_expr& e)
+{
+  print_infix_expr(pp, e, ">");
+}
+
+void
+print_le_expr(pretty_printer& pp, const le_expr& e)
+{
+  print_infix_expr(pp, e, "<=");
+}
+
+void
+print_ge_expr(pretty_printer& pp, const ge_expr& e)
+{
+  print_infix_expr(pp, e, ">=");
+}
+
+void
+print_add_expr(pretty_printer& pp, const add_expr& e)
+{
+  print_infix_expr(pp, e, "+");
+}
+
+void
+print_sub_expr(pretty_printer& pp, const sub_expr& e)
+{
+  print_infix_expr(pp, e, "-");
+}
+
+void
+print_mul_expr(pretty_printer& pp, const mul_expr& e)
+{
+  print_infix_expr(pp, e, "*");
+}
+
+void
+print_div_expr(pretty_printer& pp, const div_expr& e)
+{
+  print_infix_expr(pp, e, "/");
+}
+
+void
+print_rem_expr(pretty_printer& pp, const rem_expr& e)
+{
+  print_infix_expr(pp, e, "%");
+}
+
+void
+print_neg_expr(pretty_printer& pp, const neg_expr& e)
+{
+  print_prefix_expr(pp, e, "-");
+}
+
+void
+print_rec_expr(pretty_printer& pp, const rec_expr& e)
+{
+  print_prefix_expr(pp, e, "/");
 }
 
 } // namespace sys_int

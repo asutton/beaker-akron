@@ -14,7 +14,7 @@ namespace sys_int {
 
 // Provides access to resources needed to construct, validate, and
 // evaluate numeric terms.
-struct builder : basic_builder<sys_int_lang>
+struct builder : beaker::builder
 {
   builder(module&);
 
