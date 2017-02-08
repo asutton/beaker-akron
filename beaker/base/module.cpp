@@ -12,18 +12,11 @@ namespace beaker {
 module::module(language& lang)
   : decl(node_kind),
     lang_(&lang),
-    build_(), 
     name_(nullptr), 
     decls_()
 {
-  for (const feature* f : language::get_instance().get_features()) {
-    feature::build_fn make = f->get_builder_factory();
-    build_.put(f->get_id(), make(*this));
-  }
-}
-
-module::~module()
-{
+  for (const feature* f : lang_->get_features())
+    add_builder(typeid(*f), f->make_builder(*this));
 }
 
 } // namespace beaker

@@ -4,9 +4,11 @@
 #ifndef BEAKER_BASE_COMPARISON_HASH_HPP
 #define BEAKER_BASE_COMPARISON_HASH_HPP
 
-#include <beaker/util/hash.hpp>
 #include <beaker/base/lang.hpp>
-#include <beaker/base/comparison/eq.hpp>
+#include <beaker/base/seq.hpp>
+
+#include <beaker/util/hash.hpp>
+
 
 namespace beaker {
 
@@ -16,22 +18,50 @@ struct expr;
 struct unary_expr;
 struct binary_expr;
 
-/// Defines the dispatch signature for hash algorithms.
+/// The hash algorithm is used to hash elements of a term into an accumulating
+/// hash algorithm.
 struct hash_algorithm : algorithm
 {
-  struct tag { };
+  using name_table = dispatch_table<bool(const language&, hasher&, const name&)>;
+  using type_table = dispatch_table<bool(const language&, hasher&, const type&)>;
+  using expr_table = dispatch_table<bool(const language&, hasher&, const expr&)>;
 
-  virtual void operator()(hasher&, const name&) const;
-  virtual void operator()(hasher&, const type&) const;
-  virtual void operator()(hasher&, const expr&) const;
+  hash_algorithm(language&);
+  
+  std::unique_ptr<name_table> names;
+  std::unique_ptr<type_table> types;
+  std::unique_ptr<expr_table> exprs;
 };
 
-void hash(hasher&, const name&);
-void hash(hasher&, const type&);
-void hash(hasher&, const expr&);
+void hash(const language&, hasher&, const name&);
+void hash(const language&, hasher&, const type&);
+void hash(const language&, hasher&, const expr&);
 
-void hash_unary_expr(hasher&, const unary_expr&);
-void hash_binary_expr(hasher&, const binary_expr&);
+
+/// Hash the elements of s into h.
+template<typename T>
+inline void
+hash(const language& lang, hasher& h, const seq<T>& s) 
+{
+  for (const T& t : s)
+    hash(lang, h, t);
+  hash(lang, h, s.size());
+}
+
+struct base_type;
+
+/// Append no additional information for base types.
+inline void
+hash_base_type(const language&, hasher&, const base_type&)
+{ }
+
+struct unary_expr;
+struct binary_expr;
+struct ternary_expr;
+
+void hash_unary_expr(const language&, hasher&, const unary_expr&);
+void hash_binary_expr(const language&, hasher&, const binary_expr&);
+void hash_ternary_expr(const language&, hasher&, const binary_expr&);
 
 } // namespace beaker
 

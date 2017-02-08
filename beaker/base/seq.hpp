@@ -198,30 +198,6 @@ struct seq
   std::vector<T*> elems_;
 };
 
-
-template<typename T>
-bool
-equivalent(const seq<T>& a, const seq<T>& b) {
-  if (a.size() != b.size())
-    return false;
-  auto cmp = [](const T& a, const T& b) {
-    return equivalent(a, b);
-  };
-  return std::equal(a.begin(), a.end(), b.begin(), cmp);
-}
-
-
-struct hasher;
-
-/// Hash the elements of s into h.
-template<typename T>
-inline void
-hash(hasher& h, const seq<T>& s) {
-  for (const T& t : s)
-    hash(h, t);
-  hash(h, s.size());
-}
-
 } // namespace beaker
 
 

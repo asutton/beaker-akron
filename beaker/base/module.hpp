@@ -17,50 +17,67 @@ struct allocator;
 struct symbol_table;
 struct language;
 struct name;
+struct builder;
 
 
-/// A builder set is a collection of builder objects. 
+// -------------------------------------------------------------------------- //
+// Term builders
+
+/// A builder set is a collection of functions that allocate builder objects, 
+/// as needed.
 ///
-/// The concrete types of these objects are only known by the language pack 
-/// that defines them.
+/// \todo: Can we unify this with the feature set in some way?
 struct builder_set
 {
-  void put(int, void*);
-  void put(std::initializer_list<std::pair<int, void*>>);
+  using map_type = std::unordered_map<std::type_index, builder*>;
+
+  void add_builder(std::type_index, builder&);
 
   template<typename T>
-  T& get();
+  void add_builder(builder&);
 
-  std::unordered_map<int, void*> set_;
+  builder& get_builder(std::type_index) const;
+
+  template<typename T>
+  typename T::builder_type& get_builder() const;
+
+  map_type map_;
 };
 
-/// Install a builder b for the language pack identified by l.
-///
-/// The builder for l shall have previously been nullptr.
+/// Install a builder factory for the given type id. This function has no effect
+/// if a factory is already installed.
 inline void
-builder_set::put(int f, void* b)
+builder_set::add_builder(std::type_index ti, builder& b)
 {
-  assert(set_.count(f) == 0);
-  set_.emplace(f, b);
+  map_.emplace(ti, &b);
 }
 
-/// Install a list of language/builder pairs.
-inline void
-builder_set::put(std::initializer_list<std::pair<int, void*>> list)
-{
-  for (auto i = list.begin(); i != list.end(); ++i)
-    put(i->first, i->second);
-}
-
-/// Returns the builder of type T.
+/// Install a builder factory for the feature T. This function has no effect
+/// if a factory is already installed.
 template<typename T>
-inline T&
-builder_set::get()
+inline void
+builder_set::add_builder(builder& b)
 {
-  assert(set_.count(T::feature) != 0);
-  void* p = set_.find(T::feature)->second;
-  return *reinterpret_cast<T*>(p);
+  add_builder(typeid(T), b);
 }
+
+inline builder&
+builder_set::get_builder(std::type_index ti) const
+{
+  return *map_.find(ti)->second;
+}
+
+/// Returns a builder object for the feature T.
+template<typename T>
+inline typename T::builder_type&
+builder_set::get_builder() const
+{
+  return static_cast<typename T::builder_type&>(get_builder(typeid(T)));
+}
+
+
+// -------------------------------------------------------------------------- //
+// Id generators
 
 /// A helper class used to generate unique ids for declarations.
 ///
@@ -79,19 +96,15 @@ struct id_generator
 /// Represents a named collection of types, values, and functions. A module
 /// is the root container of declarations for a translation; it is equivalent
 /// to a translation unit in C/C++.
-struct module : decl, node_store
+struct module : decl, builder_set, node_store
 {
   static constexpr int node_kind = -1;
 
   module(language&);
-  ~module();
 
   language& get_language();
   symbol_table& get_symbol_table();
   
-  builder_set& get_builders();
-  template<typename T> T& get_builder();
-
   int generate_id();
 
   const name& get_module_name() const;
@@ -104,7 +117,6 @@ struct module : decl, node_store
   void add_declaration(decl&);
 
   language* lang_;
-  builder_set build_;
   id_generator gen_;
   name* name_;
   decl_seq decls_;
@@ -115,13 +127,6 @@ inline language& module::get_language() { return *lang_; }
 
 /// Returns the symbol table used by the module.
 inline symbol_table& module::get_symbol_table() { return lang_->get_symbol_table(); }
-
-/// Returns the set of term builders for the module.
-inline builder_set& module::get_builders() { return build_; }
-
-/// Returns the builder of the given type.
-template<typename T>
-inline T& module::get_builder() { return build_.template get<T>(); }
 
 /// Generate a unique id.
 inline int module::generate_id() { return gen_(); }

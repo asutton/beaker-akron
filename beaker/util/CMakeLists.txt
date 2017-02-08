@@ -10,5 +10,7 @@ add_beaker_module(
   singleton_set.cpp
   symbol.cpp
   symbol_table.cpp
+  class_graph.cpp
+  dispatch_table.cpp
 )
 

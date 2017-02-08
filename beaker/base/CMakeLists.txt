@@ -12,13 +12,12 @@ add_beaker_module(
   decl.cpp
   stmt.cpp
   module.cpp
-  comparison/eq.cpp
+  comparison/equal.cpp
   comparison/hash.cpp
-  printing/print.cpp
-  generation/generation.cpp
-  generation/type.cpp
-  generation/value.cpp
-  generation/note.cpp
-
-  serialization/writer.cpp
+  # printing/print.cpp
+  # generation/generation.cpp
+  # generation/type.cpp
+  # generation/value.cpp
+  # generation/note.cpp
+  # serialization/writer.cpp
 )

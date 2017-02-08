@@ -1,6 +1,4 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_type(void, base)
-
-#undef def_type
+#include "dispatch_table.hpp"

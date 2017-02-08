@@ -12,9 +12,7 @@
 namespace beaker {
 namespace sys_void {
 
-/// Provides access to resources needed to construct, validate, and
-/// evaluate logical terms.
-struct builder : basic_builder<sys_void_lang>
+struct builder : beaker::builder
 {
   builder(module&);
 
@@ -26,7 +24,6 @@ struct builder : basic_builder<sys_void_lang>
   void_expr& make_void_expr(expr&);
   trap_expr& make_trap_expr();
 
-  module* mod_;
   singleton_set<void_type>* void_;
 };
 

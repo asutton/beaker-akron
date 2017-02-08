@@ -9,7 +9,7 @@ namespace beaker {
 namespace sys_void {
 
 builder::builder(module& m)
-  : basic_builder<sys_void_lang>(m),
+  : beaker::builder(m),
     void_(&get_language().make_singleton_set<void_type>())
 { }
 
@@ -40,7 +40,6 @@ builder::make_trap_expr()
 {
   return make<trap_expr>(get_void_type());
 }
-
 
 } // namespace sys_void
 } // namespace beaker

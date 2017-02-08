@@ -14,7 +14,7 @@
 #include <beaker/base/expr.hpp>
 #include <beaker/base/decl.hpp>
 #include <beaker/base/stmt.hpp>
-#include <beaker/base/comparison/eq.hpp>
+#include <beaker/base/comparison/equal.hpp>
 #include <beaker/base/comparison/hash.hpp>
 
 
@@ -26,9 +26,9 @@ struct module;
 /// owning module as well also a local allocator. All objects allocated to
 /// this builder (or rather the derived object) are destroyed when it goes
 /// out of scope.
-struct builder_base
+struct builder
 {
-  builder_base(module&);
+  builder(module&);
 
   allocator& get_allocator();
 
@@ -48,25 +48,25 @@ struct builder_base
 };
 
 /// Returns the allocator for the builder.
-inline allocator& builder_base::get_allocator() { return alloc_; }
+inline allocator& builder::get_allocator() { return alloc_; }
 
 /// Initialize the builder object.
-inline builder_base::builder_base(module& m) : mod_(&m) { }
+inline builder::builder(module& m) : mod_(&m) { }
 
 /// Returns the language in which the module is written.
-inline language& builder_base::get_language() { return mod_->get_language(); }
+inline language& builder::get_language() { return mod_->get_language(); }
 
 /// Returns the allocator for the object.
-inline module& builder_base::get_module() { return *mod_; }
+inline module& builder::get_module() { return *mod_; }
 
 /// Returns the allocator for the language.
-inline allocator& builder_base::get_language_allocator() { return get_language().get_allocator(); }
+inline allocator& builder::get_language_allocator() { return get_language().get_allocator(); }
 
 /// Returns the allocator for the module.
-inline allocator& builder_base::get_module_allocator() { return mod_->get_allocator(); }
+inline allocator& builder::get_module_allocator() { return mod_->get_allocator(); }
 
 /// Generate a unique identifier from the module.
-inline int builder_base::generate_id() { return mod_->generate_id(); }
+inline int builder::generate_id() { return mod_->generate_id(); }
 
 /// Construct an object from b, using the given arguments.
 ///
@@ -74,22 +74,13 @@ inline int builder_base::generate_id() { return mod_->generate_id(); }
 /// and construct AST nodes.
 template<typename T, typename... Args>
 T& 
-builder_base::make(Args&&... args)
+builder::make(Args&&... args)
 {
   typed_allocator<T> alloc(alloc_);
   T* ptr = alloc.allocate(1);
   return *new (ptr) T(std::forward<Args>(args)...);
 }
 
-
-/// A base class for builders that provides a static feature index.
-template<int N>
-struct basic_builder : builder_base
-{
-  enum { feature = N };
-
-  using builder_base::builder_base;
-};
 
 } // namespace
 

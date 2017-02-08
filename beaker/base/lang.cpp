@@ -7,78 +7,82 @@
 #include "expr.hpp"
 #include "decl.hpp"
 #include "stmt.hpp"
+#include "comparison/equal.hpp"
+
 #include <beaker/util/memory.hpp>
 #include <beaker/util/symbol_table.hpp>
 
-#include <cassert>
+#include <iostream>
 
 
 namespace beaker {
 
-static language* lang_ = nullptr;
+static void init_type_hierarchy(inheritance_hierarchy&);
+static void init_expr_hierarchy(inheritance_hierarchy&);
+static void init_decl_hierarchy(inheritance_hierarchy&);
+static void init_equal_algorithm(language&);
 
-language::language(symbol_table& syms)
-  : syms_(&syms)
+language::language(symbol_table& syms, const feature_list& feats)
+  : algorithm_set(), feature_set(feats), node_store(), syms_(&syms)
 {
-  assert(!lang_);
-  lang_ = this;
+  init_type_hierarchy(types_);
+  init_expr_hierarchy(exprs_);
+  init_decl_hierarchy(decls_);
+
+  // Add the terms defined by the features to class hierarchies.
+  for (feature* f : get_features())
+    f->add_terms(*this);
+
+  // Define the initial set of algorithms.
+  init_equal_algorithm(*this);
+
+  // Add the semantics for terms defined by features.
+  for (feature* f : get_features())
+    f->add_terms(*this);
 }
 
-language::~language()
+void
+init_type_hierarchy(inheritance_hierarchy& hier)
 {
-  for (auto p : feat_)
-    delete p.second;
+  hier.add_derivation<type, base_type>();
+  hier.add_derivation<type, object_type>();
+  hier.add_derivation<type, reference_type>();
+  hier.add_derivation<type, function_type>();
 }
 
-/// Returns the global language instance.
-language& 
-language::get_instance() 
+void 
+init_expr_hierarchy(inheritance_hierarchy& hier)
 {
-  assert(lang_);
-  return *lang_;
+  hier.add_derivation<expr, literal_expr>();
+  hier.add_derivation<expr, nullary_expr>();
+  hier.add_derivation<expr, unary_expr>();
+  hier.add_derivation<expr, binary_expr>();
+  hier.add_derivation<expr, ternary_expr>();
+  hier.add_derivation<expr, ternary_expr>();
+  hier.add_derivation<expr, init>();
+  hier.add_derivation<expr, nullary_init>();
+  hier.add_derivation<expr, unary_init>();
+  // FIXME: add conversions.
 }
 
-feature&
-language::get_feature(int id)
+void
+init_decl_hierarchy(inheritance_hierarchy& hier)
 {
-  language& lang = get_instance();
-  assert(lang.feat_.count(id) != 0);
-  return *lang.feat_.find(id)->second;
+  hier.add_derivation<decl, named_decl>();
+  hier.add_derivation<decl, typed_decl>();
+  hier.add_derivation<decl, value_decl>();
+  hier.add_derivation<decl, mapping_decl>();
 }
 
-/// Returns the feature that defines n.
-feature&
-language::get_feature(const name& n)
+void
+init_equal_algorithm(language& lang)
 {
-  return get_feature(n.get_feature());
-}
-
-/// Returns the feature that defines t.
-feature&
-language::get_feature(const type& t)
-{
-  return get_feature(t.get_feature());
-}
-
-/// Returns the feature that defines e.
-feature&
-language::get_feature(const expr& e)
-{
-  return get_feature(e.get_feature());
-}
-
-/// Returns the feature that defines d.
-feature&
-language::get_feature(const decl& d)
-{
-  return get_feature(d.get_feature());
-}
-
-/// Returns the feature that defines s.
-feature&
-language::get_feature(const stmt& s)
-{
-  return get_feature(s.get_feature());
+  equal_algorithm& algo = lang.add_algorithm<equal_algorithm>(lang);
+  algo.types->add_overrider<base_type>(equal_base_type);
+  algo.exprs->add_overrider<nullary_expr>(equal_nullary_expr);
+  algo.exprs->add_overrider<unary_expr>(equal_unary_expr);
+  algo.exprs->add_overrider<binary_expr>(equal_binary_expr);
+  algo.exprs->add_overrider<ternary_expr>(equal_ternary_expr);
 }
 
 } // namespace beaker

@@ -9,70 +9,72 @@
 
 namespace beaker {
 
-/// The default behavior is undefined.
-void
-hash_algorithm::operator()(hasher& h, const name& n) const
-{
-  assert(false && "not defined");
-}
-
-/// The default behavior is undefined.
-void
-hash_algorithm::operator()(hasher& h, const type& t) const
-{
-  assert(false && "not defined");
-}
-
-/// The default behavior is undefined.
-void
-hash_algorithm::operator()(hasher& h, const expr& e) const
-{
-  assert(false && "not defined");
-}
-
 // Returns the equality algorithm associated with the node t.
-template<typename T>
 static inline const hash_algorithm&
-get_hash(const T& t)
+get_algorithm(const language& lang)
 {
-  feature& feat = language::get_feature(t);
-  return feat.template get_algorithm<hash_algorithm>();
+  return lang.get_algorithm<hash_algorithm>();
+}
+
+// Generates the dispatch table for the algorithm
+hash_algorithm::hash_algorithm(language& lang)
+  : names(new name_table(lang.get_names())),
+    types(new type_table(lang.get_types())),
+    exprs(new expr_table(lang.get_expressions()))
+{ }
+
+void
+hash(const language& lang, hasher& h, const name& n) 
+{
+  hash(h, n.get_kind());
+  const auto& tab = *get_algorithm(lang).names;
+  auto fn = tab.get_overrider(n);
+  fn(lang, h, n);
 }
 
 void
-hash(hasher& h, const name& n) 
+hash(const language& lang, hasher& h, const type& t)
 {
-  hash(h, typeid(n));
-  return get_hash(n)(h, n);
+  hash(h, t.get_kind());
+  const auto& tab = *get_algorithm(lang).types;
+  auto fn = tab.get_overrider(t);
+  fn(lang, h, t);
 }
 
 void
-hash(hasher& h, const type& t) 
+hash(const language& lang, hasher& h, const expr& e) 
 {
-  hash(h, typeid(t));
-  return get_hash(t)(h, t);
+  hash(h, e.get_kind());
+  const auto& tab = *get_algorithm(lang).exprs;
+  auto fn = tab.get_overrider(e);
+  fn(lang, h, e);
 }
 
-void
-hash(hasher& h, const expr& e) 
-{
-  hash(h, typeid(e));
-  return get_hash(e)(h, e);
-}
+// -------------------------------------------------------------------------- //
+// Overrides
 
 /// Hash a unary expression e into h.
 void
-hash_unary_expr(hasher& h, const unary_expr& e)
+hash_unary_expr(const language& lang, hasher& h, const unary_expr& e)
 {
-  hash(h, e.get_operand());
+  hash(lang, h, e.get_first());
 }
 
 /// Hash a binary expression e into h.
 void
-hash_binary_expr(hasher& h, const binary_expr& e)
+hash_binary_expr(const language& lang, hasher& h, const binary_expr& e)
 {
-  hash(h, e.get_lhs());
-  hash(h, e.get_rhs());
+  hash(lang, h, e.get_first());
+  hash(lang, h, e.get_second());
+}
+
+/// Hash a ternary expression e into h.
+void
+hash_ternary_expr(const language& lang, hasher& h, const ternary_expr& e)
+{
+  hash(lang, h, e.get_first());
+  hash(lang, h, e.get_second());
+  hash(lang, h, e.get_third());
 }
 
 } // namespace

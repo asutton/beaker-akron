@@ -10,12 +10,18 @@
 namespace beaker {
 namespace sys_void {
 
+struct builder;
+
 /// A feature defines an extensible set of terms that can be used with the
 /// beaker language runtime. In particular, this exposes a core set of 
 /// algorithms and facilities needed to operate on those terms.
-struct feature : feature_impl<sys_void_lang>
+struct feature : beaker::feature
 {
-  feature(language&);
+  using builder_type = builder;
+
+  void add_terms(language&) override;
+  void add_semantics(language&) override;
+  beaker::builder& make_builder(module&) const override;
 };
 
 } // namespace sys_void

@@ -2,29 +2,41 @@
 // All rights reserved
 
 #include "lang.hpp"
+#include "type.hpp"
+#include "expr.hpp"
 #include "build.hpp"
-#include "comparison/eq.hpp"
-#include "comparison/hash.hpp"
-#include "printing/print.hpp"
-#include "generation/gen.hpp"
-#include "serialization/write.hpp"
+
+// #include "printing/print.hpp"
+// #include "generation/gen.hpp"
+// #include "serialization/write.hpp"
 
 
 namespace beaker {
 namespace sys_void {
 
-/// Allocate a node builder for the language feature.
-static void* make_builder(module& m) { return new builder(m); }
-
-feature::feature(language& lang)
-  : feature_impl<sys_void_lang>(lang, make_builder)
+void 
+feature::add_terms(language& lang)
 {
-  add_algorithm<eq_algo>();
-  add_algorithm<hash_algo>();
-  add_algorithm<print_algo>();
-  add_algorithm<gen_algo>();
-  add_algorithm<write_algo>();
+  auto& types = lang.get_types();
+  types.add_derivation<base_type, void_type>();
+  
+  auto& exprs = lang.get_expressions();
+  exprs.add_derivation<nullary_expr, nop_expr>();
+  exprs.add_derivation<nullary_expr, trap_expr>();
+  exprs.add_derivation<unary_expr, void_expr>();
 }
+
+void 
+feature::add_semantics(language& lang)
+{
+}
+
+beaker::builder&
+feature::make_builder(module& m) const
+{
+  return *new builder(m);
+}
+
 
 } // namespace sys_void
 } // namespace beaker

@@ -22,19 +22,18 @@ include(base/CMakeLists.txt)
 
 # System types and expressions expressions
 include(sys.void/CMakeLists.txt)
-include(sys.bool/CMakeLists.txt)
-include(sys.int/CMakeLists.txt)
-include(sys.float/CMakeLists.txt)
+# include(sys.bool/CMakeLists.txt)
+# include(sys.int/CMakeLists.txt)
+# include(sys.float/CMakeLists.txt)
 
 # System declarations
-include(sys.name/CMakeLists.txt)
-include(sys.var/CMakeLists.txt)
-include(sys.fn/CMakeLists.txt)
-include(sys.mod/CMakeLists.txt)
+# include(sys.name/CMakeLists.txt)
+# include(sys.var/CMakeLists.txt)
+# include(sys.fn/CMakeLists.txt)
+# include(sys.mod/CMakeLists.txt)
 
 # Aggregates
-include(sys.tuple/CMakeLists.txt)
-
+# include(sys.tuple/CMakeLists.txt)
 
 # Lexical support
 include(lex/CMakeLists.txt)

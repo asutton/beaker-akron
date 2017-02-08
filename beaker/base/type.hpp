@@ -61,9 +61,20 @@ using type_seq = seq<type>;
 // -------------------------------------------------------------------------- //
 // Base types
 
+/// Represents a builtin type of a language.
+struct base_type : type
+{
+  base_type(int);
+};
+
+inline base_type::base_type(int k)
+  : type(k)
+{ }
+
+
 // A base type is a fundamental, non composite, type of a language.
 template<int K>
-struct base_type_impl : type
+struct base_type_impl : base_type
 {
   static constexpr int node_kind = K;
   
@@ -72,7 +83,7 @@ struct base_type_impl : type
 
 // Initialize the base type.
 template<int K> 
-inline base_type_impl<K>::base_type_impl() : type(K) { }
+inline base_type_impl<K>::base_type_impl() : base_type(K) { }
 
 
 // -------------------------------------------------------------------------- //
@@ -135,7 +146,7 @@ inline reference_type_impl<K>::reference_type_impl() : reference_type(K) { }
 
 
 // -------------------------------------------------------------------------- //
-// Mapping types
+// Function types
 
 /// A mapping type describes a mapping from input types to output types.
 ///
