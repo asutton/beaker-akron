@@ -23,6 +23,8 @@ struct function_type;
 // defined as derived classes.
 struct type 
 {
+  using node_set = type;
+
   explicit type(int);
   virtual ~type() = default;
 

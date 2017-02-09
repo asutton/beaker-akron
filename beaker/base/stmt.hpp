@@ -15,7 +15,10 @@ namespace beaker {
 // Statement base class
 
 // Represents the set of statements in a language.
-struct stmt {
+struct stmt 
+{
+  using node_set = stmt;
+
   explicit stmt(int);
   virtual ~stmt() = default;
 

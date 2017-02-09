@@ -10,8 +10,8 @@ namespace beaker {
 namespace sys_bool {
 
 builder::builder(module& m)
-  : beaker::builder(m),
-    bool_(&get_language().make_singleton_set<bool_type>()) 
+  : factory(m),
+    bool_(&make_singleton_set<bool_type>(get_language_allocator())) 
 { }
 
 /// Returns a new boolean type.

@@ -14,7 +14,7 @@ namespace sys_int {
 
 // Provides access to resources needed to construct, validate, and
 // evaluate numeric terms.
-struct builder : beaker::builder
+struct builder : factory
 {
   builder(module&);
 
@@ -56,9 +56,9 @@ struct builder : beaker::builder
   neg_expr& make_neg_expr(expr&);
   rec_expr& make_rec_expr(expr&);
 
-  canonical_set<nat_type>* nat_;
-  canonical_set<int_type>* int_;
-  canonical_set<mod_type>* mod_;
+  canonical_term_set<nat_type>* nat_;
+  canonical_term_set<int_type>* int_;
+  canonical_term_set<mod_type>* mod_;
 };
 
 // Returns the canonical type `nat8`.

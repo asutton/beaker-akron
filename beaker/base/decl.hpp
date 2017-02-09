@@ -90,6 +90,8 @@ inline decl* dc::get_lexical_context() { return lex_; }
 /// within a sequence of nested functions).
 struct decl
 {
+  using node_set = decl;
+
   explicit decl(int);
   explicit decl(int, uid, dc);
   virtual ~decl() = default;

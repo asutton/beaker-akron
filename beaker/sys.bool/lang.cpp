@@ -47,7 +47,7 @@ feature::add_semantics(language& lang)
 #include "expr.def"
 }
 
-beaker::builder&
+factory&
 feature::make_builder(module& m) const
 {
   return *new builder(m);

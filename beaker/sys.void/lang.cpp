@@ -41,7 +41,7 @@ feature::add_semantics(language& lang)
   eval.exprs->add_overrider<trap_expr>(evaluate_trap_expr);
 }
 
-beaker::builder&
+factory&
 feature::make_builder(module& m) const
 {
   return *new builder(m);

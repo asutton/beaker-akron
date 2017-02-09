@@ -78,6 +78,29 @@ void hash_unary_expr(const language&, hasher&, const unary_expr&);
 void hash_binary_expr(const language&, hasher&, const binary_expr&);
 void hash_ternary_expr(const language&, hasher&, const ternary_expr&);
 
+
+// -------------------------------------------------------------------------- //
+// Function object
+
+/// A function object for term hashing that can be used with standard
+/// algorithms and containers.
+struct term_hash
+{
+  term_hash(const language& lang) noexcept
+    : lang(lang)
+  { }
+
+  template<typename T>
+  std::size_t operator()(const T& t) const noexcept
+  {
+    hash(lang, algo, t);
+    return algo;
+  }
+
+  const language& lang;
+  mutable hasher algo;
+};
+
 } // namespace beaker
 
 

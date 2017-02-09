@@ -12,7 +12,7 @@
 namespace beaker {
 namespace sys_void {
 
-struct builder : beaker::builder
+struct builder : factory
 {
   builder(module&);
 
@@ -24,7 +24,7 @@ struct builder : beaker::builder
   void_expr& make_void_expr(expr&);
   trap_expr& make_trap_expr();
 
-  singleton_set<void_type>* void_;
+  singleton_term_set<void_type>* void_;
 };
 
 } // namespace sys_void

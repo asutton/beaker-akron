@@ -9,8 +9,8 @@ namespace beaker {
 namespace sys_void {
 
 builder::builder(module& m)
-  : beaker::builder(m),
-    void_(&get_language().make_singleton_set<void_type>())
+  : factory(m),
+    void_(&make_singleton_set<void_type>(get_language_allocator()))
 { }
 
 /// Returns a the `void` type.

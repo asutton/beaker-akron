@@ -20,6 +20,8 @@ struct type;
 // Represents the set of expressions in a language.
 struct expr 
 {
+  using node_set = expr;
+
   explicit expr(int, type&);
   virtual ~expr() = default;
 

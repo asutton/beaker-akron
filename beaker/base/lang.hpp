@@ -25,7 +25,7 @@ struct expr;
 struct decl;
 struct stmt;
 struct value;
-struct builder;
+struct factory;
 
 
 /// Represents an algorithm that operates on an AST. This is the abstract base 
@@ -110,7 +110,7 @@ struct feature
 
   virtual void add_terms(language&) = 0;
   virtual void add_semantics(language&) = 0;
-  virtual builder& make_builder(module&) const = 0;
+  virtual factory& make_builder(module&) const = 0;
 };
 
 

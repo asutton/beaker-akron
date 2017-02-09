@@ -18,10 +18,10 @@ get_logic_builder(module& m)
 }
 
 builder::builder(module& m)
-  : beaker::builder(m),
-    nat_(&get_language().make_canonical_set<nat_type>()),
-    int_(&get_language().make_canonical_set<int_type>()),
-    mod_(&get_language().make_canonical_set<mod_type>())
+  : factory(m),
+    nat_(&make_canonical_set<nat_type>(get_language_allocator())),
+    int_(&make_canonical_set<int_type>(get_language_allocator())),
+    mod_(&make_canonical_set<mod_type>(get_language_allocator()))
 { }
 
 // Returns true when p is an acceptable integer type.
@@ -49,10 +49,7 @@ nat_type&
 builder::get_nat_type(int p) 
 {
   assert(check_precision(p));
-  // FIXME: Canonical sets don't work in util; they require a language
-  // reference for hashing and equality.
-  // return nat_->get(p);
-  return make<nat_type>(p);
+  return nat_->get(p);
 }
 
 /// Returns the canonical type `intp` with `p` bits of precision.
@@ -60,8 +57,7 @@ int_type&
 builder::get_int_type(int p) 
 {
   assert(check_precision(p));
-  // return int_->get(p);
-  return make<int_type>(p);
+  return int_->get(p);
 }
 
 /// Returns the canonical type `modp` with `p` bits of precision.
@@ -69,8 +65,7 @@ mod_type&
 builder::get_mod_type(int p) 
 {
   assert(check_precision(p));
-  // return mod_->get(p);
-  return make<mod_type>(p);
+  return mod_->get(p);
 }
 
 int_expr&

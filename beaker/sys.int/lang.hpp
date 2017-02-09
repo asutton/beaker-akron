@@ -19,7 +19,7 @@ struct feature : beaker::feature
 
   void add_terms(language&) override;
   void add_semantics(language&) override;
-  beaker::builder& make_builder(module&) const override;
+  factory& make_builder(module&) const override;
 };
 
 } // namespace sys_int

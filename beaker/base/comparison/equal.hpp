@@ -88,6 +88,27 @@ bool equal_unary_expr(const language&, const unary_expr&, const unary_expr&);
 bool equal_binary_expr(const language&, const binary_expr&, const binary_expr&);
 bool equal_ternary_expr(const language&, const ternary_expr&, const ternary_expr&);
 
+
+// -------------------------------------------------------------------------- //
+// Function object
+
+/// A function object for term comparison that can be used with standard
+/// algorithms and containers.
+struct term_equal
+{
+  term_equal(const language& lang) noexcept
+    : lang(lang)
+  { }
+
+  template<typename T>
+  bool operator()(const T& a, const T& b) const noexcept
+  {
+    return equal(lang, a, b);
+  }
+
+  const language& lang;
+};
+
 } // namespace beaker
 
 

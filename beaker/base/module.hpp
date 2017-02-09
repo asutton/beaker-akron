@@ -29,14 +29,14 @@ struct builder;
 /// \todo: Can we unify this with the feature set in some way?
 struct builder_set
 {
-  using map_type = std::unordered_map<std::type_index, builder*>;
+  using map_type = std::unordered_map<std::type_index, factory*>;
 
-  void add_builder(std::type_index, builder&);
+  void add_builder(std::type_index, factory&);
 
   template<typename T>
-  void add_builder(builder&);
+  void add_builder(factory&);
 
-  builder& get_builder(std::type_index) const;
+  factory& get_builder(std::type_index) const;
 
   template<typename T>
   typename T::builder_type& get_builder() const;
@@ -47,7 +47,7 @@ struct builder_set
 /// Install a builder factory for the given type id. This function has no effect
 /// if a factory is already installed.
 inline void
-builder_set::add_builder(std::type_index ti, builder& b)
+builder_set::add_builder(std::type_index ti, factory& b)
 {
   map_.emplace(ti, &b);
 }
@@ -56,12 +56,12 @@ builder_set::add_builder(std::type_index ti, builder& b)
 /// if a factory is already installed.
 template<typename T>
 inline void
-builder_set::add_builder(builder& b)
+builder_set::add_builder(factory& b)
 {
   add_builder(typeid(T), b);
 }
 
-inline builder&
+inline factory&
 builder_set::get_builder(std::type_index ti) const
 {
   return *map_.find(ti)->second;

@@ -12,7 +12,7 @@
 namespace beaker {
 namespace sys_bool {
 
-struct builder : beaker::builder
+struct builder : factory
 {
   builder(module&);
 
@@ -34,7 +34,7 @@ struct builder : beaker::builder
   or_else_expr& make_or_else_expr(expr&, expr&);
   assert_expr& make_assert_expr(expr&);
 
-  singleton_set<bool_type>* bool_;
+  singleton_term_set<bool_type>* bool_;
 };
 
 } // namespace sys_bool
