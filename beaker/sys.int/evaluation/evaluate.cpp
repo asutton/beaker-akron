@@ -64,7 +64,6 @@ evaluate_ge_expr(evaluator& eval, const ge_expr& e)
   return value(v1.get_int() >= v2.get_int());
 }
 
-// FIXME: Handle overflow.
 value
 evaluate_add_expr(evaluator& eval, const add_expr& e)
 {

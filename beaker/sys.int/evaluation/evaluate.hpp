@@ -12,6 +12,41 @@
 namespace beaker {
 namespace sys_int {
 
+// -------------------------------------------------------------------------- //
+// Errors
+
+/// An overflow error occurs when the result of an arithmetic operation cannot
+/// be represented by the type.
+struct overflow_error : evaluation_error
+{
+  overflow_error(const expr&);
+
+  const expr* expr_;
+};
+
+inline 
+overflow_error::overflow_error(const expr& e)
+  : evaluation_error("overflow"), expr_(&e) 
+{ }
+
+
+/// A division error occurs when dividing by 0.
+struct division_error : evaluation_error
+{
+  division_error(const expr&);
+
+  const expr* expr_;
+};
+
+inline 
+division_error::division_error(const expr& e)
+  : evaluation_error("division by zero"), expr_(&e) 
+{ }
+
+
+// -------------------------------------------------------------------------- //
+// Overrides
+
 value evaluate_int_expr(evaluator&, const int_expr&);
 value evaluate_eq_expr(evaluator&, const eq_expr&);
 value evaluate_ne_expr(evaluator&, const ne_expr&);

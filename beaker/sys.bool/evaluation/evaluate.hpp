@@ -14,7 +14,7 @@ namespace sys_bool {
 // -------------------------------------------------------------------------- //
 // Errors
 
-/// A trap error occures when the operand of an assertion is false.
+/// An assertion error occures when the operand of an assertion is false.
 struct assertion_error : evaluation_error
 {
   assertion_error(const expr&);

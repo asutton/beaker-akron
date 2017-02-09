@@ -5,6 +5,7 @@
 #define BEAKER_SYS_INT_TYPE_HPP
 
 #include <beaker/base/type.hpp>
+#include <beaker/base/value.hpp>
 
 
 namespace beaker {
@@ -68,6 +69,9 @@ integral_type_impl<K>::integral_type_impl(int p)
 struct nat_type : integral_type_impl<nat_type_kind> 
 {
   using integral_type_impl<nat_type_kind>::integral_type_impl;
+
+  value min() const;
+  value max() const;
 };
 
 
@@ -77,6 +81,9 @@ struct nat_type : integral_type_impl<nat_type_kind>
 struct int_type : integral_type_impl<int_type_kind> 
 {
   using integral_type_impl<int_type_kind>::integral_type_impl;
+
+  value min() const;
+  value max() const;
 };
 
 
@@ -86,6 +93,9 @@ struct int_type : integral_type_impl<int_type_kind>
 struct mod_type : integral_type_impl<mod_type_kind> 
 {
   using integral_type_impl<mod_type_kind>::integral_type_impl;
+
+  value min() const;
+  value max() const;
 };
 
 // -------------------------------------------------------------------------- //
