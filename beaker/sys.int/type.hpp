@@ -70,6 +70,8 @@ integral_type_impl<K>::integral_type_impl(int p)
 /// The values of a natural number type range from [0, 2^k).
 struct nat_type : integral_type_impl<nat_type_kind> 
 {
+  using rep_type = std::uintmax_t;
+
   using integral_type_impl<nat_type_kind>::integral_type_impl;
 
   std::uintmax_t min() const;
@@ -88,6 +90,8 @@ inline std::uintmax_t nat_type::max() const { return (std::uintmax_t(1) << prec_
 /// The values of an integer type range from [-2^(k-1), 2^(k-1)).
 struct int_type : integral_type_impl<int_type_kind> 
 {
+  using rep_type = std::intmax_t;
+
   using integral_type_impl<int_type_kind>::integral_type_impl;
 
   std::intmax_t min() const;
@@ -106,6 +110,8 @@ inline std::intmax_t int_type::max() const { return (std::uintmax_t(1) << (prec_
 /// The values of an integer mod k range from [0, 2^k).
 struct mod_type : integral_type_impl<mod_type_kind> 
 {
+  using rep_type = std::uintmax_t;
+
   using integral_type_impl<mod_type_kind>::integral_type_impl;
 
   std::uintmax_t min() const;

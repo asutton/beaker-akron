@@ -16,10 +16,10 @@ main()
     new sys_int::feature(),
   });
   module mod(lang);
+  evaluator eval(lang);
   auto& ib = mod.get_builder<sys_int::feature>();
 
   auto& int8 = ib.get_int8_type();
-  // auto& mod8 = ib.get_mod8_type();
 
   // Don't allow construction of out-of-range values.
   // ib.make_int_expr(int8, 128);
@@ -36,4 +36,10 @@ main()
     ib.make_int_expr(int8, 1)
   );
   check_error(lang, e2);
+
+  auto& e3 = ib.make_mul_expr(
+    ib.make_int_expr(int8, 6),
+    ib.make_int_expr(int8, 12)
+  );
+  std::cout << evaluate(eval, e3) << '\n';
 }

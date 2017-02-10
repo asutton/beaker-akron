@@ -231,12 +231,12 @@ builder::make_mul_expr(expr& e1, expr& e2)
   return make<mul_expr>(e1.get_type(), e1, e2);
 }
 
-div_expr&
-builder::make_div_expr(expr& e1, expr& e2)
+quo_expr&
+builder::make_quo_expr(expr& e1, expr& e2)
 {
   assert(equal(get_language(), e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
-  return make<div_expr>(e1.get_type(), e1, e2);
+  return make<quo_expr>(e1.get_type(), e1, e2);
 }
 
 rem_expr&

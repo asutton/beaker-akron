@@ -142,12 +142,13 @@ struct mul_expr : binary_expr_impl<mul_expr_kind>
 };
 
 
-/// Represents the expression `e1 / e2`.
+/// Represents the expression `e1 / e2`. The operands shall have integral
+/// type. The division of integer values results in the quotient of division.
 ///
 /// \todo Document me.
-struct div_expr : binary_expr_impl<div_expr_kind> 
+struct quo_expr : binary_expr_impl<quo_expr_kind> 
 {
-  using binary_expr_impl<div_expr_kind>::binary_expr_impl;
+  using binary_expr_impl<quo_expr_kind>::binary_expr_impl;
 };
 
 

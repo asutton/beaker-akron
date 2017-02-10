@@ -51,7 +51,7 @@ struct builder : factory
   add_expr& make_add_expr(expr&, expr&);
   sub_expr& make_sub_expr(expr&, expr&);
   mul_expr& make_mul_expr(expr&, expr&);
-  div_expr& make_div_expr(expr&, expr&);
+  quo_expr& make_quo_expr(expr&, expr&);
   rem_expr& make_rem_expr(expr&, expr&);
   neg_expr& make_neg_expr(expr&);
   rec_expr& make_rec_expr(expr&);

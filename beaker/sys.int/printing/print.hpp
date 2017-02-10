@@ -26,7 +26,7 @@ void print_ge_expr(pretty_printer&, const ge_expr&);
 void print_add_expr(pretty_printer&, const add_expr&);
 void print_sub_expr(pretty_printer&, const sub_expr&);
 void print_mul_expr(pretty_printer&, const mul_expr&);
-void print_div_expr(pretty_printer&, const div_expr&);
+void print_quo_expr(pretty_printer&, const quo_expr&);
 void print_rem_expr(pretty_printer&, const rem_expr&);
 void print_neg_expr(pretty_printer&, const neg_expr&);
 void print_rec_expr(pretty_printer&, const rec_expr&);

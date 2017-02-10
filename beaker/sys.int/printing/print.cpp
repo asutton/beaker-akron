@@ -94,7 +94,7 @@ print_mul_expr(pretty_printer& pp, const mul_expr& e)
 }
 
 void
-print_div_expr(pretty_printer& pp, const div_expr& e)
+print_quo_expr(pretty_printer& pp, const quo_expr& e)
 {
   print_infix_expr(pp, e, "/");
 }

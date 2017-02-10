@@ -57,7 +57,7 @@ value evaluate_ge_expr(evaluator&, const ge_expr&);
 value evaluate_add_expr(evaluator&, const add_expr&);
 value evaluate_sub_expr(evaluator&, const sub_expr&);
 value evaluate_mul_expr(evaluator&, const mul_expr&);
-value evaluate_div_expr(evaluator&, const div_expr&);
+value evaluate_quo_expr(evaluator&, const quo_expr&);
 value evaluate_rem_expr(evaluator&, const rem_expr&);
 value evaluate_neg_expr(evaluator&, const neg_expr&);
 value evaluate_rec_expr(evaluator&, const rec_expr&);
