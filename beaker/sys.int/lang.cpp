@@ -14,6 +14,8 @@
 
 #include <beaker/sys.bool/lang.hpp>
 
+#include <iostream>
+
 
 namespace beaker {
 namespace sys_int {

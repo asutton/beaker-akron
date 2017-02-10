@@ -7,6 +7,7 @@
 #include "class_graph.hpp"
 
 #include <cassert>
+#include <iosfwd>
 #include <queue>
 #include <vector>
 
@@ -132,6 +133,14 @@ dispatch_table<F>::fetch_overrider(const class_node& c) const -> fn_type*
 {
   assert(0 <= c.id && c.id < tab.size());
   return tab[c.id];
+}
+
+template<typename C, typename T, typename F>
+void 
+print(std::basic_ostream<C, T>& os, const dispatch_table<F>& dt)
+{
+  for (std::size_t i = 0; i < dt.tab.size(); ++i)
+    os << dt.hier->node(i).ti.name() << ' ' << (void*)dt.tab[i] << '\n';
 }
 
 } // namespace beaker

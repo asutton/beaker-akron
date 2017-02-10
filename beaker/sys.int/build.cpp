@@ -68,11 +68,46 @@ builder::get_mod_type(int p)
   return mod_->get(p);
 }
 
+static inline bool
+check_nat_value(const nat_type& t, std::uintmax_t n)
+{
+  return t.min() <= n && n <= t.max();
+}
+
+static inline bool
+check_int_value(const int_type& t, std::intmax_t n)
+{
+  return t.min() <= n && n <= t.max();
+}
+
+// FIXME: If the value exceeds the representation, why don't we just apply
+// the modulus to make it wrap?
+static inline bool
+check_mod_value(const mod_type& t, std::uintmax_t n)
+{
+  return t.min() <= n && n <= t.max();
+}
+
+static bool
+check_value(const type& t, const value& v)
+{
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return check_nat_value(cast<nat_type>(t), v.get_int());
+    case int_type_kind:
+      return check_int_value(cast<int_type>(t), v.get_int());
+    case mod_type_kind:
+      return check_mod_value(cast<mod_type>(t), v.get_int());
+  }
+  assert(false && "not an integer type");
+}
+
 int_expr&
 builder::make_int_expr(type& t, const value& v)
 {
   assert(is_integral_type(t));
   assert(v.is_integer());
+  assert(check_value(t, v));
   return make<int_expr>(t, v);
 }
 
@@ -81,6 +116,7 @@ builder::make_int_expr(type& t, value&& v)
 {
   assert(is_integral_type(t));
   assert(v.is_integer());
+  assert(check_value(t, v));
   return make<int_expr>(t, std::move(v));
 }
 

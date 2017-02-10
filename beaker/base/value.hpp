@@ -55,8 +55,9 @@ struct value
   value(const value&);
   value(value&&);
   explicit value(int);
-  explicit value(integer_value);
-  explicit value(float_value);
+  explicit value(std::intmax_t);
+  explicit value(std::uintmax_t);
+  explicit value(double);
 
   value& operator=(const value&);
   value& operator=(value&&);
@@ -102,12 +103,17 @@ value::value(int n)
 { }
 
 inline
-value::value(integer_value n)
+value::value(std::intmax_t n)
   : kind_(int_value_kind), data_(n)
 { }
 
 inline
-value::value(float_value n)
+value::value(std::uintmax_t n)
+  : kind_(int_value_kind), data_(std::intmax_t(n))
+{ }
+
+inline
+value::value(double n)
   : kind_(float_value_kind), data_(n)
 { }
 

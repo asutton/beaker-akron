@@ -20,12 +20,14 @@ enum
 };
 
 
-// A base class of all integral types.
-//
-// The precision of a natural number type is the number of bits in its value 
-// representation. In full generality, this can be any non-negative value
-// however, languages with byte-oriented objects may not support unaligned
-// integer sizes.
+/// The base class of all integral types.
+///
+/// The precision of a natural number type is the number of bits in its value 
+/// representation. In full generality, this can be any non-negative value
+/// however, languages with byte-oriented objects may not support unaligned
+/// integer sizes.
+///
+/// \todo Add an integer class for saturating arithmetic.
 struct integral_type : object_type
 {
   integral_type(int, int);
@@ -40,7 +42,7 @@ integral_type::integral_type(int k, int p)
   : object_type(k), prec_(p)
 { }
 
-// Returns the precision of the numeric type.
+/// Returns the precision of the numeric type.
 inline int integral_type::get_precision() const { return prec_; }
 
 
@@ -70,9 +72,15 @@ struct nat_type : integral_type_impl<nat_type_kind>
 {
   using integral_type_impl<nat_type_kind>::integral_type_impl;
 
-  value min() const;
-  value max() const;
+  std::uintmax_t min() const;
+  std::uintmax_t max() const;
 };
+
+/// Returns the minimum integer value for the type.
+inline std::uintmax_t nat_type::min() const { return 0; }
+
+/// Returns the maximum integer value for the type.
+inline std::uintmax_t nat_type::max() const { return (std::uintmax_t(1) << prec_) -1; }
 
 
 /// Represents integer types with k bits of precision.
@@ -82,9 +90,15 @@ struct int_type : integral_type_impl<int_type_kind>
 {
   using integral_type_impl<int_type_kind>::integral_type_impl;
 
-  value min() const;
-  value max() const;
+  std::intmax_t min() const;
+  std::intmax_t max() const;
 };
+
+/// Returns the minimum integer value for the type.
+inline std::intmax_t int_type::min() const { return -(std::uintmax_t(1) << (prec_ - 1)); }
+
+/// Returns the maximum integer value for the type.
+inline std::intmax_t int_type::max() const { return (std::uintmax_t(1) << (prec_ - 1)) -1; }
 
 
 /// Represents integers mod k where k is the number of bits of precision.
@@ -94,9 +108,20 @@ struct mod_type : integral_type_impl<mod_type_kind>
 {
   using integral_type_impl<mod_type_kind>::integral_type_impl;
 
-  value min() const;
-  value max() const;
+  std::uintmax_t min() const;
+  std::uintmax_t max() const;
+  std::uintmax_t mod() const;
 };
+
+/// Returns the minimum integer value for the type.
+inline std::uintmax_t mod_type::min() const { return 0; }
+
+/// Returns the maximum integer value for the type.
+inline std::uintmax_t mod_type::max() const { return (std::uintmax_t(1) << prec_) - 1; }
+
+/// Returns the modulus of integer type.
+inline std::uintmax_t mod_type::mod() const { return std::uintmax_t(1) << prec_; }
+
 
 // -------------------------------------------------------------------------- //
 // Operations

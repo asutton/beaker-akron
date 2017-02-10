@@ -19,6 +19,7 @@ add_beaker_test(test-ast-bool-1 bool-1.cpp)
 add_beaker_test(test-ast-bool-2 bool-2.cpp)
 
 add_beaker_test(test-ast-int-1 int-1.cpp)
+add_beaker_test(test-ast-int-2 int-2.cpp)
 
 
 # add_beaker_test(test-ast-assert-1 assert-1.cpp)

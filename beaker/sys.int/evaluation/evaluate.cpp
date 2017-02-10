@@ -4,6 +4,7 @@
 #include "evaluate.hpp"
 #include "../type.hpp"
 #include "../expr.hpp"
+#include <beaker/base/printing/print.hpp>
 
 
 namespace beaker {
@@ -64,21 +65,73 @@ evaluate_ge_expr(evaluator& eval, const ge_expr& e)
   return value(v1.get_int() >= v2.get_int());
 }
 
+
+template<typename T>
+static value
+add_int(evaluator& eval, const add_expr& e, const T& t)
+{
+  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
+  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  if (a > t.max() - b)
+    throw overflow_error(e);
+  return value(a + b);
+}
+
+static value
+add_mod(evaluator& eval, const add_expr& e, const mod_type& t)
+{
+  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
+  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  return value((a + b) % t.mod());
+}
+
 value
 evaluate_add_expr(evaluator& eval, const add_expr& e)
 {
-  value v1 = evaluate(eval, e.get_lhs());
-  value v2 = evaluate(eval, e.get_rhs());
-  return value(v1.get_int() + v2.get_int());
+  const type& t = e.get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return add_int(eval, e, cast<nat_type>(t));
+    case int_type_kind:
+      return add_int(eval, e, cast<int_type>(t));
+    case mod_type_kind:
+      return add_mod(eval, e, cast<mod_type>(t));
+  }
+  assert(false && "not an integer expression");
 }
 
-// FIXME: Handle overflow.
+template<typename T>
+static value
+sub_int(evaluator& eval, const sub_expr& e, const T& t)
+{
+  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
+  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  if (a < t.min() + b)
+    throw overflow_error(e);
+  return value(a - b);
+}
+
+static value
+sub_mod(evaluator& eval, const sub_expr& e, const mod_type& t)
+{
+  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
+  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  return value((a - b) % t.mod());
+}
+
 value
 evaluate_sub_expr(evaluator& eval, const sub_expr& e)
 {
-  value v1 = evaluate(eval, e.get_lhs());
-  value v2 = evaluate(eval, e.get_rhs());
-  return value(v1.get_int() - v2.get_int());
+  const type& t = e.get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind:
+      return sub_int(eval, e, cast<nat_type>(t));
+    case int_type_kind:
+      return sub_int(eval, e, cast<int_type>(t));
+    case mod_type_kind:
+      return sub_mod(eval, e, cast<mod_type>(t));
+  }
+  assert(false && "not an integer expression");
 }
 
 // FIXME: Handle overflow.

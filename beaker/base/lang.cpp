@@ -24,10 +24,10 @@ static void init_expr_hierarchy(inheritance_hierarchy&);
 static void init_decl_hierarchy(inheritance_hierarchy&);
 
 static void init_semantics(language&);
-static void init_equal_algorithm(language&);
-static void init_hash_algorithm(language&);
-static void init_print_algorithm(language&);
-static void init_evaluate_algorithm(language&);
+static void init_equal_algorithm(equal_algorithm&);
+static void init_hash_algorithm(hash_algorithm&);
+static void init_print_algorithm(print_algorithm&);
+static void init_evaluate_algorithm(evaluate_algorithm&);
 
 language::language(symbol_table& syms, const feature_list& feats)
   : algorithm_set(), feature_set(feats), node_store(), syms_(&syms)
@@ -86,21 +86,26 @@ init_decl_hierarchy(inheritance_hierarchy& hier)
 void
 init_semantics(language& lang)
 {
-  // Define the initial set of algorithms.
-  init_equal_algorithm(lang);
-  init_hash_algorithm(lang);
-  init_print_algorithm(lang);
-  init_evaluate_algorithm(lang);
+  auto& eq = lang.add_algorithm<equal_algorithm>(lang);
+  auto& hash = lang.add_algorithm<hash_algorithm>(lang);
+  auto& print = lang.add_algorithm<print_algorithm>(lang);
+  auto& eval = lang.add_algorithm<evaluate_algorithm>(lang);
 
-  // Add the semantics for terms defined by features.
+  // Add the semantics for terms defined by features. This builds the dispatch
+  // tables from the leaves up.
   for (feature* f : lang.get_features())
     f->add_semantics(lang);
+
+  // Add default overriders.
+  init_equal_algorithm(eq);
+  init_hash_algorithm(hash);
+  init_print_algorithm(print);
+  init_evaluate_algorithm(eval);
 }
 
 void
-init_equal_algorithm(language& lang)
+init_equal_algorithm(equal_algorithm& algo)
 {
-  auto& algo = lang.add_algorithm<equal_algorithm>(lang);
   algo.types->add_overrider<base_type>(equal_base_type);
   algo.types->add_overrider<object_type>(equal_object_type);
   
@@ -112,9 +117,8 @@ init_equal_algorithm(language& lang)
 }
 
 void
-init_hash_algorithm(language& lang)
+init_hash_algorithm(hash_algorithm& algo)
 {
-  auto& algo = lang.add_algorithm<hash_algorithm>(lang);
   algo.types->add_overrider<base_type>(hash_base_type);
   algo.types->add_overrider<object_type>(hash_object_type);
   
@@ -126,16 +130,15 @@ init_hash_algorithm(language& lang)
 }
 
 void
-init_print_algorithm(language& lang)
+init_print_algorithm(print_algorithm& algo)
 {
   // FIXME: Add a default override for modules.
-  lang.add_algorithm<print_algorithm>(lang);
 }
 
 void
-init_evaluate_algorithm(language& lang)
+init_evaluate_algorithm(evaluate_algorithm& algo)
 {
-  lang.add_algorithm<evaluate_algorithm>(lang);
+  // FIXME: Add a default override for modules?
 }
 
 } // namespace beaker
