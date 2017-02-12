@@ -1,8 +1,10 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_type(nat, integral)
-def_type(int, integral)
-def_type(mod, integral)
+def_type(sys_int, nat, integral)
+def_type(sys_int, int, integral)
+def_type(sys_int, mod, integral)
 
-#undef def_type
+#ifndef do_not_undefine
+#  undef def_type
+#endif

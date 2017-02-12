@@ -1,16 +1,18 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(bool, literal)
-def_expr(and, binary)
-def_expr(or, binary)
-def_expr(xor, binary)
-def_expr(not, unary)
-def_expr(imp, binary)
-def_expr(eq, binary)
-def_expr(if, ternary)
-def_expr(and_then, binary)
-def_expr(or_else, binary)
-def_expr(assert, unary)
+def_expr(sys_bool, bool, literal)
+def_expr(sys_bool, and, binary)
+def_expr(sys_bool, or, binary)
+def_expr(sys_bool, xor, binary)
+def_expr(sys_bool, not, unary)
+def_expr(sys_bool, imp, binary)
+def_expr(sys_bool, eq, binary)
+def_expr(sys_bool, if, ternary)
+def_expr(sys_bool, and_then, binary)
+def_expr(sys_bool, or_else, binary)
+def_expr(sys_bool, assert, unary)
 
-#undef def_expr
+#ifndef do_not_undefine
+#  undef def_expr
+#endif

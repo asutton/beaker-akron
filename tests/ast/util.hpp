@@ -26,13 +26,13 @@ check_equal_terms(const language& lang, const T& t1, const T& t2)
   std::clog << pretty(lang, t1) << " ~= " << pretty(lang, t2) << '\n';
   
   // Check equality
-  assert(equal(lang, t1, t2));
+  assert(equal(t1, t2));
 
   // Check hash equivalence.
   hasher h1;
-  hash(lang, h1, t1);
+  hash(h1, t1);
   hasher h2;
-  hash(lang, h2, t2);
+  hash(h2, t2);
   assert((std::size_t)h1 == (std::size_t)h2);
 }
 
@@ -45,13 +45,13 @@ check_identical_terms(const language& lang, const T& t1, const T& t2)
 
   // Check identity and equality (identity implies equality).
   assert(&t1 == &t2);
-  assert(equal(lang, t1, t2));
+  assert(equal(t1, t2));
 
   // Also check hash equivalence so that we know its defined.
   hasher h1;
-  hash(lang, h1, t1);
+  hash(h1, t1);
   hasher h2;
-  hash(lang, h2, t2);
+  hash(h2, t2);
   assert((std::size_t)h1 == (std::size_t)h2);
 }
 
@@ -61,7 +61,7 @@ void
 check_different_terms(const language& lang, const T& t1, const T& t2)
 {
   std::clog << pretty(lang, t1) << " !~= " << pretty(lang, t2) << '\n';
-  assert(!equal(lang, t1, t2));
+  assert(!equal(t1, t2));
 }
 
 

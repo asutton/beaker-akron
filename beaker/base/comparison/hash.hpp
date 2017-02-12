@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Andrew Sutton
+// Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
 #ifndef BEAKER_BASE_COMPARISON_HASH_HPP
@@ -12,92 +12,79 @@
 
 namespace beaker {
 
+// -------------------------------------------------------------------------- //
+// Hashing for names
+
 struct name;
+
+void hash(hasher&, const name&);
+
+// -------------------------------------------------------------------------- //
+// Hashing for types
+
 struct type;
-struct expr;
-struct unary_expr;
-struct binary_expr;
-
-/// The hash algorithm is used to hash elements of a term into an accumulating
-/// hash algorithm.
-struct hash_algorithm : algorithm
-{
-  using name_table = dispatch_table<void(const language&, hasher&, const name&)>;
-  using type_table = dispatch_table<void(const language&, hasher&, const type&)>;
-  using expr_table = dispatch_table<void(const language&, hasher&, const expr&)>;
-
-  hash_algorithm(language&);
-  
-  std::unique_ptr<name_table> names;
-  std::unique_ptr<type_table> types;
-  std::unique_ptr<expr_table> exprs;
-};
-
-void hash(const language&, hasher&, const name&);
-void hash(const language&, hasher&, const type&);
-void hash(const language&, hasher&, const expr&);
-
-
-/// Hash the elements of s into h.
-template<typename T>
-inline void
-hash(const language& lang, hasher& h, const seq<T>& s) 
-{
-  for (const T& t : s)
-    hash(lang, h, t);
-  hash(lang, h, s.size());
-}
-
 struct base_type;
 struct object_type;
 
-/// Append no additional information for base types.
-inline void
-hash_base_type(const language&, hasher&, const base_type&)
-{ }
+void hash(hasher&, const type&);
 
-/// Append no additional information for base types. This must be overriden
+/// Appends no additional information for base types.
+constexpr void hash(hasher&, const base_type&) { }
+
+/// Appends no additional information for base types. This must be overriden
 /// if the object type has additional properties.
-inline void
-hash_object_type(const language&, hasher&, const object_type&)
-{ }
+constexpr void hash(hasher&, const object_type&) { }
 
+
+// -------------------------------------------------------------------------- //
+// Hashing for expressions
+
+struct expr;
 struct literal_expr;
 struct nullary_expr;
 struct unary_expr;
 struct binary_expr;
 struct ternary_expr;
 
-/// Append no additional information for nullary expressions.
-inline void
-hash_nullary_expr(const language&, hasher&, const nullary_expr&)
-{ }
+void hash(hasher&, const expr&);
 
-void hash_literal_expr(const language&, hasher&, const literal_expr&);
-void hash_unary_expr(const language&, hasher&, const unary_expr&);
-void hash_binary_expr(const language&, hasher&, const binary_expr&);
-void hash_ternary_expr(const language&, hasher&, const ternary_expr&);
+/// Append no additional information for nullary expressions.
+constexpr void hash(hasher&, const nullary_expr&) { }
+
+void hash(hasher&, const literal_expr&);
+void hash(hasher&, const unary_expr&);
+void hash(hasher&, const binary_expr&);
+void hash(hasher&, const ternary_expr&);
 
 
 // -------------------------------------------------------------------------- //
-// Function object
+// Hashing for supporting types
+
+/// Hash the elements of s into h.
+template<typename T>
+inline void
+hash(hasher& h, const seq<T>& s) 
+{
+  for (const T& t : s)
+    hash(h, t);
+  hash(h, s.size());
+}
+
+
+// -------------------------------------------------------------------------- //
+// Functional
 
 /// A function object for term hashing that can be used with standard
 /// algorithms and containers.
 struct term_hash
 {
-  term_hash(const language& lang) noexcept
-    : lang(lang)
-  { }
-
   template<typename T>
   std::size_t operator()(const T& t) const noexcept
   {
-    hash(lang, algo, t);
+    hash(algo, t);
     return algo;
   }
 
-  const language& lang;
   mutable hasher algo;
 };
 

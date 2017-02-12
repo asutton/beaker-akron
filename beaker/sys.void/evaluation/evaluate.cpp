@@ -10,14 +10,14 @@ namespace sys_void {
 
 /// Returns the void value.
 value
-evaluate_nop_expr(evaluator& eval, const nop_expr& e)
+evaluate(evaluator& eval, const nop_expr& e)
 {
   return {};
 }
 
 /// Evaluates the operand and returns the void value.
 value
-evaluate_void_expr(evaluator& eval, const void_expr& e)
+evaluate(evaluator& eval, const void_expr& e)
 {
   evaluate(eval, e.get_operand());
   return {};
@@ -25,7 +25,7 @@ evaluate_void_expr(evaluator& eval, const void_expr& e)
 
 /// Evaluation fails with a trap exception.
 value
-evaluate_trap_expr(evaluator& eval, const trap_expr& e)
+evaluate(evaluator& eval, const trap_expr& e)
 {
   throw trap_error(e);
 }

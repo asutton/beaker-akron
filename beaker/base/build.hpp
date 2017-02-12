@@ -63,10 +63,7 @@ struct factory : node_store
 };
 
 /// Initialize the builder object.
-inline 
-factory::factory(module& m) 
-  : mod_(&m), eq_(get_language()), hash_(get_language())
-{ }
+inline factory::factory(module& m) : mod_(&m), eq_(), hash_() { }
 
 /// Returns the equality comparison function.
 inline term_equal factory::get_equal_fn() const { return eq_; }

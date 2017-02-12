@@ -1,13 +1,14 @@
 # Copyright (c) 2015-2016 Andrew Sutton
 # All rights reserved
 
-# add_library(util lang.cpp build.cpp expr.cpp stmt.cpp)
-# target_link_libraries(util beaker)
+add_library(util STATIC util.cpp)
+target_link_libraries(util beaker)
 
 # Add a test program.
 macro(add_beaker_test target)
   add_executable(${target} ${ARGN})
-  target_link_libraries(${target} util beaker)
+
+  target_link_libraries(${target} util)
 endmacro()
 
 

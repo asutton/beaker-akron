@@ -12,13 +12,13 @@ namespace sys_int {
 
 /// Evaluate the literal expression `e`.
 value
-evaluate_int_expr(evaluator& eval, const int_expr& e)
+evaluate(evaluator& eval, const int_expr& e)
 {
   return e.get_value();
 }
 
 value
-evaluate_eq_expr(evaluator& eval, const eq_expr& e)
+evaluate(evaluator& eval, const eq_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -26,7 +26,7 @@ evaluate_eq_expr(evaluator& eval, const eq_expr& e)
 }
 
 value
-evaluate_ne_expr(evaluator& eval, const ne_expr& e)
+evaluate(evaluator& eval, const ne_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -34,7 +34,7 @@ evaluate_ne_expr(evaluator& eval, const ne_expr& e)
 }
 
 value
-evaluate_lt_expr(evaluator& eval, const lt_expr& e)
+evaluate(evaluator& eval, const lt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -42,7 +42,7 @@ evaluate_lt_expr(evaluator& eval, const lt_expr& e)
 }
 
 value
-evaluate_gt_expr(evaluator& eval, const gt_expr& e)
+evaluate(evaluator& eval, const gt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -50,7 +50,7 @@ evaluate_gt_expr(evaluator& eval, const gt_expr& e)
 }
 
 value
-evaluate_le_expr(evaluator& eval, const le_expr& e)
+evaluate(evaluator& eval, const le_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -58,7 +58,7 @@ evaluate_le_expr(evaluator& eval, const le_expr& e)
 }
 
 value
-evaluate_ge_expr(evaluator& eval, const ge_expr& e)
+evaluate(evaluator& eval, const ge_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -90,7 +90,7 @@ add_modular(evaluator& eval, const add_expr& e, const mod_type& t)
 }
 
 value
-evaluate_add_expr(evaluator& eval, const add_expr& e)
+evaluate(evaluator& eval, const add_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {
@@ -126,7 +126,7 @@ sub_modular(evaluator& eval, const sub_expr& e, const mod_type& t)
 }
 
 value
-evaluate_sub_expr(evaluator& eval, const sub_expr& e)
+evaluate(evaluator& eval, const sub_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {
@@ -173,7 +173,7 @@ mul_mod(evaluator& eval, const mul_expr& e, const mod_type& t)
 }
 
 value
-evaluate_mul_expr(evaluator& eval, const mul_expr& e)
+evaluate(evaluator& eval, const mul_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {
@@ -213,7 +213,7 @@ quo_signed(evaluator& eval, const quo_expr& e, const int_type& t)
 }
 
 value
-evaluate_quo_expr(evaluator& eval, const quo_expr& e)
+evaluate(evaluator& eval, const quo_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {
@@ -229,7 +229,7 @@ evaluate_quo_expr(evaluator& eval, const quo_expr& e)
 // Remainder
 
 value
-evaluate_rem_expr(evaluator& eval, const rem_expr& e)
+evaluate(evaluator& eval, const rem_expr& e)
 {
   std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
   std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
@@ -266,7 +266,7 @@ neg_mod(evaluator& eval, const neg_expr& e, const mod_type& t)
 }
 
 value
-evaluate_neg_expr(evaluator& eval, const neg_expr& e)
+evaluate(evaluator& eval, const neg_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {
@@ -294,7 +294,7 @@ eval_rec(evaluator& eval, const rec_expr& e, const T& t)
 }
 
 value
-evaluate_rec_expr(evaluator& eval, const rec_expr& e)
+evaluate(evaluator& eval, const rec_expr& e)
 {
   const type& t = e.get_type();
   switch (t.get_kind()) {

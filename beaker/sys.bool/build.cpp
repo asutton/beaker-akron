@@ -106,7 +106,7 @@ if_expr&
 builder::make_if_expr(expr& e1, expr& e2, expr& e3)
 {
   assert(is_boolean_expression(e1));
-  assert(equal(get_language(), e2.get_type(), e3.get_type()));
+  assert(equal(e2.get_type(), e3.get_type()));
   return make<if_expr>(e2.get_type(), e1, e2, e3);
 }
 

@@ -2,11 +2,8 @@
 // All rights reserved
 
 #include "print.hpp"
-#include "../name.hpp"
-#include "../type.hpp"
-#include "../expr.hpp"
-#include "../decl.hpp"
-#include "../stmt.hpp"
+
+#include <beaker/all/ast.hpp>
 
 #include <iostream>
 
@@ -38,9 +35,16 @@ pretty_printer::print(const char* str)
   os << str;
 }
 
-/// Print an integer value
+/// Print an integer value.
 void
 pretty_printer::print(std::intmax_t n)
+{
+  os << n;
+}
+
+/// Print an unsigned integer value.
+void
+pretty_printer::print(std::uintmax_t n)
 {
   os << n;
 }
@@ -52,75 +56,16 @@ pretty_printer::print_newline()
   os << '\n';
 }
 
+/// Print a single space character.
 void
 pretty_printer::print_space()
 {
   os << ' ';
 }
 
+
 // -------------------------------------------------------------------------- //
-// Disaptch
-
-// Returns the equality algorithm associated with the node t.
-static inline const print_algorithm&
-get_algorithm(const language& lang)
-{
-  return lang.get_algorithm<print_algorithm>();
-}
-
-// Generates the dispatch table for the algorithm
-print_algorithm::print_algorithm(language& lang)
-  : names(new name_table(lang.get_names())),
-    types(new type_table(lang.get_types())),
-    exprs(new expr_table(lang.get_expressions())),
-    decls(new decl_table(lang.get_declarations())),
-    stmts(new stmt_table(lang.get_statements()))
-{ }
-
-/// Pretty print the name `n`.
-void
-print(pretty_printer& pp, const name& n)
-{
-  const auto& tab = *get_algorithm(pp.lang).names;
-  auto fn = tab.get_overrider(n);
-  fn(pp, n);
-}
-
-/// Pretty print the type `t`.
-void
-print(pretty_printer& pp, const type& t)
-{
-  const auto& tab = *get_algorithm(pp.lang).types;
-  auto fn = tab.get_overrider(t);
-  fn(pp, t);
-}
-
-/// Pretty print the expression `e`.
-void
-print(pretty_printer& pp, const expr& e)
-{
-  const auto& tab = *get_algorithm(pp.lang).exprs;
-  auto fn = tab.get_overrider(e);
-  fn(pp, e);
-}
-
-/// Pretty print the declaration `d`.
-void
-print(pretty_printer& pp, const decl& d)
-{
-  const auto& tab = *get_algorithm(pp.lang).decls;
-  auto fn = tab.get_overrider(d);
-  fn(pp, d);
-}
-
-/// Pretty print the statement `s`.
-void
-print(pretty_printer& pp, const stmt& s)
-{
-  const auto& tab = *get_algorithm(pp.lang).stmts;
-  auto fn = tab.get_overrider(s);
-  fn(pp, s);
-}
+// Pretty printer
 
 /// Print an expression enclosed by the given characters.
 void
@@ -169,6 +114,51 @@ print_infix_expr(pretty_printer& pp, const binary_expr& e, const char* op)
   print_grouped_expr(pp, e.get_rhs());
 }
 
+// -------------------------------------------------------------------------- //
+// Dispatch
+
+void
+print(pretty_printer& pp, const name& n)
+{
+  assert(false && "not implemented");
+}
+
+void
+print(pretty_printer& pp, const type& t)
+{
+  switch (t.get_kind()) {
+#define def_type(NS, T, B) \
+    case NS::T ## _type_kind: \
+      return print(pp, cast<NS::T ## _type>(t));
+#include <beaker/all/type.def>
+  }
+  assert(false && "invalid type");
+}
+
+/// Returns true if a and b denote the same computations.
+void
+print(pretty_printer& pp, const expr& e)
+{
+  switch (e.get_kind()) {
+#define def_expr(NS, E, B) \
+    case NS::E ## _expr_kind: \
+      return print(pp, cast<NS::E ## _expr>(e));
+#include <beaker/all/expr.def>
+  }
+  assert(false && "invalid expression");
+}
+
+void
+print(pretty_printer& pp, const decl& d)
+{
+  assert(false && "not implemented");
+}
+
+void
+print(pretty_printer& pp, const stmt& s)
+{
+  assert(false && "not implemented");
+}
 
 // -------------------------------------------------------------------------- //
 // Additional functions

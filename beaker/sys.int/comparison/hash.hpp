@@ -12,7 +12,9 @@
 namespace beaker {
 namespace sys_int {
 
-void hash_integral_type(const language& lang, hasher& h, const integral_type&);
+struct integral_type;
+
+void hash_integral_type(hasher& h, const integral_type&);
 
 } // namespace sys_int
 } // namespace beaker

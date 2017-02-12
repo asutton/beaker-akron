@@ -35,6 +35,9 @@ include(sys.int/CMakeLists.txt)
 # Aggregates
 # include(sys.tuple/CMakeLists.txt)
 
+# Includes all AST features
+include(all/CMakeLists.txt)
+
 # Lexical support
 include(lex/CMakeLists.txt)
 

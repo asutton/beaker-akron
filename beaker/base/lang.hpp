@@ -28,75 +28,6 @@ struct value;
 struct factory;
 
 
-/// Represents an algorithm that operates on an AST. This is the abstract base 
-/// class for concrete algorithms. Algorithms are collections of dispatch 
-/// tables that associate specific behaviors with different kinds of nodes.
-/// The structure of the algorithm depends on the nodes for which the algorithm
-/// is defined. 
-struct algorithm
-{
-  virtual ~algorithm() = default;
-};
-
-/// A container associating concrete algorithms with their type index.
-struct algorithm_set
-{
-  using set_type = std::unordered_map<std::type_index, algorithm*>;
-
-  algorithm_set() = default;
-  ~algorithm_set();
-
-  template<typename T>
-  T& add_algorithm(language&);
-
-  template<typename T>
-  const T& get_algorithm() const;
-
-  template<typename T>
-  T& get_algorithm();
-
-  set_type algos_;
-};
-
-/// Ensure that all algorithms are deleted.
-inline
-algorithm_set::~algorithm_set()
-{
-  for (auto p : algos_) 
-    delete p.second; 
-}
-
-/// Adds a new algorithm of the given type.
-template<typename T>
-T&
-algorithm_set::add_algorithm(language& lang)
-{
-  assert(algos_.count(typeid(T)) == 0);
-  T* algo = new T(lang);
-  algos_.emplace(typeid(T), algo);
-  return *algo;
-}
-
-/// Returns the algorithm object for type `T`.
-template<typename T>
-inline const T&
-algorithm_set::get_algorithm() const
-{
-  assert(algos_.count(typeid(T)) != 0);
-  algorithm* algo = algos_.find(typeid(T))->second;
-  return *static_cast<const T*>(algo);
-}
-
-/// Returns the algorithm object for type `T`.
-template<typename T> 
-inline T&
-algorithm_set::get_algorithm()
-{
-  assert(algos_.count(typeid(T)) != 0);
-  algorithm* algo = algos_.find(typeid(T))->second;
-  return *static_cast<T*>(algo);
-}
-
 // -------------------------------------------------------------------------- //
 // Features
 
@@ -107,9 +38,6 @@ algorithm_set::get_algorithm()
 struct feature
 {
   virtual ~feature() = default;
-
-  virtual void add_terms(language&) = 0;
-  virtual void add_semantics(language&) = 0;
   virtual factory& make_builder(module&) const = 0;
 };
 
@@ -174,77 +102,26 @@ inline feature& feature_set::get_feature() {return *map_.find(typeid(T))->second
 /// A client program must register the set of features needed by the language
 /// at program startup.
 ///
-/// \todo Should the language really own the symbol table, or is this something
-/// that should be globally allocated (as a kind of string table) and passed
-/// into the language?
-///
-/// \todo A f
-struct language : algorithm_set, feature_set, node_store
+/// \todo The language should own a string table.
+struct language : feature_set, node_store
 {
   language(symbol_table&, const feature_list&);
 
   const symbol_table& get_symbol_table() const;
   symbol_table& get_symbol_table();
 
-  const inheritance_hierarchy& get_names() const;
-  inheritance_hierarchy& get_names();
-  
-  const inheritance_hierarchy& get_types() const;
-  inheritance_hierarchy& get_types();
-  
-  const inheritance_hierarchy& get_expressions() const;
-  inheritance_hierarchy& get_expressions();
-  
-  const inheritance_hierarchy& get_declarations() const;
-  inheritance_hierarchy& get_declarations();
-  
-  const inheritance_hierarchy& get_statements() const;
-  inheritance_hierarchy& get_statements();
-
   symbol_table* syms_;
-  
-  inheritance_hierarchy names_;
-  inheritance_hierarchy types_;
-  inheritance_hierarchy exprs_;
-  inheritance_hierarchy decls_;
-  inheritance_hierarchy stmts_;
 };
+
+inline language::language(symbol_table& syms, const feature_list& feats)
+  : feature_set(feats), syms_(&syms)
+{ }
 
 /// Returns the symbols for the language.
 inline const symbol_table& language::get_symbol_table() const { return *syms_; }
 
 /// Returns the symbols for the language.
 inline symbol_table& language::get_symbol_table() { return *syms_; }
-
-/// Returns the set of name classes defined by the language.
-inline const inheritance_hierarchy& language::get_names() const { return names_; }
-
-/// Returns the set of name classes defined by the language.
-inline inheritance_hierarchy& language::get_names() { return names_; }
-
-/// Returns the set of name classes defined by the language.
-inline const inheritance_hierarchy& language::get_types() const { return types_; }
-
-/// Returns the set of name classes defined by the language.
-inline inheritance_hierarchy& language::get_types() { return types_; }
-
-/// Returns the set of name classes defined by the language.
-inline const inheritance_hierarchy& language::get_expressions() const { return exprs_; }
-
-/// Returns the set of name classes defined by the language.
-inline inheritance_hierarchy& language::get_expressions() { return exprs_; }
-
-/// Returns the set of name classes defined by the language.
-inline const inheritance_hierarchy& language::get_declarations() const { return decls_; }
-
-/// Returns the set of name classes defined by the language.
-inline inheritance_hierarchy& language::get_declarations() { return decls_; }
-
-/// Returns the set of name classes defined by the language.
-inline const inheritance_hierarchy& language::get_statements() const { return stmts_; }
-
-/// Returns the set of name classes defined by the language.
-inline inheritance_hierarchy& language::get_statements() { return stmts_; }
 
 
 // -------------------------------------------------------------------------- //

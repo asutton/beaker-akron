@@ -12,25 +12,25 @@ namespace beaker {
 namespace sys_void {
 
 void
-print_void_type(pretty_printer& pp, const void_type& t)
+print(pretty_printer& pp, const void_type& t)
 {
   pp.print("void");
 }
 
 void
-print_nop_expr(pretty_printer& pp, const nop_expr& e)
+print(pretty_printer& pp, const nop_expr& e)
 {
   pp.print("nop");
 }
 
 void
-print_void_expr(pretty_printer& pp, const void_expr& e)
+print(pretty_printer& pp, const void_expr& e)
 {
   print_builtin_call_expr(pp, "void", e.get_operand());
 }
 
 void
-print_trap_expr(pretty_printer& pp, const trap_expr& e)
+print(pretty_printer& pp, const trap_expr& e)
 {
   pp.print("trap");
 }

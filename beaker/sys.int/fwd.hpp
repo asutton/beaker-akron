@@ -9,10 +9,10 @@ namespace beaker {
 namespace sys_int {
 
 struct feature;
-#define def_type(T, B) struct T ## _type;
-#define def_expr(E, B) struct E ## _expr;
 struct integral_type;
+#define def_type(NS, T, B) struct T ## _type;
 #include "type.def"
+#define def_expr(NS, E, B) struct E ## _expr;
 #include "expr.def"
 struct builder;
 

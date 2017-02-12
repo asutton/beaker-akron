@@ -17,8 +17,6 @@ struct feature : beaker::feature
 {
   using builder_type = builder;
 
-  void add_terms(language&) override;
-  void add_semantics(language&) override;
   factory& make_builder(module&) const override;
 };
 

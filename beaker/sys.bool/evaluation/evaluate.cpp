@@ -10,14 +10,14 @@ namespace sys_bool {
 
 // Evaluate the expressions `true` and `false`.
 value
-evaluate_bool_expr(evaluator& eval, const bool_expr& e)
+evaluate(evaluator& eval, const bool_expr& e)
 {
   return e.get_value();  
 }
 
 // Evaluate the expression `e1 & e2`.
 value
-evaluate_and_expr(evaluator& eval, const and_expr& e)
+evaluate(evaluator& eval, const and_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -26,7 +26,7 @@ evaluate_and_expr(evaluator& eval, const and_expr& e)
 
 // Evaluate the expression `e1 | e2`.
 value
-evaluate_or_expr(evaluator& eval, const or_expr& e)
+evaluate(evaluator& eval, const or_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -35,7 +35,7 @@ evaluate_or_expr(evaluator& eval, const or_expr& e)
 
 /// Evaluates the expression `e1 ^ e2`.
 value
-evaluate_xor_expr(evaluator& eval, const xor_expr& e)
+evaluate(evaluator& eval, const xor_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -44,7 +44,7 @@ evaluate_xor_expr(evaluator& eval, const xor_expr& e)
 
 // Evaluate the expression `!e`.
 value
-evaluate_not_expr(evaluator& eval, const not_expr& e)
+evaluate(evaluator& eval, const not_expr& e)
 {
   value v = evaluate(eval, e.get_operand());
   return value(!v.get_int());
@@ -52,7 +52,7 @@ evaluate_not_expr(evaluator& eval, const not_expr& e)
 
 // Evaluate the expression `e1 => e2`.
 value
-evaluate_imp_expr(evaluator& eval, const imp_expr& e)
+evaluate(evaluator& eval, const imp_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -61,7 +61,7 @@ evaluate_imp_expr(evaluator& eval, const imp_expr& e)
 
 // Evaluate the expression `e1 <=> e2`.
 value
-evaluate_eq_expr(evaluator& eval, const eq_expr& e)
+evaluate(evaluator& eval, const eq_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -69,7 +69,7 @@ evaluate_eq_expr(evaluator& eval, const eq_expr& e)
 }
 
 value
-evaluate_if_expr(evaluator& eval, const if_expr& e)
+evaluate(evaluator& eval, const if_expr& e)
 {
   value p = evaluate(eval, e.get_condition());
   if (p.get_int())
@@ -79,7 +79,7 @@ evaluate_if_expr(evaluator& eval, const if_expr& e)
 }
 
 value
-evaluate_and_then_expr(evaluator& eval, const and_then_expr& e)
+evaluate(evaluator& eval, const and_then_expr& e)
 {
   value v = evaluate(eval, e.get_lhs());
   if (v.get_int())
@@ -89,7 +89,7 @@ evaluate_and_then_expr(evaluator& eval, const and_then_expr& e)
 }
 
 value
-evaluate_or_else_expr(evaluator& eval, const or_else_expr& e)
+evaluate(evaluator& eval, const or_else_expr& e)
 {
   value v = evaluate(eval, e.get_lhs());
   if (v.get_int())
@@ -99,7 +99,7 @@ evaluate_or_else_expr(evaluator& eval, const or_else_expr& e)
 }
 
 value
-evaluate_assert_expr(evaluator& eval, const assert_expr& e)
+evaluate(evaluator& eval, const assert_expr& e)
 {
   value v = evaluate(eval, e.get_operand());
   if (v.get_int())

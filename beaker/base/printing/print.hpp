@@ -13,14 +13,6 @@
 
 namespace beaker {
 
-struct name;
-struct type;
-struct expr;
-struct unary_expr;
-struct binary_expr;
-struct decl;
-struct stmt;
-
 /// The pretty printer object provides context for printing terms of the
 /// languages. This wraps an output stream and helps manages indentation and
 /// other printing options.
@@ -31,9 +23,12 @@ struct pretty_printer
   pretty_printer(const language&);
   pretty_printer(const language&, std::ostream&);
 
+  const language& get_language() const;
+
   void print(char);
   void print(const char*);
   void print(std::intmax_t);
+  void print(std::uintmax_t);
 
   void print_space();
   void print_newline();
@@ -42,27 +37,9 @@ struct pretty_printer
   std::ostream& os;
 };
 
-/// The print algorithm is use to pretty print an unambiguous internal 
-/// representation of a program.
-///
-/// \todo Stop using an ostream because it doesn't inherently support pretty
-/// printing (although we could almost certainly abuse it to do so).
-struct print_algorithm : algorithm
-{
-  using name_table = dispatch_table<void(pretty_printer&, const name&)>;
-  using type_table = dispatch_table<void(pretty_printer&, const type&)>;
-  using expr_table = dispatch_table<void(pretty_printer&, const expr&)>;
-  using decl_table = dispatch_table<void(pretty_printer&, const decl&)>;
-  using stmt_table = dispatch_table<void(pretty_printer&, const stmt&)>;
+/// Returns the language used for printing.
+inline const language& pretty_printer::get_language() const { return lang; }
 
-  print_algorithm(language&);
-  
-  std::unique_ptr<name_table> names;
-  std::unique_ptr<type_table> types;
-  std::unique_ptr<expr_table> exprs;
-  std::unique_ptr<decl_table> decls;
-  std::unique_ptr<stmt_table> stmts;
-};
 
 void print(pretty_printer&, const name&);
 void print(pretty_printer&, const type&);
@@ -70,8 +47,39 @@ void print(pretty_printer&, const expr&);
 void print(pretty_printer&, const decl&);
 void print(pretty_printer&, const stmt&);
 
+void print(const language&, const name&);
+void print(const language&, const type&);
+void print(const language&, const expr&);
+void print(const language&, const decl&);
+void print(const language&, const stmt&);
+
 // -------------------------------------------------------------------------- //
 // Helper functions
+
+struct unary_expr;
+struct binary_expr;
+
+/// Prints a binary operator offset by spaces.
+///
+/// \todo Make the spaces a configuration option for the printer.
+inline void 
+print_binary_op(pretty_printer& pp, char op)
+{
+  pp.print_space();
+  pp.print(op);
+  pp.print_space();
+}
+
+/// Prints a binary operator offset by spaces.
+///
+/// \todo Make the spaces a configuration option for the printer.
+inline void 
+print_binary_op(pretty_printer& pp, const char* op)
+{
+  pp.print_space();
+  pp.print(op);
+  pp.print_space();
+}
 
 void print_enclosed_expr(pretty_printer&, const expr&, char, char);
 void print_builtin_call_expr(pretty_printer&, const char*, const expr&);
@@ -92,15 +100,6 @@ print_comma_separated(pretty_printer& pp, const seq<T>& s)
     }
   }
 }
-
-// -------------------------------------------------------------------------- //
-// Additional functions
-
-void print(const language&, const name&);
-void print(const language&, const type&);
-void print(const language&, const expr&);
-void print(const language&, const decl&);
-void print(const language&, const stmt&);
 
 
 // -------------------------------------------------------------------------- //

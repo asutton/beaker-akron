@@ -2,89 +2,40 @@
 // All rights reserved
 
 #include "equal.hpp"
-#include "../name.hpp"
-#include "../type.hpp"
 #include "../expr.hpp"
 
 
 namespace beaker {
 
-// -------------------------------------------------------------------------- //
-// Dispatch
-
-// Returns the equality algorithm associated with the node t.
-static inline const equal_algorithm&
-get_algorithm(const language& lang)
-{
-  return lang.get_algorithm<equal_algorithm>();
-}
-
-// Generates the dispatch table for the algorithm
-equal_algorithm::equal_algorithm(language& lang)
-  : names(new name_table(lang.get_names())),
-    types(new type_table(lang.get_types())),
-    exprs(new expr_table(lang.get_expressions()))
-{ }
-
-bool
-equal(const language& lang, const name& a, const name& b) 
-{
-  if (a.get_kind() != b.get_kind())
-    return false;
-  const auto& tab = *get_algorithm(lang).names;
-  auto fn = tab.get_overrider(a);
-  return fn(lang, a, b);
-}
-
-bool
-equal(const language& lang, const type& a, const type& b) 
-{
-  if (a.get_kind() != b.get_kind())
-    return false;
-  const auto& tab = *get_algorithm(lang).types;
-  auto fn = tab.get_overrider(a);
-  return fn(lang, a, b);
-}
-
-bool
-equal(const language& lang, const expr& a, const expr& b) 
-{
-  if (a.get_kind() != b.get_kind())
-    return false;
-  const auto& tab = *get_algorithm(lang).exprs;
-  auto fn = tab.get_overrider(a);
-  return fn(lang, a, b);
-}
-
-
-// -------------------------------------------------------------------------- //
-// Overrides
-
+/// Returns true when the literals `a` and `b` have equal values.
 bool 
-equal_literal_expr(const language& lang, const literal_expr& a, const literal_expr& b)
+equal(const literal_expr& a, const literal_expr& b)
 {
   return a.get_value() == b.get_value();
 }
 
+/// Returns true when `a` and `b` have equal operands.
 bool 
-equal_unary_expr(const language& lang, const unary_expr& a, const unary_expr& b)
+equal(const unary_expr& a, const unary_expr& b)
 {
-  return equal(lang, a.get_first(), b.get_first());
+  return equal(a.get_first(), b.get_first());
 }
 
+/// Returns true when `a` and `b` have equal operands.
 bool 
-equal_binary_expr(const language& lang, const binary_expr& a, const binary_expr& b)
+equal(const binary_expr& a, const binary_expr& b)
 {
-  return equal(lang, a.get_first(), b.get_first()) &&
-         equal(lang, a.get_second(), b.get_second());
+  return equal(a.get_first(), b.get_first()) &&
+         equal(a.get_second(), b.get_second());
 }
 
+/// Returns true when `a` and `b` have equal operands.
 bool 
-equal_ternary_expr(const language& lang, const ternary_expr& a, const ternary_expr& b)
+equal(const ternary_expr& a, const ternary_expr& b)
 {
-  return equal(lang, a.get_first(), b.get_first()) &&
-         equal(lang, a.get_second(), b.get_second()) &&
-         equal(lang, a.get_third(), b.get_third());
+  return equal(a.get_first(), b.get_first()) &&
+         equal(a.get_second(), b.get_second()) &&
+         equal(a.get_third(), b.get_third());
 }
 
 } // namespace beaker

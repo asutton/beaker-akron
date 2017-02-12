@@ -136,7 +136,7 @@ builder::make_int_expr(type& t, int n)
 eq_expr&
 builder::make_eq_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<eq_expr>(b.get_bool_type(), e1, e2);
@@ -149,7 +149,7 @@ builder::make_eq_expr(expr& e1, expr& e2)
 ne_expr&
 builder::make_ne_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<ne_expr>(b.get_bool_type(), e1, e2);
@@ -162,7 +162,7 @@ builder::make_ne_expr(expr& e1, expr& e2)
 lt_expr&
 builder::make_lt_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<lt_expr>(b.get_bool_type(), e1, e2);
@@ -175,7 +175,7 @@ builder::make_lt_expr(expr& e1, expr& e2)
 gt_expr&
 builder::make_gt_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<gt_expr>(b.get_bool_type(), e1, e2);
@@ -188,7 +188,7 @@ builder::make_gt_expr(expr& e1, expr& e2)
 le_expr&
 builder::make_le_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<le_expr>(b.get_bool_type(), e1, e2);
@@ -201,7 +201,7 @@ builder::make_le_expr(expr& e1, expr& e2)
 ge_expr&
 builder::make_ge_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   sys_bool::builder& b = get_logic_builder(get_module());
   return make<ge_expr>(b.get_bool_type(), e1, e2);
@@ -210,7 +210,7 @@ builder::make_ge_expr(expr& e1, expr& e2)
 add_expr&
 builder::make_add_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   return make<add_expr>(e1.get_type(), e1, e2);
 }
@@ -218,7 +218,7 @@ builder::make_add_expr(expr& e1, expr& e2)
 sub_expr&
 builder::make_sub_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   return make<sub_expr>(e1.get_type(), e1, e2);
 }
@@ -226,7 +226,7 @@ builder::make_sub_expr(expr& e1, expr& e2)
 mul_expr&
 builder::make_mul_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   return make<mul_expr>(e1.get_type(), e1, e2);
 }
@@ -234,7 +234,7 @@ builder::make_mul_expr(expr& e1, expr& e2)
 quo_expr&
 builder::make_quo_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   return make<quo_expr>(e1.get_type(), e1, e2);
 }
@@ -242,7 +242,7 @@ builder::make_quo_expr(expr& e1, expr& e2)
 rem_expr&
 builder::make_rem_expr(expr& e1, expr& e2)
 {
-  assert(equal(get_language(), e1.get_type(), e2.get_type()));
+  assert(equal(e1.get_type(), e2.get_type()));
   assert(is_integral_expression(e1));
   return make<rem_expr>(e1.get_type(), e1, e2);
 }

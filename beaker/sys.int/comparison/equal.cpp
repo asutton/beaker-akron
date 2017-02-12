@@ -10,7 +10,7 @@ namespace sys_int {
 
 /// Returns true when numeric types `a` and `b` have the same precision.
 bool 
-equal_integral_type(const language& lang, const integral_type& a, const integral_type& b)
+equal_integral_type(const integral_type& a, const integral_type& b)
 {
   return a.get_precision() == b.get_precision();
 }

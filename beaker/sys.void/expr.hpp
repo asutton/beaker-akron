@@ -13,7 +13,7 @@ namespace sys_void {
 
 enum {
   first_expr_kind = sys_void_lang_block,
-#define def_expr(E, B) E ## _expr_kind,
+#define def_expr(NS, E, B) E ## _expr_kind,
 #include "expr.def"
   last_expr_kind
 };

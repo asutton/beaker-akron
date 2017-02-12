@@ -23,6 +23,10 @@ struct evaluation_error : error
 
 /// The evaluator maintains the evaluation context for the evaluation of the
 /// expressions, declarations, and statements.
+///
+/// The evaluator maintains a reference to the language. This allows evaluation
+/// to be defined in terms of the parameterization of the language by 
+/// translation and compilation options.
 struct evaluator
 {
   evaluator(const language&);
@@ -32,20 +36,6 @@ struct evaluator
 
 inline evaluator::evaluator(const language& lang) : lang(lang) { }
 
-
-/// The evaluation algorithm computes values and side effects for expressions,
-/// statements, and declarations.
-///
-/// \todo Implement statement evaluation (flow control) and declaration
-/// elaboration.
-struct evaluate_algorithm : algorithm
-{
-  using expr_table = dispatch_table<value(evaluator&, const expr&)>;
-
-  evaluate_algorithm(language&);
-  
-  std::unique_ptr<expr_table> exprs;
-};
 
 value evaluate(evaluator&, const expr&);
 value evaluate(evaluator&, const decl&);
