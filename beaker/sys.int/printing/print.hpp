@@ -10,28 +10,26 @@
 
 
 namespace beaker {
-namespace sys_int {
 
-void print(pretty_printer&, const nat_type&);
-void print(pretty_printer&, const int_type&);
-void print(pretty_printer&, const mod_type&);
+void print(pretty_printer&, const sys_int::nat_type&);
+void print(pretty_printer&, const sys_int::int_type&);
+void print(pretty_printer&, const sys_int::mod_type&);
 
-void print(pretty_printer&, const int_expr&);
-void print(pretty_printer&, const eq_expr&);
-void print(pretty_printer&, const ne_expr&);
-void print(pretty_printer&, const lt_expr&);
-void print(pretty_printer&, const gt_expr&);
-void print(pretty_printer&, const le_expr&);
-void print(pretty_printer&, const ge_expr&);
-void print(pretty_printer&, const add_expr&);
-void print(pretty_printer&, const sub_expr&);
-void print(pretty_printer&, const mul_expr&);
-void print(pretty_printer&, const quo_expr&);
-void print(pretty_printer&, const rem_expr&);
-void print(pretty_printer&, const neg_expr&);
-void print(pretty_printer&, const rec_expr&);
+void print(pretty_printer&, const sys_int::int_expr&);
+void print(pretty_printer&, const sys_int::eq_expr&);
+void print(pretty_printer&, const sys_int::ne_expr&);
+void print(pretty_printer&, const sys_int::lt_expr&);
+void print(pretty_printer&, const sys_int::gt_expr&);
+void print(pretty_printer&, const sys_int::le_expr&);
+void print(pretty_printer&, const sys_int::ge_expr&);
+void print(pretty_printer&, const sys_int::add_expr&);
+void print(pretty_printer&, const sys_int::sub_expr&);
+void print(pretty_printer&, const sys_int::mul_expr&);
+void print(pretty_printer&, const sys_int::quo_expr&);
+void print(pretty_printer&, const sys_int::rem_expr&);
+void print(pretty_printer&, const sys_int::neg_expr&);
+void print(pretty_printer&, const sys_int::rec_expr&);
 
-} // namespace sys_int
 } // namespace beaker
 
 

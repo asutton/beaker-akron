@@ -6,14 +6,12 @@
 
 
 namespace beaker {
-namespace sys_int {
 
 /// Appends the precision of numeric type `t` to `h`.
 void
-hash_integral_type(hasher& h, const integral_type& t)
+hash(hasher& h, const sys_int::integral_type& t)
 {
   hash(h, t.get_precision());
 }
 
-} // namespace sys_int
 } // namespace beaker

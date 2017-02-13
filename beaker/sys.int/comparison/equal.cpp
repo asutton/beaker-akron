@@ -6,14 +6,12 @@
 
 
 namespace beaker {
-namespace sys_int {
 
 /// Returns true when numeric types `a` and `b` have the same precision.
 bool 
-equal_integral_type(const integral_type& a, const integral_type& b)
+equal(const sys_int::integral_type& a, const sys_int::integral_type& b)
 {
   return a.get_precision() == b.get_precision();
 }
 
-} // namespace sys_int
 } // namespace beaker

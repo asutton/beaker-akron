@@ -9,15 +9,13 @@
 
 
 namespace beaker {
-namespace sys_void {
 
-void print(pretty_printer&, const void_type&);
+void print(pretty_printer&, const sys_void::void_type&);
 
-void print(pretty_printer&, const nop_expr&);
-void print(pretty_printer&, const void_expr&);
-void print(pretty_printer&, const trap_expr&);
+void print(pretty_printer&, const sys_void::nop_expr&);
+void print(pretty_printer&, const sys_void::void_expr&);
+void print(pretty_printer&, const sys_void::trap_expr&);
 
-} // namespace sys_void
 } // namespace beaker
 
 

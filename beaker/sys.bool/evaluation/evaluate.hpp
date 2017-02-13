@@ -27,23 +27,24 @@ assertion_error::assertion_error(const expr& e)
   : evaluation_error("assert"), expr_(&e) 
 { }
 
+} // namespace sys_bool
+
 
 // -------------------------------------------------------------------------- //
 // Overrides
 
-value evaluate(evaluator&, const bool_expr&);
-value evaluate(evaluator&, const and_expr&);
-value evaluate(evaluator&, const or_expr&);
-value evaluate(evaluator&, const xor_expr&);
-value evaluate(evaluator&, const not_expr&);
-value evaluate(evaluator&, const imp_expr&);
-value evaluate(evaluator&, const eq_expr&);
-value evaluate(evaluator&, const if_expr&);
-value evaluate(evaluator&, const and_then_expr&);
-value evaluate(evaluator&, const or_else_expr&);
-value evaluate(evaluator&, const assert_expr&);
+value evaluate(evaluator&, const sys_bool::bool_expr&);
+value evaluate(evaluator&, const sys_bool::and_expr&);
+value evaluate(evaluator&, const sys_bool::or_expr&);
+value evaluate(evaluator&, const sys_bool::xor_expr&);
+value evaluate(evaluator&, const sys_bool::not_expr&);
+value evaluate(evaluator&, const sys_bool::imp_expr&);
+value evaluate(evaluator&, const sys_bool::eq_expr&);
+value evaluate(evaluator&, const sys_bool::if_expr&);
+value evaluate(evaluator&, const sys_bool::and_then_expr&);
+value evaluate(evaluator&, const sys_bool::or_else_expr&);
+value evaluate(evaluator&, const sys_bool::assert_expr&);
 
-} // namespace sys_bool
 } // namespace beaker
 
 

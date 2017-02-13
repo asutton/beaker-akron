@@ -10,13 +10,9 @@
 
 
 namespace beaker {
-namespace sys_int {
 
-struct integral_type;
+void hash(hasher& h, const sys_int::integral_type&);
 
-void hash_integral_type(hasher& h, const integral_type&);
-
-} // namespace sys_int
 } // namespace beaker
 
 

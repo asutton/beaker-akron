@@ -8,17 +8,16 @@
 
 
 namespace beaker {
-namespace sys_int {
 
 /// Evaluate the literal expression `e`.
 value
-evaluate(evaluator& eval, const int_expr& e)
+evaluate(evaluator& eval, const sys_int::int_expr& e)
 {
   return e.get_value();
 }
 
 value
-evaluate(evaluator& eval, const eq_expr& e)
+evaluate(evaluator& eval, const sys_int::eq_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -26,7 +25,7 @@ evaluate(evaluator& eval, const eq_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const ne_expr& e)
+evaluate(evaluator& eval, const sys_int::ne_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -34,7 +33,7 @@ evaluate(evaluator& eval, const ne_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const lt_expr& e)
+evaluate(evaluator& eval, const sys_int::lt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -42,7 +41,7 @@ evaluate(evaluator& eval, const lt_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const gt_expr& e)
+evaluate(evaluator& eval, const sys_int::gt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -50,7 +49,7 @@ evaluate(evaluator& eval, const gt_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const le_expr& e)
+evaluate(evaluator& eval, const sys_int::le_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -58,7 +57,7 @@ evaluate(evaluator& eval, const le_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const ge_expr& e)
+evaluate(evaluator& eval, const sys_int::ge_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -68,6 +67,8 @@ evaluate(evaluator& eval, const ge_expr& e)
 
 // -------------------------------------------------------------------------- //
 // Addition
+
+namespace sys_int {
 
 template<typename T>
 static value
@@ -101,9 +102,19 @@ evaluate(evaluator& eval, const add_expr& e)
   assert(false && "not an integer expression");
 }
 
+} // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::add_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Subtraction
+
+namespace sys_int {
 
 template<typename T>
 static value
@@ -137,9 +148,19 @@ evaluate(evaluator& eval, const sub_expr& e)
   assert(false && "not an integer expression");
 }
 
+} // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::sub_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Multiplication
+
+namespace sys_int {
 
 static value
 mul_nat(evaluator& eval, const mul_expr& e, const nat_type& t)
@@ -184,9 +205,20 @@ evaluate(evaluator& eval, const mul_expr& e)
   assert(false && "not an integer expression");
 }
 
+} // namespace sys_int
+
+
+value
+evaluate(evaluator& eval, const sys_int::mul_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Quotient
+
+namespace sys_int {
 
 template<typename T>
 static value
@@ -224,23 +256,33 @@ evaluate(evaluator& eval, const quo_expr& e)
   assert(false && "not an integer expression");
 }
 
+} // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::quo_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Remainder
 
 value
-evaluate(evaluator& eval, const rem_expr& e)
+evaluate(evaluator& eval, const sys_int::rem_expr& e)
 {
   std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
   std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
   if (b == 0)
-    throw division_error(e);
+    throw sys_int::division_error(e);
   return value(a % b);
 }
 
 
 // -------------------------------------------------------------------------- //
 // Negation
+
+namespace sys_int {
 
 static value
 neg_nat(evaluator& eval, const neg_expr& e, const nat_type& t)
@@ -277,10 +319,19 @@ evaluate(evaluator& eval, const neg_expr& e)
   assert(false && "not an negatable expression");
 }
 
+} // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::neg_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
 
 // -------------------------------------------------------------------------- //
 // Reciprocal
 
+namespace sys_int {
 
 template<typename T>
 static value
@@ -306,4 +357,12 @@ evaluate(evaluator& eval, const rec_expr& e)
 }
 
 } // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::rec_expr& e)
+{
+  return sys_int::evaluate(eval, e);
+}
+
+
 } // namespace beaker

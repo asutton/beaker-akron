@@ -1,8 +1,7 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include <beaker/base/comparison/equal.hpp>
-
+#include "equal.hpp"
 #include "../ast.hpp"
 
 

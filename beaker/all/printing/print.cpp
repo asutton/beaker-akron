@@ -1,9 +1,10 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#include <beaker/base/printing/print.hpp>
-
+#include "print.hpp"
 #include "../ast.hpp"
+
+#include <iostream>
 
 
 namespace beaker {
@@ -18,6 +19,8 @@ void
 print(pretty_printer& pp, const type& t)
 {
   switch (t.get_kind()) {
+    default:
+      break;
 #define def_type(NS, T, B) \
     case NS::T ## _type_kind: \
       return print(pp, cast<NS::T ## _type>(t));

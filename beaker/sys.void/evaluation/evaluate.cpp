@@ -6,18 +6,17 @@
 
 
 namespace beaker {
-namespace sys_void {
 
 /// Returns the void value.
 value
-evaluate(evaluator& eval, const nop_expr& e)
+evaluate(evaluator& eval, const sys_void::nop_expr& e)
 {
   return {};
 }
 
 /// Evaluates the operand and returns the void value.
 value
-evaluate(evaluator& eval, const void_expr& e)
+evaluate(evaluator& eval, const sys_void::void_expr& e)
 {
   evaluate(eval, e.get_operand());
   return {};
@@ -25,11 +24,10 @@ evaluate(evaluator& eval, const void_expr& e)
 
 /// Evaluation fails with a trap exception.
 value
-evaluate(evaluator& eval, const trap_expr& e)
+evaluate(evaluator& eval, const sys_void::trap_expr& e)
 {
-  throw trap_error(e);
+  throw sys_void::trap_error(e);
 }
 
 
-} // namespace sys_void
 } // namespace beaker
