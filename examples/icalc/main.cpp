@@ -25,12 +25,14 @@ main()
     
     std::vector<icalc::token*> toks;
     icalc::lexer lex(line.c_str(), line.c_str() + line.size());
-    while (icalc::token* tok = lex.next())
+    while (icalc::token* tok = lex.next()) {
+      std::cout << tok->get_kind() << '\n';
       toks.push_back(tok);
+    }
 
-    icalc::builder build(mod);
-    icalc::parser parse(build, toks.data(), toks.data() + toks.size());
-    auto& e = parse.expression();
-    print(lang, e);
+    // icalc::builder build(mod);
+    // icalc::parser parse(build, toks.data(), toks.data() + toks.size());
+    // auto& e = parse.expression();
+    // print(lang, e);
   }
 }

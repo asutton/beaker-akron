@@ -4,6 +4,7 @@
 add_executable(icalc 
   main.cpp 
   lang.cpp 
+  token.cpp
   lexer.cpp 
   parser.cpp)
 target_link_libraries(icalc beaker)

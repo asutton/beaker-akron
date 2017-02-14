@@ -4,33 +4,17 @@
 #ifndef ICALC_LEXER_HPP
 #define ICALC_LEXER_HPP
 
+#include "token.hpp"
+
+#include <cassert>
 #include <cctype>
-#include <list>
 #include <stdexcept>
 #include <string>
 
 
 namespace icalc {
 
-struct token;
-
-/// Provides storage for token lists.
-///
-/// \todo Use a better allocator.
-struct token_store : std::list<token*>
-{
-  ~token_store();
-
-  template<typename T, typename... Args>
-  T* make(Args&&... args)
-  {
-    T* tok = new T(std::forward<Args>(args)...);
-    push_back(tok);
-    return tok;
-  }
-};
-
-
+// Kinds of tokens.
 enum token_kind 
 {
   eof_tok,
@@ -63,73 +47,6 @@ enum token_kind
 };
 
 
-/// Represents an abstract symbol in the source language.
-struct token
-{
-  explicit token(int);
-  virtual ~token() { }
-
-  int get_kind() const;
-  
-  int kind_;
-};
-
-inline token::token(int k)
-  : kind_(k)
-{ }
-
-/// Returns the token's kind.
-inline int token::get_kind() const { return kind_; }
-
-
-/// Basic tokens have are simple symbols in the language; they have no
-/// additional attributes.
-struct basic_token : token
-{
-  using token::token;
-};
-
-/// A token whose attribute is a built-in value. This is a helper class for
-/// other kinds of tokens.
-template<typename T>
-struct literal_token : token
-{
-  literal_token(int, T);
-
-  T get_value() const;
-  
-  T value_;
-};
-
-template<typename T>
-inline literal_token<T>::literal_token(int k, T v) : token(k), value_(v) { }
-
-template<typename T>
-inline T literal_token<T>::get_value() const { return value_; }
-
-
-/// Represents the boolean tokens `true` and `false`.
-struct bool_token : literal_token<bool>
-{
-  using literal_token<bool>::literal_token;
-};
-
-
-/// Represents the tokens of integer literals.
-struct int_token : literal_token<int>
-{
-  using literal_token<int>::literal_token;
-};
-
-
-/// Returns true if c is an identifier character.
-inline bool
-isident(char c)
-{
-  return std::isalpha(c) || std::isdigit(c);
-}
-
-
 /// The lexer is responsible for transforming a sequence of characters into
 /// a sequence of tokens.
 ///
@@ -151,37 +68,52 @@ struct lexer : token_store
 
   // Token constructors
   
-  // Make an token over a sequence of characters.
+  /// Make an token over a sequence of characters. Consume the current token.
+  ///
+  /// \todo The 'n' refers to the number of characters the token occupies.
+  /// Note that the lookahead is always pointing at the last character in
+  /// the lexeme.
   token *make_basic_token(int n, int k) 
   {
-    consume(n);
     return make<basic_token>(k);
   }
 
-  token* lparen() { return make_basic_token(1, lparen_tok); }
-  token* rparen() { return make_basic_token(1, rparen_tok); }
-  token* plus() { return make_basic_token(1, plus_tok); }
-  token* minus() { return make_basic_token(1, minus_tok); }
-  token* star() { return make_basic_token(1, star_tok); }
-  token* slash() { return make_basic_token(1, slash_tok); }
-  token* percent() { return make_basic_token(1, percent_tok); }
-  token* amp() { return make_basic_token(1, amp_tok); }
-  token* pipe() { return make_basic_token(1, pipe_tok); }
-  token* caret() { return make_basic_token(1, caret_tok); }
-
-  token* eq_eq() { return make_basic_token(2, eq_eq_tok); }
-  token* bang_eq() { return make_basic_token(2, bang_eq_tok); }
-  token* lt() { return make_basic_token(1, lt_tok); }
-  token* gt() { return make_basic_token(1, gt_tok); }
-  token* lt_eq() { return make_basic_token(2, lt_eq_tok); }
-  token* gt_eq() { return make_basic_token(2, gt_eq_tok); }
-
-  token* amp_amp() { return make_basic_token(2, amp_amp_tok); }
-  token* pipe_pipe() { return make_basic_token(2, pipe_pipe_tok); }
-  token* bang() { return make_basic_token(1, bang_tok); }
+  token* lparen();
+  token* rparen();
+  
+  token* plus();
+  token* minus();
+  token* star();
+  token* slash();
+  token* percent();
+  token* amp();
+  token* pipe();
+  token* caret();
+  
+  token* eq();
+  token* eq_eq();
+  token* bang_eq();
+  token* lt();
+  token* gt();
+  token* lt_eq();
+  token* gt_eq();
+  token* pipe_pipe();
+  token* amp_amp();
+  token* bang();
 
   token* word();
   token* number();
+
+  bool match(char);
+  template<typename P> bool match_if(P);
+
+  bool require(char);
+  template<typename P> bool require_if(P);
+
+  // State transitions.
+  bool letter();
+  bool digit();
+  bool ident();
 
   const char* first;
   const char* last;
@@ -227,6 +159,44 @@ lexer::consume(int n)
     first = last;
   else
     first += n;
+}
+
+inline bool
+lexer::match(char c)
+{
+  if (lookahead() == c) {
+    consume();
+    return true;
+  }
+  return false;
+}
+
+template<typename P>
+inline bool
+lexer::match_if(P pred)
+{
+  if (pred(lookahead())) {
+    consume();
+    return true;
+  }
+  return false;
+}
+
+inline bool
+lexer::require(char c)
+{
+  assert(lookahead() == c);
+  consume();
+  return true;
+}
+
+template<typename P>
+inline bool
+lexer::require_if(P pred)
+{
+  assert(pred(lookahead()));
+  consume();
+  return true;
 }
 
 } // namespace icalc
