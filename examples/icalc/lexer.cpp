@@ -4,6 +4,7 @@
 #include "lexer.hpp"
 
 #include <iostream>
+#include <sstream>
 
 
 namespace icalc {
@@ -14,16 +15,24 @@ token*
 lexer::next() 
 {
   while (!eof()) {
+    // Perform an initial check for whitespace, consuming those characters.
     switch (lookahead()) {
       case '\n':
-        // FIXME: Track line numbers.
-        // Fallthrough.
+        newline();
+        continue;
+      
       case ' ':
       case '\t':
-        // Skip whitespace.
-        consume();
+        space();
         continue;
+      default:
+        break;
+    }
 
+    // Marks the beginning of non-whitespace characters.
+    start = curr;
+    switch (lookahead()) {
+      // Matches punctuators and operators.
       case '(': return lparen();
       case ')': return rparen();
       case '+': return plus();
@@ -38,17 +47,54 @@ lexer::next()
       case '=': return eq();
       case '!': return bang();
 
-      default:
-        if (std::isalpha(lookahead() || lookahead() == '_')) 
-          return word();
-        if (std::isdigit(lookahead()))
-          return number();
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        return number();
+
+      case 't': case 'f':
+        // TODO: We could build very precise matches for these keywords.
+        return word();
+
+      default: {
+        std::stringstream ss;
+        ss << "invalid character '" << lookahead() << "'";
+        error(ss.str());
         break;
+      }
     }
   }
   return nullptr;
 }
 
+/// Matches horizontal whitespace.
+///
+///   space -> ' ' | '\t'
+///
+/// Ignores the space.
+void
+lexer::space()
+{
+  consume();
+}
+
+/// Matches vertical whitespace.
+///
+///   newline -> '\n'
+///
+/// Increments the line count.
+///
+/// \todo Manage the line count.
+void
+lexer::newline()
+{
+  consume();
+}
+
+/// Matches left-parenthesis.
+///
+///   lparen -> '('
+///
+/// Returns the corresponding token.
 token*
 lexer::lparen()
 {
@@ -56,6 +102,11 @@ lexer::lparen()
   return make_basic_token(1, lparen_tok);
 }
 
+/// Matches right-parenthesis.
+///
+///   rparen -> '('
+///
+/// Returns the corresponding token.
 token*
 lexer::rparen()
 {
@@ -122,7 +173,7 @@ lexer::pipe()
 {
   require('|');
   if (lookahead() == '&')
-    pipe_pipe();
+    return pipe_pipe();
   return make_basic_token(1, pipe_tok); 
 }
 
@@ -140,7 +191,7 @@ lexer::lt()
 {
   require('<');
   if (lookahead() == '=')
-    lt_eq();
+    return lt_eq();
   return make_basic_token(1, lt_tok); 
 }
 
@@ -158,7 +209,7 @@ lexer::gt()
 {
   require('>');
   if (lookahead() == '=')
-    gt_eq();
+    return gt_eq();
   return make_basic_token(1, gt_tok); 
 }
 
@@ -176,12 +227,11 @@ lexer::eq()
 {
   require('=');
   if (lookahead() == '=')
-    eq_eq();
+    return eq_eq();
 
-  // FIXME: Throw a lexical error, including source location. Note 
-  // that this actually diagnoses sequence of charaters '=X' where
-  // 'X' is not '='.
-  throw std::runtime_error("invalid character");
+  // FIXME: Add the source location.
+  error("expected '=' after '='");
+  return nullptr;
 }
 
 /// Process the '==' token.
@@ -244,7 +294,6 @@ token*
 lexer::word()
 {
   // Match the characters in the word.
-  const char* iter = first;
   consume();
   while (!eof() && ident())
     ;
@@ -252,24 +301,34 @@ lexer::word()
   // Determine if the identifier is a reserved word.
   //
   // TODO: Use a keyword hash table for full generality.
-  std::string str(iter, first);
+  std::string str(start, curr);
   if (str == "true")
     return make<bool_token>(bool_tok, true);
   if (str == "false")
     return make<bool_token>(bool_tok, false);
-  throw std::runtime_error("invalid character sequence '" + str + "'");
+
+  // FIXME: Use a better error.
+  error("invalid identifier");
+  return nullptr;
 }
 
 token*
 lexer::number()
 {
-  const char* iter = first;
   consume();
   while (!eof() && digit())
     ;
-
-  std::string val(iter, first);
+  std::string val(start, curr);
   return make<int_token>(int_tok, std::stoi(val));
+}
+
+/// Throws lexical error exception with the given message.
+///
+/// \todo Incorporate the source code location.
+void
+lexer::error(const std::string& msg)
+{
+  throw std::runtime_error(msg);
 }
 
 } // namespace icalc

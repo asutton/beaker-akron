@@ -54,7 +54,7 @@ enum token_kind
 struct lexer : token_store
 {
   lexer(const char* f, const char* l)
-    : first(f), last(l)
+    : start(nullptr), curr(f), last(l)
   { }
   
   token* next();
@@ -77,6 +77,9 @@ struct lexer : token_store
   {
     return make<basic_token>(k);
   }
+
+  void space();
+  void newline();
 
   token* lparen();
   token* rparen();
@@ -104,6 +107,8 @@ struct lexer : token_store
   token* word();
   token* number();
 
+  void error(const std::string&);
+
   bool match(char);
   template<typename P> bool match_if(P);
 
@@ -115,12 +120,13 @@ struct lexer : token_store
   bool digit();
   bool ident();
 
-  const char* first;
-  const char* last;
+  const char* start; // The start of a token.
+  const char* curr;  // The current character.
+  const char* last;  // Past the last character.
 };
 
 /// Returns true if the stream is at its end.
-inline bool lexer::eof() const { return first == last; }
+inline bool lexer::eof() const { return curr == last; }
 
 /// Returns the lookahead character.
 inline char 
@@ -129,17 +135,17 @@ lexer::lookahead() const
   if (eof())
     return 0;
   else
-    return *first;
+    return *curr;
 }
 
 /// Returns the nth character past the lookahead.
 inline char
 lexer::lookahead(int n) const
 {
-  if (last - first <= n)
+  if (last - curr <= n)
     return 0;
   else
-    return *(first + n);
+    return *(curr + n);
 }
 
 /// Returns the current character and advances the stream.
@@ -148,17 +154,17 @@ lexer::consume()
 {
   if (eof())
     return 0;
-  return *first++;
+  return *curr++;
 }
 
 /// Consume at most n characters.
 inline void
 lexer::consume(int n)
 {
-  if (last - first <= n)
-    first = last;
+  if (last - curr <= n)
+    curr = last;
   else
-    first += n;
+    curr += n;
 }
 
 inline bool
