@@ -11,252 +11,307 @@ namespace icalc {
 
 
 /// Returns the next token in the sequence.
+///
+/// FIXME: Don't simply assert on invalid characters. Diagnose them and 
+/// continue lexing.
 token*
 lexer::next() 
 {
-  while (!eof()) {
-    // Perform an initial check for whitespace, consuming those characters.
-    switch (lookahead()) {
-      case '\n':
-        newline();
-        continue;
-      
-      case ' ':
-      case '\t':
-        space();
-        continue;
-      default:
-        break;
-    }
+  // Reset the symbol buffer.
+  buf.clear();
 
-    // Marks the beginning of non-whitespace characters.
-    start = curr;
-    switch (lookahead()) {
-      // Matches punctuators and operators.
-      case '(': return lparen();
-      case ')': return rparen();
-      case '+': return plus();
-      case '-': return minus();
-      case '*': return star();
-      case '/': return slash();
-      case '%': return percent();
-      case '&': return amp();
-      case '|': return pipe();
-      case '<': return lt();
-      case '>': return gt();
-      case '=': return eq();
-      case '!': return bang();
+  // Ignore whitespace.
+  space();
 
-      case '0': case '1': case '2': case '3': case '4':
-      case '5': case '6': case '7': case '8': case '9':
-        return number();
+  // Match a token.
+  switch (lookahead()) {
+    case '\0': return nullptr;
 
-      case 't': case 'f':
-        // TODO: We could build very precise matches for these keywords.
-        return word();
+    // Matches punctuators and operators.
+    case '(': return lparen();
+    case ')': return rparen();
+    case '+': return plus();
+    case '-': return minus();
+    case '*': return star();
+    case '/': return slash();
+    case '%': return percent();
+    case '&': return amp();
+    case '|': return bar();
+    case '^': return caret();
+    case '~': return tilde();
+    case '<': return lt();
+    case '>': return gt();
+    case '=': return eq();
+    case '!': return bang();
+    case '?': return question();
+    case ':': return colon();
 
-      default: {
-        std::stringstream ss;
-        ss << "invalid character '" << lookahead() << "'";
-        error(ss.str());
-        break;
-      }
+    // Matches digits.
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      return number();
+
+    case 't': case 'f':
+      // TODO: We could build very precise matches for these keywords.
+      return word();
+
+    default: {
+      std::stringstream ss;
+      ss << "invalid character '" << lookahead() << "'";
+      error(ss.str());
+      break;
     }
   }
   return nullptr;
 }
 
-/// Matches horizontal whitespace.
+/// Matches whitespace.
 ///
-///   space -> ' ' | '\t'
+///   space -> ' ' | '\t' | '\n'
 ///
-/// Ignores the space.
+/// This simply ignores the space.
+///
+/// \todo Keep track of the source line.
 void
 lexer::space()
 {
-  consume();
+  while (!eof()) {
+    switch (lookahead()) {
+      case ' ':
+      case '\t':
+      case '\n':
+        ignore();
+        continue;
+      default:
+        return;
+    }
+  }
 }
 
-/// Matches vertical whitespace.
+/// Matches left parenthesis.
 ///
-///   newline -> '\n'
-///
-/// Increments the line count.
-///
-/// \todo Manage the line count.
-void
-lexer::newline()
-{
-  consume();
-}
-
-/// Matches left-parenthesis.
-///
-///   lparen -> '('
+///   lparen-token -> '('
 ///
 /// Returns the corresponding token.
 token*
 lexer::lparen()
 {
   require('(');
-  return make_basic_token(1, lparen_tok);
+  return make_basic_token(lparen_tok);
 }
 
-/// Matches right-parenthesis.
+/// Matches right parenthesis.
 ///
-///   rparen -> '('
+///   rparen-token -> '('
 ///
 /// Returns the corresponding token.
 token*
 lexer::rparen()
 {
   require(')');
-  return make_basic_token(1, rparen_tok);
+  return make_basic_token(rparen_tok);
 }
 
+/// Matches '+' operator.
+///
+///   plus-operator -> '+'
+///
+/// Returns the corresponding token.
 token*
 lexer::plus()
 {
   require('+');
-  return make_basic_token(1, plus_tok);
+  return make_basic_token(plus_tok);
 }
 
+/// Matches '-' operator.
+///
+///   minus-operator -> '-'
+///
+/// Returns the corresponding token.
 token*
 lexer::minus()
 {
   require('-');
-  return make_basic_token(1, minus_tok);
+  return make_basic_token(minus_tok);
 }
 
+/// Matches '*' operator.
+///
+///   star-operator -> '*'
+///
+/// Returns the corresponding token.
 token*
 lexer::star()
 {
   require('*');
-  return make_basic_token(1, star_tok);
+  return make_basic_token(star_tok);
 }
 
+/// Matches '/' operator.
+///
+///   slash-operator -> '/'
+///
+/// Returns the corresponding token.
 token*
 lexer::slash()
 {
   require('/');
-  return make_basic_token(1, slash_tok);
+  return make_basic_token(slash_tok);
 }
 
+/// Matches '%' operator.
+///
+///   percent-operator -> '%'
+///
+/// Returns the corresponding token.
 token*
 lexer::percent()
 {
   require('%');
-  return make_basic_token(1, percent_tok);
+  return make_basic_token(percent_tok);
 }
 
-/// Process a token beginning with an '&'.
+/// Matches '&' or '&&' operators.
+///
+///   amp-operator -> '&'
+///   amp-amp-operator -> '&&'
+///
+/// Returns the corresponding token.
 token* 
 lexer::amp() 
 {
   require('&');
-  if (lookahead() == '&')
-    amp_amp();
-  return make_basic_token(1, amp_tok); 
+  if (match('&'))
+    return make_basic_token(amp_amp_tok);
+  else
+    return make_basic_token(amp_tok);
 }
 
-/// Process the '&&' token.
-token*
-lexer::amp_amp() 
-{
-  require('&');
-  return make_basic_token(2, amp_amp_tok);
-}
-
-/// Process a token beginning with a '|'.
+/// Matches the '|' or '||' operators.
+///
+///   bar-operator -> '|'
+///   bar-bar-operator -> '||'
+///
+/// Returns the corresponding token.
 token* 
-lexer::pipe() 
+lexer::bar() 
 {
   require('|');
-  if (lookahead() == '&')
-    return pipe_pipe();
-  return make_basic_token(1, pipe_tok); 
+  if (match('|'))
+    return make_basic_token(bar_bar_tok);
+  else
+  return make_basic_token(bar_tok); 
 }
 
-/// Process the '||' token.
+/// Matches the '^' operator.
+///
+///   caret-operator -> '^'
+///
+/// Returns the corresponding token.
 token*
-lexer::pipe_pipe() 
+lexer::caret()
 {
-  require('|');
-  return make_basic_token(2, pipe_pipe_tok);
+  require('~');
+  return make_basic_token(tilde_tok);
 }
 
-/// Process a token beginning with a '<'.
+/// Matches the '~' operator.
+///
+///   tilde-operator -> '~'
+///
+/// Returns the corresponding token.
+token*
+lexer::tilde()
+{
+  require('~');
+  return make_basic_token(tilde_tok);
+}
+
+/// Matches the '<' or '<=' operators.
+///
+///   lt-operator -> '<'
+///   lt-eq-operator -> '<='
+///
+/// Returns the corresponding token.
 token* 
 lexer::lt() 
 {
   require('<');
-  if (lookahead() == '=')
-    return lt_eq();
-  return make_basic_token(1, lt_tok); 
+  if (match('='))
+    return make_basic_token(lt_eq_tok);
+  else
+    return make_basic_token(lt_tok); 
 }
 
-/// Process the '<=' token.
-token*
-lexer::lt_eq()
-{
-  require('=');
-  return make_basic_token(2, lt_eq_tok);
-}
-
-/// Process a token beginning with a '>'.
+/// Matches the '>' or '>=' operators.
+///
+///   gt-operator -> '>'
+///   gt-eq-operator -> '>='
+///
+/// Returns the corresponding token.
 token* 
 lexer::gt()
 {
   require('>');
-  if (lookahead() == '=')
-    return gt_eq();
-  return make_basic_token(1, gt_tok); 
+  if (match('='))
+    return make_basic_token(gt_eq_tok);
+  else
+    return make_basic_token(gt_tok); 
 }
 
-/// Process the '>=' token.
-token*
-lexer::gt_eq()
-{
-  require('=');
-  return make_basic_token(2, gt_eq_tok);
-}
-
-/// Process a token beginning with a '='.
+/// Matches the '==' operator.
+///
+///   eq-eq-operator -> '=='
+///
+/// Returns the corresponding token.
 token* 
 lexer::eq() 
 {
   require('=');
-  if (lookahead() == '=')
-    return eq_eq();
+  if (match('='))
+    return make_basic_token(eq_eq_tok);
 
   // FIXME: Add the source location.
   error("expected '=' after '='");
   return nullptr;
 }
 
-/// Process the '==' token.
-token*
-lexer::eq_eq() 
-{
-  require('=');
-  return make_basic_token(2, eq_eq_tok);
-}
 
-/// Process a token beginning with '!'.
+/// Matches the '!' or '!=' operators.
+///
+///   bang-operator -> '!'
+///   bang-eq-operator -> '!='
+///
+/// Returns the corresponding token.
 token*
 lexer::bang()
 {
   require('!');
-  if (lookahead() == '=')
-    return bang_eq();
-  return make_basic_token(1, bang_tok);
+  if (match('='))
+    return make_basic_token(bang_eq_tok);
+  else
+    return make_basic_token(bang_tok);
 }
 
+/// Match the '?' token.
+///
+///   question -> '?'
 token*
-lexer::bang_eq()
+lexer::question()
 {
-  require('=');
-  return make_basic_token(2, bang_eq_tok);
+  require('?');
+  return make_basic_token(question_tok);
+}
+
+/// Match the ':' token.
+///
+///   colon -> ':'
+token*
+lexer::colon()
+{
+  require(':');
+  return make_basic_token(colon_tok);
 }
 
 /// Consumes the lookahead if it is a letter and returns true. Returns
@@ -289,22 +344,21 @@ lexer::ident()
   });
 }
 
-/// Match an identifier or keyword in the language.
+/// Match a boolean literal.
+///
+///   boolean-literal -> 'true' | 'false'
+///
+/// TODO: This is way more general then we need it to be.
 token*
 lexer::word()
 {
-  // Match the characters in the word.
   consume();
   while (!eof() && ident())
     ;
 
-  // Determine if the identifier is a reserved word.
-  //
-  // TODO: Use a keyword hash table for full generality.
-  std::string str(start, curr);
-  if (str == "true")
+  if (buf == "true")
     return make<bool_token>(bool_tok, true);
-  if (str == "false")
+  if (buf == "false")
     return make<bool_token>(bool_tok, false);
 
   // FIXME: Use a better error.
@@ -312,14 +366,20 @@ lexer::word()
   return nullptr;
 }
 
+/// Matches an integer value.
+///
+///   integer-literal -> digit digit*
+///
+///   digit -> '0' | '1' | ... | '9'
+///
+/// Returns the corresponding token.
 token*
 lexer::number()
 {
   consume();
   while (!eof() && digit())
     ;
-  std::string val(start, curr);
-  return make<int_token>(int_tok, std::stoi(val));
+  return make<int_token>(int_tok, std::stoi(buf));
 }
 
 /// Throws lexical error exception with the given message.

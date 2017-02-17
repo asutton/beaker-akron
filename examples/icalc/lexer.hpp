@@ -28,8 +28,9 @@ enum token_kind
   slash_tok,
   percent_tok,
   amp_tok,
-  pipe_tok,
+  bar_tok,
   caret_tok,
+  tilde_tok,
 
   eq_eq_tok,
   bang_eq_tok,
@@ -39,8 +40,11 @@ enum token_kind
   gt_eq_tok,
 
   amp_amp_tok,
-  pipe_pipe_tok,
+  bar_bar_tok,
   bang_tok,
+
+  question_tok,
+  colon_tok,
 
   bool_tok,
   int_tok,
@@ -54,7 +58,7 @@ enum token_kind
 struct lexer : token_store
 {
   lexer(const char* f, const char* l)
-    : start(nullptr), curr(f), last(l)
+    : curr(f), last(l)
   { }
   
   token* next();
@@ -65,6 +69,8 @@ struct lexer : token_store
   char lookahead(int) const;
   char consume();
   void consume(int);
+  char ignore();
+  void ignore(int);
 
   // Token constructors
   
@@ -73,13 +79,12 @@ struct lexer : token_store
   /// \todo The 'n' refers to the number of characters the token occupies.
   /// Note that the lookahead is always pointing at the last character in
   /// the lexeme.
-  token *make_basic_token(int n, int k) 
+  token *make_basic_token(int k) 
   {
     return make<basic_token>(k);
   }
 
   void space();
-  void newline();
 
   token* lparen();
   token* rparen();
@@ -90,8 +95,9 @@ struct lexer : token_store
   token* slash();
   token* percent();
   token* amp();
-  token* pipe();
+  token* bar();
   token* caret();
+  token* tilde();
   
   token* eq();
   token* eq_eq();
@@ -100,9 +106,10 @@ struct lexer : token_store
   token* gt();
   token* lt_eq();
   token* gt_eq();
-  token* pipe_pipe();
-  token* amp_amp();
   token* bang();
+
+  token* question();
+  token* colon();
 
   token* word();
   token* number();
@@ -120,9 +127,9 @@ struct lexer : token_store
   bool digit();
   bool ident();
 
-  const char* start; // The start of a token.
   const char* curr;  // The current character.
   const char* last;  // Past the last character.
+  std::string buf;   // The text of the current symbol.
 };
 
 /// Returns true if the stream is at its end.
@@ -148,18 +155,42 @@ lexer::lookahead(int n) const
     return *(curr + n);
 }
 
-/// Returns the current character and advances the stream.
+/// Buffers and returns the current character. Advances the stream.
 inline char
 lexer::consume()
+{
+  if (eof())
+    return 0;
+  buf += *curr++;
+  return buf.back();
+}
+
+/// Ingores the current character and advances the stream.
+inline char
+lexer::ignore()
 {
   if (eof())
     return 0;
   return *curr++;
 }
 
-/// Consume at most n characters.
+/// Buffers at most n characters and advances the stream.
 inline void
 lexer::consume(int n)
+{
+  if (last - curr <= n) {
+    buf.append(curr, last);
+    curr = last;
+  }
+  else {
+    buf.append(curr, curr + n);
+    curr += n;
+  }
+}
+
+/// Ignore at most n characters.
+inline void
+lexer::ignore(int n)
 {
   if (last - curr <= n)
     curr = last;

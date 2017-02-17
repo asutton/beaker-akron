@@ -20,51 +20,75 @@ namespace icalc {
 struct parser
 {
   parser(builder& b, token** f, token** l)
-    : build(b), first(f), last(l)
+    : build(b), curr(f), last(l)
   { }
 
   // Stream control
   bool eof() const;
-  token* lookahead() const;
-  token* lookahead(int) const;
+  int lookahead() const;
+  int lookahead(int) const;
   token* match(int);
   token* require(int);
   token* consume();
   void consume(int);
 
+  int next_token() const;
   bool next_token_is(int) const;
   bool next_token_is_not(int) const;
 
   // Grammar productions
   expr& expression();
-
+  expr& conditional_expression();
+  expr& logical_or_expression();
+  expr& logical_and_expression();
+  expr& bitwise_or_expression();
+  expr& bitwise_xor_expression();
+  expr& bitwise_and_expression();
+  expr& equality_expression();
+  expr& relational_expression();
+  expr& additive_expression();
+  expr& multiplicative_expression();
+  expr& unary_expression();
   expr& primary_expression();
   expr& boolean_literal();
   expr& integer_literal();
-  expr& grouped_expression();
+
+  // Semantics
+  expr& on_condition(expr&, token*, expr&, token*, expr&);
+  expr& on_logical_or(expr&, token*, expr&);
+
+  expr& on_negation(token*, expr&);
+  expr& on_bitwise_not(token*, expr&);
+  expr& on_logical_not(token*, expr&);
+
+  expr& on_boolean_literal(token*);
+  expr& on_integer_literal(token*);
 
   builder& build;
-  token** first;
+  token** curr;
   token** last;
 };
 
 /// Returns true if the at the end of input.
-inline bool parser::eof() const { return first == last; }
+inline bool parser::eof() const { return curr == last; }
 
 /// Returns the current lookahead token.
-inline token* 
+inline int
 parser::lookahead() const
 {
-  return *first;
+  if (eof())
+    return eof_tok;
+  else
+    return (*curr)->get_kind();
 }
 
 /// Consumes the current lookahead token.
 inline token*
 parser::consume()
 {
-  if (first == last)
+  if (curr == last)
     return nullptr;
-  return *first++;
+  return *curr++;
 }
 
 /// Returns true if the next token has kind `k`.
@@ -74,7 +98,7 @@ parser::next_token_is(int k) const
   if (eof())
     return false;
   else
-    return lookahead()->get_kind() == k;
+    return lookahead() == k;
 }
 
 /// Return true if the next token is not `k`.
