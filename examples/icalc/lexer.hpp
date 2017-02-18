@@ -17,42 +17,15 @@ namespace icalc {
 
 using beaker::token;
 
-
 // Kinds of tokens.
 enum token_kind 
 {
-  eof_tok,
-
-  lparen_tok,
-  rparen_tok,
-  
-  plus_tok,
-  minus_tok,
-  star_tok,
-  slash_tok,
-  percent_tok,
-  amp_tok,
-  bar_tok,
-  caret_tok,
-  tilde_tok,
-
-  eq_eq_tok,
-  bang_eq_tok,
-  lt_tok,
-  gt_tok,
-  lt_eq_tok,
-  gt_eq_tok,
-
-  amp_amp_tok,
-  bar_bar_tok,
-  bang_tok,
-
-  question_tok,
-  colon_tok,
-
-  bool_tok,
-  int_tok,
+#define def_token(T) T ## _tok,
+#include "token.def"
 };
+
+const char* get_token_name(int);
+const char* get_token_name(const token&);
 
 
 /// The lexer is responsible for transforming a sequence of characters into

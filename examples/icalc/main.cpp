@@ -28,7 +28,7 @@ main()
     icalc::lexer lex(ss);
     beaker::token_seq toks;
     while (beaker::token tok = lex()) {
-      std::cout << tok.get_kind() << '\n';
+      std::cout << icalc::get_token_name(tok) << '\n';
       toks.push_back(tok);
     }
 
