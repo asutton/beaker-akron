@@ -4,7 +4,10 @@
 #include "evaluate.hpp"
 #include "../type.hpp"
 #include "../expr.hpp"
+
 #include <beaker/base/printing/print.hpp>
+
+#include <iostream>
 
 
 namespace beaker {
@@ -120,8 +123,9 @@ template<typename T>
 static value
 sub_overflow(evaluator& eval, const sub_expr& e, const T& t)
 {
-  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
-  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  using int_t = typename T::rep_type;
+  int_t a = evaluate(eval, e.get_lhs()).get_int();
+  int_t b = evaluate(eval, e.get_rhs()).get_int();
   if (a < t.min() + b)
     throw overflow_error(e);
   return value(a - b);
@@ -268,14 +272,38 @@ evaluate(evaluator& eval, const sys_int::quo_expr& e)
 // -------------------------------------------------------------------------- //
 // Remainder
 
-value
-evaluate(evaluator& eval, const sys_int::rem_expr& e)
+namespace sys_int {
+
+template<typename T>
+static value
+rem(evaluator& eval, const rem_expr& e, const T& t)
 {
-  std::uintmax_t a = evaluate(eval, e.get_lhs()).get_int();
-  std::uintmax_t b = evaluate(eval, e.get_rhs()).get_int();
+  using int_t = typename T::rep_type;
+  int_t a = evaluate(eval, e.get_lhs()).get_int();
+  int_t b = evaluate(eval, e.get_rhs()).get_int();
   if (b == 0)
     throw sys_int::division_error(e);
   return value(a % b);
+}
+
+value
+evaluate(evaluator& eval, const rem_expr& e)
+{
+  const type& t = e.get_type();
+  switch (t.get_kind()) {
+    case nat_type_kind: return rem(eval, e, cast<nat_type>(t));
+    case int_type_kind: return rem(eval, e, cast<int_type>(t));
+    case mod_type_kind: return rem(eval, e, cast<mod_type>(t));
+  }
+  assert(false && "not an integer expression");
+}
+
+} // namespace sys_int
+
+value
+evaluate(evaluator& eval, const sys_int::rem_expr& e)
+{
+  return sys_int::evaluate(eval, e);
 }
 
 
