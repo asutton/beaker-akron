@@ -3,7 +3,7 @@
 
 #include "lang.hpp"
 #include "lexer.hpp"
-#include "parser.hpp"
+// #include "parser.hpp"
 
 #include <beaker/base/printing/print.hpp>
 
@@ -23,10 +23,12 @@ main()
     if (line.empty())
       continue;
     
-    std::vector<icalc::token*> toks;
-    icalc::lexer lex(line.c_str(), line.c_str() + line.size());
-    while (icalc::token* tok = lex.next()) {
-      std::cout << tok->get_kind() << '\n';
+    // Lex all of the tokens into a buffer.
+    auto ss = beaker::make_stream(line);
+    icalc::lexer lex(ss);
+    beaker::token_seq toks;
+    while (beaker::token tok = lex()) {
+      std::cout << tok.get_kind() << '\n';
       toks.push_back(tok);
     }
 

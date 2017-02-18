@@ -3,12 +3,8 @@
 
 #include "token.hpp"
 
-namespace icalc {
-
-token_store::~token_store()
+namespace beaker
 {
-  for (token* p : *this)
-    delete p;
-}
 
-} // namespace icalc
+
+} // namespace beaker

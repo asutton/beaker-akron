@@ -4,6 +4,7 @@
 #ifndef ICALC_LEXER_HPP
 #define ICALC_LEXER_HPP
 
+#include "stream.hpp"
 #include "token.hpp"
 
 #include <cassert>
@@ -13,6 +14,9 @@
 
 
 namespace icalc {
+
+using beaker::token;
+
 
 // Kinds of tokens.
 enum token_kind 
@@ -52,16 +56,15 @@ enum token_kind
 
 
 /// The lexer is responsible for transforming a sequence of characters into
-/// a sequence of tokens.
-///
-/// \todo This needs to be a token store.
-struct lexer : token_store
+/// a sequence of tokens. This is designed as a function object; calling
+/// the function yields the next token.
+struct lexer
 {
-  lexer(const char* f, const char* l)
-    : curr(f), last(l)
-  { }
+  using stream_type = beaker::input_stream<char>;
+
+  lexer(stream_type& s) : cs(s) { }
   
-  token* next();
+  token operator()();
 
   // Stream manipulation
   bool eof() const;
@@ -69,50 +72,31 @@ struct lexer : token_store
   char lookahead(int) const;
   char consume();
   void consume(int);
-  char ignore();
+  void ignore();
   void ignore(int);
 
   // Token constructors
-  
-  /// Make an token over a sequence of characters. Consume the current token.
-  ///
-  /// \todo The 'n' refers to the number of characters the token occupies.
-  /// Note that the lookahead is always pointing at the last character in
-  /// the lexeme.
-  token *make_basic_token(int k) 
-  {
-    return make<basic_token>(k);
-  }
-
   void space();
-
-  token* lparen();
-  token* rparen();
-  
-  token* plus();
-  token* minus();
-  token* star();
-  token* slash();
-  token* percent();
-  token* amp();
-  token* bar();
-  token* caret();
-  token* tilde();
-  
-  token* eq();
-  token* eq_eq();
-  token* bang_eq();
-  token* lt();
-  token* gt();
-  token* lt_eq();
-  token* gt_eq();
-  token* bang();
-
-  token* question();
-  token* colon();
-
-  token* word();
-  token* number();
+  token end();
+  token lparen();
+  token rparen();
+  token plus();
+  token minus();
+  token star();
+  token slash();
+  token percent();
+  token amp();
+  token bar();
+  token caret();
+  token tilde();
+  token eq();
+  token lt();
+  token gt();
+  token bang();
+  token question();
+  token colon();
+  token word();
+  token number();
 
   void error(const std::string&);
 
@@ -127,77 +111,47 @@ struct lexer : token_store
   bool digit();
   bool ident();
 
-  const char* curr;  // The current character.
-  const char* last;  // Past the last character.
-  std::string buf;   // The text of the current symbol.
+  stream_type& cs; // The underlying character stream.
+  std::string buf; // The text of the current symbol.
 };
 
 /// Returns true if the stream is at its end.
-inline bool lexer::eof() const { return curr == last; }
+inline bool lexer::eof() const { return cs.eof(); }
 
 /// Returns the lookahead character.
-inline char 
-lexer::lookahead() const
-{
-  if (eof())
-    return 0;
-  else
-    return *curr;
-}
+inline char lexer::lookahead() const { return cs.peek(); }
 
 /// Returns the nth character past the lookahead.
-inline char
-lexer::lookahead(int n) const
-{
-  if (last - curr <= n)
-    return 0;
-  else
-    return *(curr + n);
-}
+inline char lexer::lookahead(int n) const { return cs.peek(n); }
 
 /// Buffers and returns the current character. Advances the stream.
-inline char
-lexer::consume()
+inline char lexer::consume()
 {
   if (eof())
     return 0;
-  buf += *curr++;
-  return buf.back();
-}
-
-/// Ingores the current character and advances the stream.
-inline char
-lexer::ignore()
-{
-  if (eof())
-    return 0;
-  return *curr++;
+  char c = cs.get();
+  buf += c;
+  return c;
 }
 
 /// Buffers at most n characters and advances the stream.
 inline void
 lexer::consume(int n)
 {
-  if (last - curr <= n) {
-    buf.append(curr, last);
-    curr = last;
-  }
-  else {
-    buf.append(curr, curr + n);
-    curr += n;
+  while (!eof() && n) {
+    buf += cs.get();
+    --n;
   }
 }
+
+/// Ignores the current character and advances the stream.
+inline void lexer::ignore() { cs.ignore(); }
 
 /// Ignore at most n characters.
-inline void
-lexer::ignore(int n)
-{
-  if (last - curr <= n)
-    curr = last;
-  else
-    curr += n;
-}
+inline void lexer::ignore(int n) { cs.ignore(n); }
 
+/// If the lookead is equal to `c`, this consumes the token and returns true. 
+/// Otherwise, returns false without advancing.
 inline bool
 lexer::match(char c)
 {
@@ -208,6 +162,8 @@ lexer::match(char c)
   return false;
 }
 
+/// If the lookead satisfies `pred`, this consumes the token and returns true. 
+/// Otherwise, returns false without advancing.
 template<typename P>
 inline bool
 lexer::match_if(P pred)

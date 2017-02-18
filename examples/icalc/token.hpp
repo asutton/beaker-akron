@@ -4,62 +4,145 @@
 #ifndef ICALC_TOKEN_HPP
 #define ICALC_TOKEN_HPP
 
-#include <list>
+#include <vector>
+#include <memory>
 
 
-namespace icalc {
+namespace beaker {
 
-struct token;
-
-/// Provides storage for token lists.
+/// Represents an abstract symbol in the source language. A token is defined
+/// by its kind (an integer value) and an optional attribute. 
 ///
-/// \todo Use a better allocator.
-struct token_store : std::list<token*>
-{
-  ~token_store();
-
-  template<typename T, typename... Args>
-  T* make(Args&&... args)
-  {
-    T* tok = new T(std::forward<Args>(args)...);
-    push_back(tok);
-    return tok;
-  }
-};
-
-
-/// Represents an abstract symbol in the source language.
+/// Note that the token kind 0 is reserved for an invalid token. This could be
+/// used to indicate end-of-file or some other condition.
+///
+/// \todo Define == for tokens? This requires another virtual function on the
+/// attribute type.
+///
+/// \todo Consider using type erasure or std::any to store attributes. That
+/// would eliminate the need for a base class and let us store practically
+/// anything as an attribute of the token.
 struct token
 {
+  /// The base class of all token attributes. Certain kinds of tokens have
+  /// attributes of different types. Note that there is a 1-to-1 correspondence
+  /// between the token kind and the derived type of the attribute class.
+  struct attr 
+  {
+    virtual ~attr() = default;
+    virtual attr* clone() const = 0;
+  };
+
+  static constexpr int invalid = 0;
+  
+private:
   explicit token(int);
-  virtual ~token() { }
+  token(int, attr*);
+
+public:
+  token(const token&);
+  token(token&&);
+
+  token& operator=(const token&);
+  token& operator=(token&&);
+
+  static token make(int);
+
+  template<typename T, typename... Args>
+  static token make(int, Args&&...);
+
+  explicit operator bool() const;
 
   int get_kind() const;
+
+  bool has_attribute() const;
+  const attr& get_attribute() const;
+  attr& get_attribute();
   
   int kind_;
+  std::unique_ptr<attr> attr_;
 };
 
-inline token::token(int k)
-  : kind_(k)
+/// Initialize a non-attributed token of kind `k`.
+inline token::token(int k) : token(k, nullptr) { }
+
+/// Initialize an attributed token of kind `k`.
+inline token::token(int k, attr* a) : kind_(k), attr_(a) { }
+
+/// Initialize this token as a copy of `tok`.
+inline 
+token::token(const token& tok) 
+  : kind_(tok.kind_), attr_(tok.attr_ ? tok.attr_->clone() : nullptr)
 { }
+
+/// Initialize this token to assume the value of `tok`.
+inline
+token::token(token&& tok)
+  : kind_(tok.kind_), attr_(std::move(tok.attr_))
+{ }
+
+/// Assign this token to be a copy of `tok`.
+inline token& 
+token::operator=(const token& tok)
+{
+  kind_ = tok.kind_;
+  attr_.reset(tok.attr_->clone());
+  return *this;
+}
+
+/// Assign this token to assume the value of `tok`.
+inline token& 
+token::operator=(token&& tok)
+{
+  kind_ = tok.kind_;
+  attr_ = std::move(tok.attr_);
+  return *this;
+}
+
+/// Converts to true when the token is not the end-of-file token.
+inline token::operator bool() const { return kind_ != invalid; }
 
 /// Returns the token's kind.
 inline int token::get_kind() const { return kind_; }
 
+/// Returns true if the token has an associated attribute.
+inline bool token::has_attribute() const { return (bool)attr_; }
 
-/// Basic tokens have are simple symbols in the language; they have no
-/// additional attributes.
-struct basic_token : token
+/// Returns the token's associated attribute.
+inline const token::attr& token::get_attribute() const { return *attr_; }
+
+/// Returns the token's associated attribute.
+inline token::attr& token::get_attribute() { return *attr_; }
+
+/// Returns a new token with no attribute.
+inline token
+token::make(int k)
 {
-  using token::token;
-};
+  return token(k);
+}
 
-/// A token whose attribute is a built-in value. This is a helper class for
+/// Returns a new token with an attribute of type T, initialized with the
+/// given arguments.
+template<typename T, typename... Args>
+inline token
+token::make(int k, Args&&... args)
+{
+  return token(k, new T(std::forward<Args>(args)...));
+}
+
+
+// -------------------------------------------------------------------------- //
+// Token ttributes
+
+/// A token attribute that holds particular value. This is a helper class for
 /// other kinds of tokens.
 template<typename T>
-struct literal_token : token
+struct value_attr : token::attr
 {
-  literal_token(int, T);
+  value_attr(T);
+  ~value_attr() = default;
+
+  value_attr* clone() const override;
 
   T get_value() const;
   
@@ -67,27 +150,33 @@ struct literal_token : token
 };
 
 template<typename T>
-inline literal_token<T>::literal_token(int k, T v) : token(k), value_(v) { }
+inline value_attr<T>::value_attr(T v) : value_(v) { }
 
 template<typename T>
-inline T literal_token<T>::get_value() const { return value_; }
+inline value_attr<T>* value_attr<T>::clone() const { return new value_attr<T>(*this); }
+
+template<typename T>
+inline T value_attr<T>::get_value() const { return value_; }
 
 
-/// Represents the boolean tokens `true` and `false`.
-struct bool_token : literal_token<bool>
-{
-  using literal_token<bool>::literal_token;
-};
+/// Represents the value of boolean literal.
+using bool_attr = value_attr<bool>;
 
 
-/// Represents the tokens of integer literals.
-struct int_token : literal_token<int>
-{
-  using literal_token<int>::literal_token;
-};
+/// Represents the value of integer literals.
+using int_attr = value_attr<int>;
 
 
-} // namespace icalc
+// -------------------------------------------------------------------------- //
+// Token strings
+
+/// A string of tokens.
+///
+/// \todo Actually use std::string?
+using token_seq = std::vector<token>;
+
+} // namespace beaker
+
 
 #endif
 

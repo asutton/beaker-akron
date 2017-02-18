@@ -19,7 +19,7 @@ namespace icalc {
 /// context that binds a default builder, module, and language object.)
 struct parser
 {
-  parser(builder& b, token** f, token** l)
+  parser(builder& b, token* f, token* l)
     : build(b), curr(f), last(l)
   { }
 
@@ -27,9 +27,9 @@ struct parser
   bool eof() const;
   int lookahead() const;
   int lookahead(int) const;
-  token* match(int);
-  token* require(int);
-  token* consume();
+  token match(int);
+  token require(int);
+  token consume();
   void consume(int);
 
   int next_token() const;
@@ -54,19 +54,19 @@ struct parser
   expr& integer_literal();
 
   // Semantics
-  expr& on_condition(expr&, token*, expr&, token*, expr&);
-  expr& on_logical_or(expr&, token*, expr&);
+  expr& on_condition(expr&, token, expr&, token, expr&);
+  expr& on_logical_or(expr&, token, expr&);
 
-  expr& on_negation(token*, expr&);
-  expr& on_bitwise_not(token*, expr&);
-  expr& on_logical_not(token*, expr&);
+  expr& on_negation(token, expr&);
+  expr& on_bitwise_not(token, expr&);
+  expr& on_logical_not(token, expr&);
 
-  expr& on_boolean_literal(token*);
-  expr& on_integer_literal(token*);
+  expr& on_boolean_literal(token);
+  expr& on_integer_literal(token);
 
   builder& build;
-  token** curr;
-  token** last;
+  token* curr;
+  token* last;
 };
 
 /// Returns true if the at the end of input.
@@ -83,7 +83,7 @@ parser::lookahead() const
 }
 
 /// Consumes the current lookahead token.
-inline token*
+inline token
 parser::consume()
 {
   if (curr == last)
