@@ -10,20 +10,22 @@
 namespace icalc {
 
 /// Optionally consume a token of kind k.
-token*
-parser::match(int k)
+token
+parser::accept(int k)
 {
   if (next_token_is(k))
     return consume();
   else
-    return nullptr;
+    return {};
 }
 
-// Require that a token to be consumed has kind k.
-token*
-parser::require(int k)
+/// Require that a token to be consumed has kind k.
+///
+/// \todo Print the expected symbol's name.
+token
+parser::expect(int k)
 {
-  if (token* tok = match(k))
+  if (token tok = accept(k))
     return tok;
   else
     throw std::runtime_error("parse error");
@@ -46,11 +48,11 @@ expr&
 parser::conditional_expression()
 {
   expr& e1 = logical_or_expression();
-  if (token* q = match(question_tok)) {
+  if (token q = accept(question_tok)) {
     expr& e2 = expression();
-    token* c = require(colon_tok);
+    token c = expect(colon_tok);
     expr& e3 = expression();
-    return on_condition(e1, q, e2, c, e3);
+    return act.on_condition(e1, q, e2, c, e3);
   }
   return e1;
 }
@@ -64,64 +66,210 @@ parser::logical_or_expression()
 {
   expr* e1 = &logical_and_expression();
   while (true) {
-    if (token* tok = match(bar_bar_tok)) {
+    if (token tok = accept(bar_bar_tok)) {
       expr* e2 = &logical_and_expression();
-      e1 = &on_logical_or(*e1, tok, *e2);
+      e1 = &act.on_logical_or(*e1, tok, *e2);
     }
     else {
-      // FIXME: Isn't this an error?
       break;
     }
   }
   return *e1;
 }
 
+/// Parse a logical-and expression.
+///
+///   logical-and-expression -> bitwise-or-expression
+///                           | logical-and-expression '&&' bitwise-or-expression
 expr&
 parser::logical_and_expression()
 {
-  return unary_expression();
+  expr* e1 = &bitwise_or_expression();
+  while (true) {
+    if (token tok = accept(bar_bar_tok)) {
+      expr* e2 = &bitwise_or_expression();
+      e1 = &act.on_logical_and(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse a bitwise-or expression.
+///
+///   bitwise-or-expression -> bitwise-xor-expression
+///                          | bitwise-or-expression '|' bitwise-xor-expression
 expr&
 parser::bitwise_or_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &bitwise_xor_expression();
+  while (true) {
+    if (token tok = accept(bar_tok)) {
+      expr* e2 = &bitwise_xor_expression();
+      e1 = &act.on_bitwise_or(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse a bitwise-xor expression.
+///
+///   bitwise-xor-expression -> bitwise-and-expression
+///                           | bitwise-xor-expression '^' bitwise-and-expression
 expr&
 parser::bitwise_xor_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &bitwise_and_expression();
+  while (true) {
+    if (token tok = accept(caret_tok)) {
+      expr* e2 = &bitwise_and_expression();
+      e1 = &act.on_bitwise_xor(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse a bitwise-and expression.
+///
+///   bitwise-and-expression -> equality-expression
+///                           | bitwise-and-expression '||' equality-expression
 expr&
 parser::bitwise_and_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &equality_expression();
+  while (true) {
+    if (token tok = accept(bar_tok)) {
+      expr* e2 = &equality_expression();
+      e1 = &act.on_bitwise_xor(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse an equality-expression.
+///
+///   equality-expression -> relational-expression
+///                        | equality-expression '==' relational-expression
+///                        | equality-expression '!=' relational-expression
 expr&
 parser::equality_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &relational_expression();
+  while (true) {
+    if (token tok = accept(eq_eq_tok)) {
+      expr* e2 = &relational_expression();
+      e1 = &act.on_equal(*e1, tok, *e2);
+    }
+    if (token tok = accept(bang_eq_tok)) {
+      expr* e2 = &relational_expression();
+      e1 = &act.on_not_equal(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse an relational-expression.
+///
+///   relational-expression -> additive-expression
+///                          | relational-expression '<' additive-expression
+///                          | relational-expression '>' additive-expression
+///                          | relational-expression '<=' additive-expression
+///                          | relational-expression '>=' additive-expression
 expr& 
 parser::relational_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &additive_expression();
+  while (true) {
+    if (token tok = accept(lt_tok)) {
+      expr* e2 = &additive_expression();
+      e1 = &act.on_less(*e1, tok, *e2);
+    }
+    if (token tok = accept(gt_tok)) {
+      expr* e2 = &additive_expression();
+      e1 = &act.on_greater(*e1, tok, *e2);
+    }
+    if (token tok = accept(lt_eq_tok)) {
+      expr* e2 = &additive_expression();
+      e1 = &act.on_less_equal(*e1, tok, *e2);
+    }
+    if (token tok = accept(gt_eq_tok)) {
+      expr* e2 = &additive_expression();
+      e1 = &act.on_greater_equal(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse an additive-expression.
+///
+///   additive-expression -> multiplicative-expression
+///                        | additive-expression '+' multiplicative-expression
+///                        | additive-expression '-' multiplicative-expression
 expr&
 parser::additive_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &multiplicative_expression();
+  while (true) {
+    if (token tok = accept(plus_tok)) {
+      expr* e2 = &multiplicative_expression();
+      e1 = &act.on_addition(*e1, tok, *e2);
+    }
+    if (token tok = accept(minus_tok)) {
+      expr* e2 = &multiplicative_expression();
+      e1 = &act.on_subtraction(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
+/// Parse an equality-expression.
+///
+///   multiplicative-expression -> unary-expression
+///                              | multiplicative-expression '*' unary-expression
+///                              | multiplicative-expression '/' unary-expression
+///                              | multiplicative-expression '%' unary-expression
 expr&
 parser::multiplicative_expression()
 {
-  assert(false && "not implemented");
+  expr* e1 = &unary_expression();
+  while (true) {
+    if (token tok = accept(star_tok)) {
+      expr* e2 = &unary_expression();
+      e1 = &act.on_multiplication(*e1, tok, *e2);
+    }
+    if (token tok = accept(slash_tok)) {
+      expr* e2 = &unary_expression();
+      e1 = &act.on_division(*e1, tok, *e2);
+    }
+    if (token tok = accept(percent_tok)) {
+      expr* e2 = &unary_expression();
+      e1 = &act.on_remainder(*e1, tok, *e2);
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
 /// Parse a unary expression.
@@ -137,14 +285,19 @@ parser::unary_expression()
 {
   switch (lookahead()) {
     case minus_tok: {
-      token* op = consume();
+      token op = consume();
       expr& e = unary_expression();
-      return on_negation(op, e);
+      return act.on_negation(op, e);
     }
     case bang_tok: {
-      token* op = consume();
+      token op = consume();
       expr& e = unary_expression();
-      return on_logical_not(op, e);
+      return act.on_logical_not(op, e);
+    }    
+    case tilde_tok: {
+      token op = consume();
+      expr& e = unary_expression();
+      return act.on_bitwise_not(op, e);
     }    
     default:
       break;
@@ -168,9 +321,9 @@ parser::primary_expression()
     case int_tok:
       return integer_literal();
     case lparen_tok: {
-      require(lparen_tok);
+      expect(lparen_tok);
       expr& e = expression();
-      require(rparen_tok);
+      expect(rparen_tok);
       return e;
     }
     default:
@@ -185,7 +338,7 @@ parser::primary_expression()
 expr&
 parser::boolean_literal()
 {
-  return on_boolean_literal(consume());
+  return act.on_bool(consume());
 }
 
 /// Parses a boolean literal.
@@ -194,51 +347,7 @@ parser::boolean_literal()
 expr&
 parser::integer_literal()
 {
-  return on_integer_literal(consume());
-}
-
-// -------------------------------------------------------------------------- //
-// Semantics
-
-expr&
-parser::on_condition(expr& e1, token* q, expr& e2, token* c, expr& e3)
-{
-  return build.make_if_expr(e1, e2, e3);
-}
-
-expr&
-parser::on_logical_or(expr& e1, token* tok, expr& e2)
-{
-  return build.make_or_else_expr(e1, e2);
-}
-
-expr&
-parser::on_negation(token* tok, expr& e1)
-{
-  return build.make_neg_expr(e1);
-}
-
-expr&
-parser::on_logical_not(token* tok, expr& e1)
-{
-  return build.make_neg_expr(e1);
-}
-
-expr&
-parser::on_boolean_literal(token* tok)
-{
-  bool_token* tok1 = static_cast<bool_token*>(tok);
-  if (tok1->get_value())
-    return build.make_true_expr();
-  else
-    return build.make_false_expr();
-}
-
-expr&
-parser::on_integer_literal(token* tok)
-{
-  int_token* tok1 = static_cast<int_token*>(tok);
-  return build.make_int_expr(build.get_int32_type(), tok1->get_value());
+  return act.on_int(consume());
 }
 
 } // namespace icalc

@@ -3,7 +3,7 @@
 
 #include "lang.hpp"
 #include "lexer.hpp"
-// #include "parser.hpp"
+#include "parser.hpp"
 
 #include <beaker/base/printing/print.hpp>
 
@@ -27,10 +27,15 @@ main()
     auto ss = beaker::make_stream(line);
     icalc::lexer lex(ss);
     beaker::token_seq toks;
-    while (beaker::token tok = lex()) {
-      std::cout << icalc::get_token_name(tok) << '\n';
+    while (beaker::token tok = lex())
       toks.push_back(tok);
-    }
+
+    auto ts = beaker::make_stream(toks);
+    icalc::builder build(mod);
+    icalc::parser parse(ts, build);
+    auto& e = parse.expression();
+
+    print(lang, e);
 
     // icalc::builder build(mod);
     // icalc::parser parse(build, toks.data(), toks.data() + toks.size());

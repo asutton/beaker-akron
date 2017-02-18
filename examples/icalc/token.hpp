@@ -13,8 +13,8 @@ namespace beaker {
 /// Represents an abstract symbol in the source language. A token is defined
 /// by its kind (an integer value) and an optional attribute. 
 ///
-/// Note that the token kind 0 is reserved for an invalid token. This could be
-/// used to indicate end-of-file or some other condition.
+/// Note that the token kind 0 is reserved for a null token. This is typically
+/// used to represent the end-of-input.
 ///
 /// \todo Define == for tokens? This requires another virtual function on the
 /// attribute type.
@@ -33,13 +33,14 @@ struct token
     virtual attr* clone() const = 0;
   };
 
-  static constexpr int invalid = 0;
+  static constexpr int null = 0;
   
 private:
   explicit token(int);
   token(int, attr*);
 
 public:
+  token();
   token(const token&);
   token(token&&);
 
@@ -62,6 +63,9 @@ public:
   int kind_;
   std::unique_ptr<attr> attr_;
 };
+
+/// Initialize a null token.
+inline token::token() : token(null) { }
 
 /// Initialize a non-attributed token of kind `k`.
 inline token::token(int k) : token(k, nullptr) { }
@@ -100,7 +104,7 @@ token::operator=(token&& tok)
 }
 
 /// Converts to true when the token is not the end-of-file token.
-inline token::operator bool() const { return kind_ != invalid; }
+inline token::operator bool() const { return kind_ != null; }
 
 /// Returns the token's kind.
 inline int token::get_kind() const { return kind_; }
@@ -166,6 +170,22 @@ using bool_attr = value_attr<bool>;
 /// Represents the value of integer literals.
 using int_attr = value_attr<int>;
 
+
+/// Returns the boolean attribute for a token. Behavior is undefined if the
+/// token does not have an attribute of that kind.
+inline const bool_attr& 
+get_bool_attribute(const token& tok)
+{
+  return static_cast<const bool_attr&>(tok.get_attribute());
+}
+
+/// Returns the boolean attribute for a token. Behavior is undefined if the
+/// token does not have an attribute of that kind.
+inline const int_attr& 
+get_int_attribute(const token& tok)
+{
+  return static_cast<const int_attr&>(tok.get_attribute());
+}
 
 // -------------------------------------------------------------------------- //
 // Token strings

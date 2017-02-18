@@ -6,12 +6,12 @@
 
 #include "lang.hpp"
 #include "lexer.hpp"
+#include "semantics.hpp"
+
 
 namespace icalc {
 
-/// Parsers a sequence of tokens to produce a tree.
-///
-/// \todo The tokens (and pointers to them) should be non-modifiable.
+/// Parses a sequence of tokens to produce a tree.
 ///
 /// \todo Factor semantic actions out of the parser? It's not strictly 
 /// necessary, but it does help keep the implementation clean. Also, we could
@@ -19,20 +19,21 @@ namespace icalc {
 /// context that binds a default builder, module, and language object.)
 struct parser
 {
-  parser(builder& b, token* f, token* l)
-    : build(b), curr(f), last(l)
-  { }
+  using stream_type = beaker::input_stream<token>;
+
+  parser(stream_type& s, builder& b) : ts(s), act(b) { }
 
   // Stream control
   bool eof() const;
+  const token& current() const;
   int lookahead() const;
   int lookahead(int) const;
-  token match(int);
-  token require(int);
   token consume();
-  void consume(int);
+  void ignore();
+  void ignore(int);
+  token accept(int);
+  token expect(int);
 
-  int next_token() const;
   bool next_token_is(int) const;
   bool next_token_is_not(int) const;
 
@@ -53,43 +54,30 @@ struct parser
   expr& boolean_literal();
   expr& integer_literal();
 
-  // Semantics
-  expr& on_condition(expr&, token, expr&, token, expr&);
-  expr& on_logical_or(expr&, token, expr&);
-
-  expr& on_negation(token, expr&);
-  expr& on_bitwise_not(token, expr&);
-  expr& on_logical_not(token, expr&);
-
-  expr& on_boolean_literal(token);
-  expr& on_integer_literal(token);
-
-  builder& build;
-  token* curr;
-  token* last;
+  stream_type& ts;
+  semantics act;
 };
 
 /// Returns true if the at the end of input.
-inline bool parser::eof() const { return curr == last; }
+inline bool parser::eof() const { return ts.eof(); }
+
+/// Returns the current token.
+inline const token& parser::current() const { return ts.peek(); }
 
 /// Returns the current lookahead token.
-inline int
-parser::lookahead() const
-{
-  if (eof())
-    return eof_tok;
-  else
-    return (*curr)->get_kind();
-}
+inline int parser::lookahead() const { return ts.peek().get_kind(); }
+
+/// Returns the current lookahead token.
+inline int parser::lookahead(int n) const { return ts.peek(n).get_kind(); }
 
 /// Consumes the current lookahead token.
-inline token
-parser::consume()
-{
-  if (curr == last)
-    return nullptr;
-  return *curr++;
-}
+inline token parser::consume() { return ts.get(); }
+
+/// Ignores a single token.
+inline void parser::ignore() { return ts.ignore(); }
+
+/// Ignores n tokens.
+inline void parser::ignore(int n) { return ts.ignore(n); }
 
 /// Returns true if the next token has kind `k`.
 inline bool

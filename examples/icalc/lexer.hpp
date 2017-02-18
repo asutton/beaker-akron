@@ -17,6 +17,7 @@ namespace icalc {
 
 using beaker::token;
 
+
 // Kinds of tokens.
 enum token_kind 
 {
