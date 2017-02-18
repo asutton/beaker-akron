@@ -6,6 +6,7 @@
 #include "parser.hpp"
 
 #include <beaker/base/printing/print.hpp>
+#include <beaker/base/evaluation/evaluate.hpp>
 
 #include <iostream>
 
@@ -22,6 +23,8 @@ main()
       break;
     if (line.empty())
       continue;
+    if (line[0] == '#')
+      continue;
     
     // Lex all of the tokens into a buffer.
     auto ss = beaker::make_stream(line);
@@ -35,11 +38,19 @@ main()
     icalc::parser parse(ts, build);
     auto& e = parse.expression();
 
-    print(lang, e);
+    beaker::evaluator eval(lang);
+    beaker::value val = evaluate(eval, e);
+    if (beaker::sys_bool::is_boolean_expression(e))
+      std::cout << (val.get_int() ? "true\n" : "false\n");
+    else
+      std::cout << val.get_int() << '\n';
 
-    // icalc::builder build(mod);
-    // icalc::parser parse(build, toks.data(), toks.data() + toks.size());
-    // auto& e = parse.expression();
-    // print(lang, e);
+#if 0
+    beaker::pretty_printer pp(lang, std::cout);
+    print(pp, e);
+    std::cout << " ~> ";
+    std::cout << evaluate(eval, e) << '\n';
+#endif
+
   }
 }

@@ -20,6 +20,9 @@ struct semantics
 {
   semantics(builder& b) : build(b) { }
 
+  const language& get_language() const;
+  language& get_language();
+
   expr& on_condition(expr&, token, expr&, token, expr&);
   expr& on_logical_or(expr&, token, expr&);
   expr& on_logical_and(expr&, token, expr&);
@@ -45,6 +48,12 @@ struct semantics
 
   builder& build;
 };
+
+/// Returns the language for the semantics.
+inline const language& semantics::get_language() const { return build.get_language(); }
+
+/// Returns the language for the semantics.
+inline language& semantics::get_language() { return build.get_language(); }
 
 } // namespace icalc
 

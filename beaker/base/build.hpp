@@ -40,7 +40,9 @@ struct factory : node_store
   term_equal get_equal_fn() const;
   term_hash get_hash_fn() const;
 
+  const language& get_language() const;
   language& get_language();
+  
   allocator& get_language_allocator();
 
   module& get_module();
@@ -70,6 +72,9 @@ inline term_equal factory::get_equal_fn() const { return eq_; }
 
 /// Returns the hash function.
 inline term_hash factory::get_hash_fn() const { return hash_; }
+
+/// Returns the language in which the module is written.
+inline const language& factory::get_language() const { return mod_->get_language(); }
 
 /// Returns the language in which the module is written.
 inline language& factory::get_language() { return mod_->get_language(); }

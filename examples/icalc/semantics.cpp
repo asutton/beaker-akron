@@ -3,6 +3,8 @@
 
 #include "semantics.hpp"
 
+#include <beaker/base/printing/print.hpp>
+
 #include <iostream>
 #include <stdexcept>
 

@@ -244,8 +244,8 @@ lexer::bar()
 token
 lexer::caret()
 {
-  require('~');
-  return token::make(tilde_tok);
+  require('^');
+  return token::make(caret_tok);
 }
 
 /// Matches the '~' operator.

@@ -38,7 +38,24 @@ using module = beaker::module;
 struct builder : beaker::sys_bool::builder, beaker::sys_int::builder
 {
   builder(module&);
+
+  const language& get_language() const;
+  language& get_language(); 
 };
+
+inline const language&
+builder::get_language() const
+{
+  const beaker::sys_bool::builder& b = *this;
+  return static_cast<const language&>(b.get_language());
+}
+
+inline language&
+builder::get_language()
+{
+  beaker::sys_bool::builder& b = *this;
+  return static_cast<language&>(b.get_language());
+}
 
 } // namespace icalc
 

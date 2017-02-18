@@ -3,6 +3,8 @@
 
 #include "parser.hpp"
 
+#include <beaker/base/printing/print.hpp>
+
 #include <iostream>
 #include <stdexcept>
 
@@ -37,7 +39,7 @@ parser::expect(int k)
 expr&
 parser::expression()
 {
-  return unary_expression();
+  return conditional_expression();
 }
 
 /// Parse a conditional expression.
@@ -86,7 +88,7 @@ parser::logical_and_expression()
 {
   expr* e1 = &bitwise_or_expression();
   while (true) {
-    if (token tok = accept(bar_bar_tok)) {
+    if (token tok = accept(amp_amp_tok)) {
       expr* e2 = &bitwise_or_expression();
       e1 = &act.on_logical_and(*e1, tok, *e2);
     }
@@ -146,9 +148,9 @@ parser::bitwise_and_expression()
 {
   expr* e1 = &equality_expression();
   while (true) {
-    if (token tok = accept(bar_tok)) {
+    if (token tok = accept(amp_tok)) {
       expr* e2 = &equality_expression();
-      e1 = &act.on_bitwise_xor(*e1, tok, *e2);
+      e1 = &act.on_bitwise_and(*e1, tok, *e2);
     }
     else {
       break;
