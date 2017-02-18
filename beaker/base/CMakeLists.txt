@@ -13,6 +13,7 @@ add_beaker_module(
   decl.cpp
   stmt.cpp
   module.cpp
+  token.cpp
   comparison/equal.cpp
   comparison/hash.cpp
   printing/print.cpp

@@ -12,5 +12,6 @@ add_beaker_module(
   symbol_table.cpp
   class_graph.cpp
   dispatch_table.cpp
+  stream.cpp
 )
 

@@ -5,7 +5,6 @@ add_executable(icalc
   main.cpp 
   lang.cpp 
   token.cpp
-  stream.cpp
   lexer.cpp
   parser.cpp
   semantics.cpp

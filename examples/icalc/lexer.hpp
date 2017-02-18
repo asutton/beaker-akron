@@ -4,8 +4,9 @@
 #ifndef ICALC_LEXER_HPP
 #define ICALC_LEXER_HPP
 
-#include "stream.hpp"
 #include "token.hpp"
+
+#include <beaker/util/stream.hpp>
 
 #include <cassert>
 #include <cctype>
@@ -14,20 +15,6 @@
 
 
 namespace icalc {
-
-using beaker::token;
-
-
-// Kinds of tokens.
-enum token_kind 
-{
-#define def_token(T) T ## _tok,
-#include "token.def"
-};
-
-const char* get_token_name(int);
-const char* get_token_name(const token&);
-
 
 /// The lexer is responsible for transforming a sequence of characters into
 /// a sequence of tokens. This is designed as a function object; calling

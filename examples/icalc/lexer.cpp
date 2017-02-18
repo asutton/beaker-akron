@@ -9,28 +9,6 @@
 
 namespace icalc {
 
-/// Returns the name of the token.
-const char*
-get_token_name(int k)
-{
-  switch (k) {
-#define def_token(T) \
-    case T ## _tok: return #T;
-#include "token.def"
-    default:
-      break;
-  }
-  assert(false && "invalid token");
-}
-
-/// Returns the name of the token.
-const char*
-get_token_name(const token& tok)
-{
-  return get_token_name(tok.get_kind());
-}
-
-
 /// Returns the next token in the sequence.
 ///
 /// FIXME: Don't simply assert on invalid characters. Diagnose them and 
