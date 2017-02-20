@@ -27,10 +27,18 @@ parser::accept(int k)
 token
 parser::expect(int k)
 {
-  if (token tok = accept(k))
-    return tok;
+  if (next_token_is(k))
+    return consume();
   else
     throw std::runtime_error("parse error");
+}
+
+/// Require that a token that is known to have kind `k`.
+token
+parser::require(int k)
+{
+  assert(lookahead() == k);
+  return consume();
 }
 
 /// Parse an expression.
@@ -323,7 +331,7 @@ parser::primary_expression()
     case int_tok:
       return integer_literal();
     case lparen_tok: {
-      expect(lparen_tok);
+      require(lparen_tok);
       expr& e = expression();
       expect(rparen_tok);
       return e;

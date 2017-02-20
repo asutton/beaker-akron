@@ -55,10 +55,11 @@ lexer::operator()()
       return word();
 
     default: {
-      /// FIXME: Consider diagnosing and continuing.
+      beaker::location loc = get_location();
+      char ch = consume();
       std::stringstream ss;
-      ss << "invalid character '" << lookahead() << "'";
-      error(ss.str());
+      ss << "invalid character '" << ch << '\'';
+      error(loc, ss.str());
       break;
     }
   }
@@ -80,7 +81,9 @@ lexer::space()
   while (!eof()) {
     switch (lookahead()) {
       case '\n':
-        // FIXME: Increment the line count.
+        // Increment the line count and reset the column number.
+        ++line;
+        col = 1;
       case ' ':
       case '\t':
         ignore();
@@ -282,11 +285,12 @@ lexer::eq()
   if (match('='))
     return token::make(eq_eq_tok);
 
-  // FIXME: Add the source location.
-  error("expected '=' after '='");
-  return end();
+  beaker::location loc = get_location();
+  char ch = consume();
+  std::stringstream ss;
+  ss << "expected '=' but got '" << ch << '\'';
+  error(loc, ss.str());
 }
-
 
 /// Matches the '!' or '!=' operators.
 ///
@@ -362,6 +366,7 @@ lexer::ident()
 token
 lexer::word()
 {
+  beaker::location loc = get_location();
   consume();
   while (!eof() && ident())
     ;
@@ -371,9 +376,9 @@ lexer::word()
   if (buf == "false")
     return token::make<beaker::bool_attr>(bool_tok, false);
 
-  // FIXME: Use a better error.
-  error("invalid identifier");
-  return end();
+  std::stringstream ss;
+  ss << "invalid identifier '" << buf << '\'';
+  error(loc, ss.str());
 }
 
 /// Matches an integer value.
@@ -396,9 +401,9 @@ lexer::number()
 ///
 /// \todo Incorporate the source code location.
 void
-lexer::error(const std::string& msg)
+lexer::error(beaker::location loc, const std::string& msg)
 {
-  throw std::runtime_error(msg);
+  throw lexical_error(loc, msg.c_str());
 }
 
 } // namespace icalc

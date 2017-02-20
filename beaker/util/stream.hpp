@@ -199,8 +199,7 @@ struct generator_stream : input_stream<T>
 {
   static T end;
 
-  template<typename... Args>
-  generator_stream(Args&&...);
+  generator_stream(G& gen);
 
   bool eof() const override;
   const T& peek() const override;
@@ -209,12 +208,13 @@ struct generator_stream : input_stream<T>
   void ignore() override;
   void ignore(int) override;
 
-  const T& front();
-  const T& back();
+  const T& front() const;
+  const T& back() const;
+  void fetch() const;
   void fetch();
   T extract();
 
-  mutable G gen;  // The generating function
+  G& gen; // The generating function
   mutable std::deque<T> buf; // Extracted elements
 };
 
@@ -224,20 +224,19 @@ T generator_stream<G, T>::end{};
 /// Initialize the generator stream by constructing the underlying generator
 /// in place. 
 template<typename G, typename T>
-template<typename... Args>
-generator_stream<G, T>::generator_stream(Args&&... args)
-  : gen(std::forward<Args>(args)...)
+generator_stream<G, T>::generator_stream(G& g)
+  : gen(g)
 {
   fetch();
 }
 
 /// Returns the front element of the buffer.
 template<typename G, typename T>
-const T& generator_stream<G, T>::front() { return buf.front(); }
+const T& generator_stream<G, T>::front() const { return buf.front(); }
 
 /// Returns the back element of the buffer.
 template<typename G, typename T>
-inline const T& generator_stream<G, T>::back() { return buf.back(); }
+inline const T& generator_stream<G, T>::back() const { return buf.back(); }
 
 /// Puts a generated element into the buffer.
 template<typename G, typename T>
@@ -245,6 +244,15 @@ inline void
 generator_stream<G, T>::fetch()
 {
   buf.push_back(gen());
+}
+
+/// Puts a generated element into the buffer. This is used in a constant
+/// function to modify a mutable member.
+template<typename G, typename T>
+inline void
+generator_stream<G, T>::fetch() const
+{
+  return const_cast<generator_stream<G, T>*>(this)->fetch();
 }
 
 /// Extracts the first element of the buffer.
@@ -264,7 +272,7 @@ template<typename G, typename T>
 bool
 generator_stream<G, T>::eof() const
 {
-  return front();
+  return (bool)front();
 }
 
 /// Returns the current element.
@@ -330,6 +338,14 @@ generator_stream<G, T>::ignore(int n)
   // Pre-load the next element if needed; this may load an eof.
   if (buf.empty())
     fetch();
+}
+
+/// Create a generator stream on a copy of 
+template<typename G>
+generator_stream<G>
+make_generator(G& gen)
+{
+  return generator_stream<G>(gen);
 }
 
 } // namespace beaker

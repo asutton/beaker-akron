@@ -33,6 +33,7 @@ struct parser
   void ignore(int);
   token accept(int);
   token expect(int);
+  token require(int);
 
   bool next_token_is(int) const;
   bool next_token_is_not(int) const;

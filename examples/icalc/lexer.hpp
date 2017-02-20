@@ -7,6 +7,7 @@
 #include "token.hpp"
 
 #include <beaker/util/stream.hpp>
+#include <beaker/util/location.hpp>
 
 #include <cassert>
 #include <cctype>
@@ -16,6 +17,24 @@
 
 namespace icalc {
 
+/// Represents an lexical error.
+struct lexical_error : std::runtime_error
+{
+  lexical_error(beaker::location, const char*);
+
+  beaker::location get_location() const;
+
+  beaker::location loc;
+};
+
+inline 
+lexical_error::lexical_error(beaker::location loc, const char* msg)
+  : std::runtime_error(msg), loc(loc)
+{ }
+
+inline beaker::location lexical_error::get_location() const { return loc; }
+
+
 /// The lexer is responsible for transforming a sequence of characters into
 /// a sequence of tokens. This is designed as a function object; calling
 /// the function yields the next token.
@@ -23,7 +42,7 @@ struct lexer
 {
   using stream_type = beaker::input_stream<char>;
 
-  lexer(stream_type& s) : cs(s) { }
+  lexer(stream_type& s) : cs(s), line(1), col(1) { }
   
   token operator()();
 
@@ -59,7 +78,7 @@ struct lexer
   token word();
   token number();
 
-  void error(const std::string&);
+  [[noreturn]] void error(beaker::location, const std::string&);
 
   bool match(char);
   template<typename P> bool match_if(P);
@@ -72,8 +91,12 @@ struct lexer
   bool digit();
   bool ident();
 
+  beaker::location get_location() const;
+
   stream_type& cs; // The underlying character stream.
   std::string buf; // The text of the current symbol.
+  int line;
+  int col;
 };
 
 /// Returns true if the stream is at its end.
@@ -92,6 +115,7 @@ inline char lexer::consume()
     return 0;
   char c = cs.get();
   buf += c;
+  ++col;
   return c;
 }
 
@@ -99,17 +123,26 @@ inline char lexer::consume()
 inline void
 lexer::consume(int n)
 {
-  while (!eof() && n) {
-    buf += cs.get();
+  while (!eof() && n != 0) {
+    consume();
     --n;
   }
 }
 
 /// Ignores the current character and advances the stream.
-inline void lexer::ignore() { cs.ignore(); }
+inline void lexer::ignore()
+{
+  cs.ignore(); 
+  ++col;
+}
 
-/// Ignore at most n characters.
-inline void lexer::ignore(int n) { cs.ignore(n); }
+/// Ignore at most n characters. Note that this doesn't use the stream's
+/// ignore(n) because we're adjusting the column for each character.
+inline void lexer::ignore(int n) 
+{ 
+  while (!eof() && n != 0)
+    ignore();
+}
 
 /// If the lookead is equal to `c`, this consumes the token and returns true. 
 /// Otherwise, returns false without advancing.
@@ -151,6 +184,13 @@ lexer::require_if(P pred)
   assert(pred(lookahead()));
   consume();
   return true;
+}
+
+/// Returns the current source code location.
+inline beaker::location
+lexer::get_location() const
+{
+  return beaker::location(line, col);
 }
 
 } // namespace icalc
