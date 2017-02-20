@@ -22,7 +22,8 @@ lexer::operator()()
   // Ignore whitespace.
   space();
 
-  // Match a token.
+  // Match a token at the current location.
+  make_location();
   switch (lookahead()) {
     case 0: return end();
 
@@ -55,7 +56,6 @@ lexer::operator()()
       return word();
 
     default: {
-      beaker::location loc = get_location();
       char ch = consume();
       std::stringstream ss;
       ss << "invalid character '" << ch << '\'';
@@ -98,7 +98,7 @@ lexer::space()
 token 
 lexer::end()
 { 
-  return token::make(eof_tok); 
+  return token::make(loc, eof_tok); 
 }
 
 /// Matches left parenthesis.
@@ -110,7 +110,7 @@ token
 lexer::lparen()
 {
   require('(');
-  return token::make(lparen_tok);
+  return token::make(loc, lparen_tok);
 }
 
 /// Matches right parenthesis.
@@ -122,7 +122,7 @@ token
 lexer::rparen()
 {
   require(')');
-  return token::make(rparen_tok);
+  return token::make(loc, rparen_tok);
 }
 
 /// Matches '+' operator.
@@ -134,7 +134,7 @@ token
 lexer::plus()
 {
   require('+');
-  return token::make(plus_tok);
+  return token::make(loc, plus_tok);
 }
 
 /// Matches '-' operator.
@@ -146,7 +146,7 @@ token
 lexer::minus()
 {
   require('-');
-  return token::make(minus_tok);
+  return token::make(loc, minus_tok);
 }
 
 /// Matches '*' operator.
@@ -158,7 +158,7 @@ token
 lexer::star()
 {
   require('*');
-  return token::make(star_tok);
+  return token::make(loc, star_tok);
 }
 
 /// Matches '/' operator.
@@ -170,7 +170,7 @@ token
 lexer::slash()
 {
   require('/');
-  return token::make(slash_tok);
+  return token::make(loc, slash_tok);
 }
 
 /// Matches '%' operator.
@@ -182,7 +182,7 @@ token
 lexer::percent()
 {
   require('%');
-  return token::make(percent_tok);
+  return token::make(loc, percent_tok);
 }
 
 /// Matches '&' or '&&' operators.
@@ -196,9 +196,9 @@ lexer::amp()
 {
   require('&');
   if (match('&'))
-    return token::make(amp_amp_tok);
+    return token::make(loc, amp_amp_tok);
   else
-    return token::make(amp_tok);
+    return token::make(loc, amp_tok);
 }
 
 /// Matches the '|' or '||' operators.
@@ -212,9 +212,9 @@ lexer::bar()
 {
   require('|');
   if (match('|'))
-    return token::make(bar_bar_tok);
+    return token::make(loc, bar_bar_tok);
   else
-  return token::make(bar_tok); 
+  return token::make(loc, bar_tok); 
 }
 
 /// Matches the '^' operator.
@@ -226,7 +226,7 @@ token
 lexer::caret()
 {
   require('^');
-  return token::make(caret_tok);
+  return token::make(loc, caret_tok);
 }
 
 /// Matches the '~' operator.
@@ -238,7 +238,7 @@ token
 lexer::tilde()
 {
   require('~');
-  return token::make(tilde_tok);
+  return token::make(loc, tilde_tok);
 }
 
 /// Matches the '<' or '<=' operators.
@@ -252,9 +252,9 @@ lexer::lt()
 {
   require('<');
   if (match('='))
-    return token::make(lt_eq_tok);
+    return token::make(loc, lt_eq_tok);
   else
-    return token::make(lt_tok); 
+    return token::make(loc, lt_tok); 
 }
 
 /// Matches the '>' or '>=' operators.
@@ -268,9 +268,9 @@ lexer::gt()
 {
   require('>');
   if (match('='))
-    return token::make(gt_eq_tok);
+    return token::make(loc, gt_eq_tok);
   else
-    return token::make(gt_tok); 
+    return token::make(loc, gt_tok); 
 }
 
 /// Matches the '==' operator.
@@ -283,9 +283,9 @@ lexer::eq()
 {
   require('=');
   if (match('='))
-    return token::make(eq_eq_tok);
+    return token::make(loc, eq_eq_tok);
 
-  beaker::location loc = get_location();
+  make_location();
   char ch = consume();
   std::stringstream ss;
   ss << "expected '=' but got '" << ch << '\'';
@@ -303,9 +303,9 @@ lexer::bang()
 {
   require('!');
   if (match('='))
-    return token::make(bang_eq_tok);
+    return token::make(loc, bang_eq_tok);
   else
-    return token::make(bang_tok);
+    return token::make(loc, bang_tok);
 }
 
 /// Match the '?' token.
@@ -315,7 +315,7 @@ token
 lexer::question()
 {
   require('?');
-  return token::make(question_tok);
+  return token::make(loc, question_tok);
 }
 
 /// Match the ':' token.
@@ -325,7 +325,7 @@ token
 lexer::colon()
 {
   require(':');
-  return token::make(colon_tok);
+  return token::make(loc, colon_tok);
 }
 
 /// Consumes the lookahead if it is a letter and returns true. Returns
@@ -366,15 +366,14 @@ lexer::ident()
 token
 lexer::word()
 {
-  beaker::location loc = get_location();
   consume();
   while (!eof() && ident())
     ;
 
   if (buf == "true")
-    return token::make<beaker::bool_attr>(bool_tok, true);
+    return token::make<beaker::bool_attr>(loc, bool_tok, true);
   if (buf == "false")
-    return token::make<beaker::bool_attr>(bool_tok, false);
+    return token::make<beaker::bool_attr>(loc, bool_tok, false);
 
   std::stringstream ss;
   ss << "invalid identifier '" << buf << '\'';
@@ -394,14 +393,14 @@ lexer::number()
   consume();
   while (!eof() && digit())
     ;
-  return token::make<beaker::int_attr>(int_tok, std::stoi(buf));
+  return token::make<beaker::int_attr>(loc, int_tok, std::stoi(buf));
 }
 
 /// Throws lexical error exception with the given message.
 ///
 /// \todo Incorporate the source code location.
 void
-lexer::error(beaker::location loc, const std::string& msg)
+lexer::error(location loc, const std::string& msg)
 {
   throw lexical_error(loc, msg.c_str());
 }

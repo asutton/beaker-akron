@@ -51,7 +51,7 @@ read(icalc::module& mod, std::istream& is)
     catch (icalc::lexical_error& err) {
       // FIXME: Trap errors in a diagnostics engine that captures these
       // diagnostics for subsequent rendering.
-      std::cerr << err.get_location() << ": error: " << err.what() << '\n';
+      std::cerr << err.get_location() << ": error [lex]: " << err.what() << '\n';
     }
     catch (...) {
       throw;
@@ -67,7 +67,18 @@ read(icalc::module& mod, std::istream& is)
   auto ts = beaker::make_stream(toks);
   icalc::builder build(mod);
   icalc::parser parse(ts, build);
-  return &parse.expression();
+  beaker::expr* e = &parse.expression();
+
+  // If there were tokens after the end of the expressions...
+  //
+  // FIXME: Should this be a parse error? Should it throw?
+  if (!ts.eof()) {
+    icalc::token tok = ts.peek();
+    std::cerr << tok.get_location() << ": error [parse]: " << "expected end-of-line\n";
+    return nullptr;
+  }
+
+  return e;
 
   // FIXME: The generator stream doesn't actually work.
 #if 0
@@ -120,6 +131,9 @@ main()
       e = read(mod, std::cin);
       if (!std::cin) break;
       if (!e) continue;
+    } catch (icalc::syntax_error& err) {
+      std::cerr << err.get_location() << ": error [parse]: " << err.what() << '\n';
+      continue;
     } catch (...) {
       throw;
     }

@@ -6,6 +6,7 @@
 #include <beaker/base/printing/print.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 
@@ -29,8 +30,12 @@ parser::expect(int k)
 {
   if (next_token_is(k))
     return consume();
-  else
-    throw std::runtime_error("parse error");
+  
+  // FIXME: Actually generate the token spelling.
+  std::stringstream ss;
+  ss << "expected '" << get_token_spelling(k) 
+     << "' but got '" << get_token_spelling(current()) << "'";
+  throw syntax_error(get_location(), ss.str().c_str());
 }
 
 /// Require that a token that is known to have kind `k`.
@@ -339,7 +344,7 @@ parser::primary_expression()
     default:
       break;
   }
-  throw std::runtime_error("expected primary expression");
+  throw syntax_error(get_location(), "expected primary expression");
 }
 
 /// Parses a boolean literal.

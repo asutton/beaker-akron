@@ -4,6 +4,8 @@
 #ifndef BEAKER_BASE_TOKEN_HPP
 #define BEAKER_BASE_TOKEN_HPP
 
+#include <beaker/util/location.hpp>
+
 #include <vector>
 #include <memory>
 
@@ -36,8 +38,8 @@ struct token
   static constexpr int null = 0;
   
 private:
-  explicit token(int);
-  token(int, attr*);
+  explicit token(location, int);
+  token(location, int, attr*);
 
 public:
   token();
@@ -47,10 +49,11 @@ public:
   token& operator=(const token&);
   token& operator=(token&&);
 
-  static token make(int);
+  static token make();
+  static token make(location, int);
 
   template<typename T, typename... Args>
-  static token make(int, Args&&...);
+  static token make(location, int, Args&&...);
 
   explicit operator bool() const;
 
@@ -59,30 +62,33 @@ public:
   bool has_attribute() const;
   const attr& get_attribute() const;
   attr& get_attribute();
+
+  location get_location() const;
   
   int kind_;
   std::unique_ptr<attr> attr_;
+  location loc_;
 };
 
 /// Initialize a null token.
-inline token::token() : token(null) { }
+inline token::token() : token(location(), null, nullptr) { }
 
 /// Initialize a non-attributed token of kind `k`.
-inline token::token(int k) : token(k, nullptr) { }
+inline token::token(location loc, int k) : token(loc, k, nullptr) { }
 
 /// Initialize an attributed token of kind `k`.
-inline token::token(int k, attr* a) : kind_(k), attr_(a) { }
+inline token::token(location loc, int k, attr* a) : kind_(k), attr_(a), loc_(loc) { }
 
 /// Initialize this token as a copy of `tok`.
 inline 
 token::token(const token& tok) 
-  : kind_(tok.kind_), attr_(tok.attr_ ? tok.attr_->clone() : nullptr)
+  : kind_(tok.kind_), attr_(tok.attr_ ? tok.attr_->clone() : nullptr), loc_(tok.loc_)
 { }
 
 /// Initialize this token to assume the value of `tok`.
 inline
 token::token(token&& tok)
-  : kind_(tok.kind_), attr_(std::move(tok.attr_))
+  : kind_(tok.kind_), attr_(std::move(tok.attr_)), loc_(tok.loc_)
 { }
 
 /// Assign this token to be a copy of `tok`.
@@ -91,6 +97,7 @@ token::operator=(const token& tok)
 {
   kind_ = tok.kind_;
   attr_.reset(tok.attr_->clone());
+  loc_ = tok.loc_;
   return *this;
 }
 
@@ -100,6 +107,7 @@ token::operator=(token&& tok)
 {
   kind_ = tok.kind_;
   attr_ = std::move(tok.attr_);
+  loc_ = tok.loc_;
   return *this;
 }
 
@@ -118,20 +126,22 @@ inline const token::attr& token::get_attribute() const { return *attr_; }
 /// Returns the token's associated attribute.
 inline token::attr& token::get_attribute() { return *attr_; }
 
+/// Returns the token's location in the input text.
+inline location token::get_location() const { return loc_; }
+
+/// Returns a new end-of-input token.
+inline token token::make() { return token(); }
+
 /// Returns a new token with no attribute.
-inline token
-token::make(int k)
-{
-  return token(k);
-}
+inline token token::make(location loc, int k) { return token(loc, k); }
 
 /// Returns a new token with an attribute of type T, initialized with the
 /// given arguments.
 template<typename T, typename... Args>
 inline token
-token::make(int k, Args&&... args)
+token::make(location loc, int k, Args&&... args)
 {
-  return token(k, new T(std::forward<Args>(args)...));
+  return token(loc, k, new T(std::forward<Args>(args)...));
 }
 
 

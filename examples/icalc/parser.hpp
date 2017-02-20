@@ -11,6 +11,27 @@
 
 namespace icalc {
 
+/// Represents a syntax error.
+///
+/// \todo Make a translation error that acts as the base class for all errors
+/// that can be mapped to source code.
+struct syntax_error : std::runtime_error
+{
+  syntax_error(location, const char*);
+
+  location get_location() const;
+
+  location loc;
+};
+
+inline 
+syntax_error::syntax_error(location loc, const char* msg)
+  : std::runtime_error(msg), loc(loc)
+{ }
+
+inline location syntax_error::get_location() const { return loc; }
+
+
 /// Parses a sequence of tokens to produce a tree.
 ///
 /// \todo Factor semantic actions out of the parser? It's not strictly 
@@ -37,6 +58,8 @@ struct parser
 
   bool next_token_is(int) const;
   bool next_token_is_not(int) const;
+
+  location get_location() const;
 
   // Grammar productions
   expr& expression();
@@ -95,6 +118,12 @@ inline bool
 parser::next_token_is_not(int k) const
 {
   return !next_token_is(k);
+}
+
+inline location
+parser::get_location() const
+{
+  return ts.peek().get_location();
 }
 
 } // namespace icalc

@@ -20,4 +20,4 @@ operator<<(std::ostream& os, const location& loc)
   return os << loc.get_line() << ":" << loc.get_column();
 }
 
-}
+} // namespace beaker

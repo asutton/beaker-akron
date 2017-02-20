@@ -17,22 +17,22 @@
 
 namespace icalc {
 
-/// Represents an lexical error.
+/// Represents a lexical error.
 struct lexical_error : std::runtime_error
 {
-  lexical_error(beaker::location, const char*);
+  lexical_error(location, const char*);
 
-  beaker::location get_location() const;
+  location get_location() const;
 
-  beaker::location loc;
+  location loc;
 };
 
 inline 
-lexical_error::lexical_error(beaker::location loc, const char* msg)
+lexical_error::lexical_error(location loc, const char* msg)
   : std::runtime_error(msg), loc(loc)
 { }
 
-inline beaker::location lexical_error::get_location() const { return loc; }
+inline location lexical_error::get_location() const { return loc; }
 
 
 /// The lexer is responsible for transforming a sequence of characters into
@@ -78,7 +78,7 @@ struct lexer
   token word();
   token number();
 
-  [[noreturn]] void error(beaker::location, const std::string&);
+  [[noreturn]] void error(location, const std::string&);
 
   bool match(char);
   template<typename P> bool match_if(P);
@@ -91,12 +91,14 @@ struct lexer
   bool digit();
   bool ident();
 
-  beaker::location get_location() const;
+  location make_location();
 
   stream_type& cs; // The underlying character stream.
   std::string buf; // The text of the current symbol.
-  int line;
-  int col;
+  
+  int line; // The current line.
+  int col; // The current column.
+  location loc; // The start location of the current token.
 };
 
 /// Returns true if the stream is at its end.
@@ -186,11 +188,11 @@ lexer::require_if(P pred)
   return true;
 }
 
-/// Returns the current source code location.
-inline beaker::location
-lexer::get_location() const
+/// Sets the current location the current line and column offset, returning it.
+inline location
+lexer::make_location()
 {
-  return beaker::location(line, col);
+  return (loc = location(line, col));
 }
 
 } // namespace icalc
