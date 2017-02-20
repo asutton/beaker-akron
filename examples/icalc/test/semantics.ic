@@ -1,0 +1,8 @@
+# Semantic errors
+
+-true
+!0
+0 ? 1 : 2
+true ? true : 0
+1 == true
+true + 3

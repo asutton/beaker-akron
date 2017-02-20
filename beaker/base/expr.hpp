@@ -8,6 +8,7 @@
 #include <beaker/base/seq.hpp>
 #include <beaker/base/value.hpp>
 #include <beaker/util/cast.hpp>
+#include <beaker/util/location.hpp>
 
 
 namespace beaker {
@@ -18,7 +19,7 @@ struct type;
 // Expression base class
 
 // Represents the set of expressions in a language.
-struct expr 
+struct expr : locatable
 {
   using node_set = expr;
 

@@ -131,10 +131,16 @@ main()
       e = read(mod, std::cin);
       if (!std::cin) break;
       if (!e) continue;
-    } catch (icalc::syntax_error& err) {
+    } 
+    catch (icalc::syntax_error& err) {
       std::cerr << err.get_location() << ": error [parse]: " << err.what() << '\n';
       continue;
-    } catch (...) {
+    } 
+    catch (icalc::type_error& err) {
+      std::cerr << err.get_location() << ": error [type]: " << err.what() << '\n';
+      continue;
+    }
+    catch (...) {
       throw;
     }
 

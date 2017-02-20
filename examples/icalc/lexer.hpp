@@ -91,14 +91,23 @@ struct lexer
   bool digit();
   bool ident();
 
-  location make_location();
+  void note_start();
+  void note_end();
+
+  void start_token();
+
+  template<typename... Args>
+  token finish_token(int, Args&&...);
+  
+  template<typename T, typename... Args>
+  token finish_token(int, Args&&...);
 
   stream_type& cs; // The underlying character stream.
   std::string buf; // The text of the current symbol.
   
   int line; // The current line.
   int col; // The current column.
-  location loc; // The start location of the current token.
+  location loc; // The full location of the current token.
 };
 
 /// Returns true if the stream is at its end.
@@ -158,7 +167,7 @@ lexer::match(char c)
   return false;
 }
 
-/// If the lookead satisfies `pred`, this consumes the token and returns true. 
+/// If the lookahead satisfies `pred`, this consumes the token and returns true. 
 /// Otherwise, returns false without advancing.
 template<typename P>
 inline bool
@@ -188,11 +197,44 @@ lexer::require_if(P pred)
   return true;
 }
 
-/// Sets the current location the current line and column offset, returning it.
-inline location
-lexer::make_location()
+/// Note the start of the current symbol's location.
+inline void
+lexer::note_start()
 {
-  return (loc = location(line, col));
+  loc.line = line;
+  loc.start = col;
+}
+
+/// Note the end of the current symbol's location.
+inline void
+lexer::note_end()
+{
+  loc.end = col;
+}
+
+/// Indicate the start of a token.
+inline void
+lexer::start_token()
+{
+  note_start();
+}
+
+/// Create a token with the given arguments.
+template<typename... Args>
+inline token
+lexer::finish_token(int k, Args&&... args)
+{
+  note_end();
+  return token::make(loc, k, std::forward<Args>(args)...);
+}
+
+/// Create a token with the given arguments.
+template<typename T, typename... Args>
+inline token
+lexer::finish_token(int k, Args&&... args)
+{
+  note_end();
+  return token::make<T>(loc, k, std::forward<Args>(args)...);
 }
 
 } // namespace icalc

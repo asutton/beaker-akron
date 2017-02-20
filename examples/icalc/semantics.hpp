@@ -10,6 +10,25 @@
 
 namespace icalc {
 
+/// Represents a lexical error.
+///
+/// \todo This is exactly the same as lex and parse errors.
+struct type_error : std::runtime_error
+{
+  type_error(location, const char*);
+
+  location get_location() const;
+
+  location loc;
+};
+
+inline 
+type_error::type_error(location loc, const char* msg)
+  : std::runtime_error(msg), loc(loc)
+{ }
+
+inline location type_error::get_location() const { return loc; }
+
 /// The semantic actions of the parser. This defines the meaning of a syntactic
 /// expression by mapping it onto an abstract syntax with precise meaning.
 ///
@@ -45,6 +64,12 @@ struct semantics
   expr& on_logical_not(token, expr&);
   expr& on_bool(token);
   expr& on_int(token);
+
+  void check_bool(expr&);
+  void check_bool(expr&, expr&);
+  void check_int(expr&);
+  void check_int(expr&, expr&);
+  void check_same(expr&, expr&);
 
   builder& build;
 };
