@@ -18,7 +18,7 @@ struct type;
 // -------------------------------------------------------------------------- //
 // Expression base class
 
-// Represents the set of expressions in a language.
+/// Represents the set of expressions in a language.
 struct expr : locatable
 {
   using node_set = expr;
