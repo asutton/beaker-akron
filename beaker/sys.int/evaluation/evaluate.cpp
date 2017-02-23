@@ -14,13 +14,13 @@ namespace beaker {
 
 /// Evaluate the literal expression `e`.
 value
-evaluate(evaluator& eval, const sys_int::int_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::int_expr& e)
 {
   return e.get_value();
 }
 
 value
-evaluate(evaluator& eval, const sys_int::eq_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::eq_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -28,7 +28,7 @@ evaluate(evaluator& eval, const sys_int::eq_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const sys_int::ne_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::ne_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -36,7 +36,7 @@ evaluate(evaluator& eval, const sys_int::ne_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const sys_int::lt_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::lt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -44,7 +44,7 @@ evaluate(evaluator& eval, const sys_int::lt_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const sys_int::gt_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::gt_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -52,7 +52,7 @@ evaluate(evaluator& eval, const sys_int::gt_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const sys_int::le_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::le_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -60,7 +60,7 @@ evaluate(evaluator& eval, const sys_int::le_expr& e)
 }
 
 value
-evaluate(evaluator& eval, const sys_int::ge_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::ge_expr& e)
 {
   value v1 = evaluate(eval, e.get_lhs());
   value v2 = evaluate(eval, e.get_rhs());
@@ -108,7 +108,7 @@ evaluate(evaluator& eval, const add_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::add_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::add_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -155,7 +155,7 @@ evaluate(evaluator& eval, const sub_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::sub_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::sub_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -213,7 +213,7 @@ evaluate(evaluator& eval, const mul_expr& e)
 
 
 value
-evaluate(evaluator& eval, const sys_int::mul_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::mul_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -263,7 +263,7 @@ evaluate(evaluator& eval, const quo_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::quo_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::quo_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -301,7 +301,7 @@ evaluate(evaluator& eval, const rem_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::rem_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::rem_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -350,7 +350,7 @@ evaluate(evaluator& eval, const neg_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::neg_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::neg_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }
@@ -387,7 +387,7 @@ evaluate(evaluator& eval, const rec_expr& e)
 } // namespace sys_int
 
 value
-evaluate(evaluator& eval, const sys_int::rec_expr& e)
+evaluate_expr(evaluator& eval, const sys_int::rec_expr& e)
 {
   return sys_int::evaluate(eval, e);
 }

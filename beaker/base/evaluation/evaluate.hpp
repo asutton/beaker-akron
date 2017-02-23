@@ -41,6 +41,14 @@ value evaluate(evaluator&, const expr&);
 value evaluate(evaluator&, const decl&);
 value evaluate(evaluator&, const stmt&);
 
+
+// -------------------------------------------------------------------------- //
+// Dispatch interface
+
+value evaluate_expr(evaluator&, const expr&) = delete;
+value evaluate_decl(evaluator&, const decl&) = delete;
+value evaluate_stmt(evaluator&, const stmt&) = delete;
+
 } // namespace beaker
 
 

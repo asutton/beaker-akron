@@ -53,6 +53,17 @@ void print(const language&, const expr&);
 void print(const language&, const decl&);
 void print(const language&, const stmt&);
 
+
+// -------------------------------------------------------------------------- //
+// Dispatch interface
+
+void print_name(pretty_printer&, const name&) = delete;
+void print_type(pretty_printer&, const type&) = delete;
+void print_expr(pretty_printer&, const expr&) = delete;
+void print_decl(pretty_printer&, const decl&) = delete;
+void print_stmt(pretty_printer&, const stmt&) = delete;
+
+
 // -------------------------------------------------------------------------- //
 // Helper functions
 

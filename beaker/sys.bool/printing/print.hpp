@@ -11,19 +11,19 @@
 
 namespace beaker {
 
-void print(pretty_printer&, const sys_bool::bool_type&);
+void print_type(pretty_printer&, const sys_bool::bool_type&);
 
-void print(pretty_printer&, const sys_bool::bool_expr&);
-void print(pretty_printer&, const sys_bool::and_expr&);
-void print(pretty_printer&, const sys_bool::or_expr&);
-void print(pretty_printer&, const sys_bool::xor_expr&);
-void print(pretty_printer&, const sys_bool::not_expr&);
-void print(pretty_printer&, const sys_bool::imp_expr&);
-void print(pretty_printer&, const sys_bool::eq_expr&);
-void print(pretty_printer&, const sys_bool::if_expr&);
-void print(pretty_printer&, const sys_bool::and_then_expr&);
-void print(pretty_printer&, const sys_bool::or_else_expr&);
-void print(pretty_printer&, const sys_bool::assert_expr&);
+void print_expr(pretty_printer&, const sys_bool::bool_expr&);
+void print_expr(pretty_printer&, const sys_bool::and_expr&);
+void print_expr(pretty_printer&, const sys_bool::or_expr&);
+void print_expr(pretty_printer&, const sys_bool::xor_expr&);
+void print_expr(pretty_printer&, const sys_bool::not_expr&);
+void print_expr(pretty_printer&, const sys_bool::imp_expr&);
+void print_expr(pretty_printer&, const sys_bool::eq_expr&);
+void print_expr(pretty_printer&, const sys_bool::if_expr&);
+void print_expr(pretty_printer&, const sys_bool::and_then_expr&);
+void print_expr(pretty_printer&, const sys_bool::or_else_expr&);
+void print_expr(pretty_printer&, const sys_bool::assert_expr&);
 
 } // namespace beaker
 

@@ -11,63 +11,13 @@
 namespace beaker {
 
 // -------------------------------------------------------------------------- //
-// Equality of names
+// Primary interface
 
 bool equal(const name&, const name&);
-
-
-// -------------------------------------------------------------------------- //
-// Equality of types
-
-struct base_type;
-struct object_type;
-
 bool equal(const type&, const type&);
-
-/// The same base types are always equal.
-constexpr bool 
-equal(const base_type&, const base_type&)
-{
-  return true;
-}
-
-/// The same object types are always equal. This must be overriden if the
-/// object types have properties that cause their values to differ.
-constexpr bool 
-equal(const object_type&, const object_type&)
-{
-  return true;
-}
-
-
-// -------------------------------------------------------------------------- //
-// Equality of expressions
-
-struct literal_expr;
-struct nullary_expr;
-struct unary_expr;
-struct binary_expr;
-struct ternary_expr;
-
 bool equal(const expr&, const expr&);
 
-/// The same nullary expressions are always equal.
-constexpr bool 
-equal(const nullary_expr&, const nullary_expr&)
-{
-  return true;
-}
-
-bool equal(const literal_expr&, const literal_expr&);
-bool equal(const unary_expr&, const unary_expr&);
-bool equal(const binary_expr&, const binary_expr&);
-bool equal(const ternary_expr&, const ternary_expr&);
-
-
-// -------------------------------------------------------------------------- //
-// Equality of supporting types
-
-/// Compares two sequences for equality.
+/// Returns truen if `a` and `b` have equal elements.
 template<typename T>
 bool 
 equal(const seq<T>& a, const seq<T>& b)
@@ -77,6 +27,39 @@ equal(const seq<T>& a, const seq<T>& b)
   };
   return std::equal(a.begin(), a.end(), b.begin(), b.end(), cmp);
 }
+
+
+// -------------------------------------------------------------------------- //
+// Dispatch interface
+
+struct base_type;
+struct object_type;
+
+struct literal_expr;
+struct nullary_expr;
+struct unary_expr;
+struct binary_expr;
+struct ternary_expr;
+
+bool equal_name(const expr&, const expr&) = delete;
+bool equal_type(const type&, const type&) = delete;
+bool equal_expr(const expr&, const expr&) = delete;
+
+/// The same base types are always equal.
+constexpr bool equal_type(const base_type&, const base_type&) { return true; }
+
+/// The same object types are always equal. This must be overriden if the
+/// object types have properties that cause their values to differ.
+constexpr bool equal_type(const object_type&, const object_type&) { return true; }
+
+/// The same nullary expressions are always equal.
+constexpr bool equal_expr(const nullary_expr&, const nullary_expr&) { return true; }
+
+bool equal_expr(const literal_expr&, const literal_expr&);
+bool equal_expr(const unary_expr&, const unary_expr&);
+bool equal_expr(const binary_expr&, const binary_expr&);
+bool equal_expr(const ternary_expr&, const ternary_expr&);
+
 
 // -------------------------------------------------------------------------- //
 // Functional

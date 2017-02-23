@@ -1,20 +1,20 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(sys_int, int, literal)
-def_expr(sys_int, eq, binary)
-def_expr(sys_int, ne, binary)
-def_expr(sys_int, lt, binary)
-def_expr(sys_int, gt, binary)
-def_expr(sys_int, le, binary)
-def_expr(sys_int, ge, binary)
-def_expr(sys_int, add, binary)
-def_expr(sys_int, sub, binary)
-def_expr(sys_int, mul, binary)
-def_expr(sys_int, quo, binary)
-def_expr(sys_int, rem, binary)
-def_expr(sys_int, neg, unary)
-def_expr(sys_int, rec, unary)
+def_expr(sys_int, int)
+def_expr(sys_int, eq)
+def_expr(sys_int, ne)
+def_expr(sys_int, lt)
+def_expr(sys_int, gt)
+def_expr(sys_int, le)
+def_expr(sys_int, ge)
+def_expr(sys_int, add)
+def_expr(sys_int, sub)
+def_expr(sys_int, mul)
+def_expr(sys_int, quo)
+def_expr(sys_int, rem)
+def_expr(sys_int, neg)
+def_expr(sys_int, rec)
 
 #ifndef do_not_undefine
 #  undef def_expr

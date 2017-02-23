@@ -13,7 +13,7 @@ namespace sys_void {
 enum 
 {
   first_type_kind = sys_void_lang_block,
-#define def_type(NS, E, B) E ## _type_kind,
+#define def_type(NS, T) T ## _type_kind,
 #include "type.def"
   last_type_kind
 };

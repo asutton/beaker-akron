@@ -20,8 +20,11 @@ main()
   module mod(lang);
   auto& ib = mod.get_builder<sys_int::feature>();
 
-  // FIXME: Add a bunch more uniqueness tests.
+
+  // Sanity checks for canonical types.  
   check_equal_terms(lang, ib.get_int8_type(), ib.get_int8_type());
+
+  // More sanity checks.
   check_different_terms(lang, ib.get_int8_type(), ib.get_int16_type());
 
 

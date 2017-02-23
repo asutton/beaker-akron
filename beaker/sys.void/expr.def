@@ -1,9 +1,9 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(sys_void, nop, nullary)
-def_expr(sys_void, void, unary)
-def_expr(sys_void, trap, nullary)
+def_expr(sys_void, nop)
+def_expr(sys_void, void)
+def_expr(sys_void, trap)
 
 #ifndef do_not_undefine
 #  undef def_expr

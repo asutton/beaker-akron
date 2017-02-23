@@ -11,7 +11,7 @@
 
 namespace beaker {
 
-void hash(hasher& h, const sys_int::integral_type&);
+void hash_type(hasher& h, const sys_int::integral_type&);
 
 } // namespace beaker
 

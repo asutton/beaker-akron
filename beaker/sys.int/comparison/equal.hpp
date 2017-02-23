@@ -11,7 +11,7 @@
 
 namespace beaker {
 
-bool equal(const sys_int::integral_type&, const sys_int::integral_type&);
+bool equal_type(const sys_int::integral_type&, const sys_int::integral_type&);
 
 } // namespace beaker
 

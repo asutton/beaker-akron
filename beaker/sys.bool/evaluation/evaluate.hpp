@@ -33,17 +33,17 @@ assertion_error::assertion_error(const expr& e)
 // -------------------------------------------------------------------------- //
 // Overrides
 
-value evaluate(evaluator&, const sys_bool::bool_expr&);
-value evaluate(evaluator&, const sys_bool::and_expr&);
-value evaluate(evaluator&, const sys_bool::or_expr&);
-value evaluate(evaluator&, const sys_bool::xor_expr&);
-value evaluate(evaluator&, const sys_bool::not_expr&);
-value evaluate(evaluator&, const sys_bool::imp_expr&);
-value evaluate(evaluator&, const sys_bool::eq_expr&);
-value evaluate(evaluator&, const sys_bool::if_expr&);
-value evaluate(evaluator&, const sys_bool::and_then_expr&);
-value evaluate(evaluator&, const sys_bool::or_else_expr&);
-value evaluate(evaluator&, const sys_bool::assert_expr&);
+value evaluate_expr(evaluator&, const sys_bool::bool_expr&);
+value evaluate_expr(evaluator&, const sys_bool::and_expr&);
+value evaluate_expr(evaluator&, const sys_bool::or_expr&);
+value evaluate_expr(evaluator&, const sys_bool::xor_expr&);
+value evaluate_expr(evaluator&, const sys_bool::not_expr&);
+value evaluate_expr(evaluator&, const sys_bool::imp_expr&);
+value evaluate_expr(evaluator&, const sys_bool::eq_expr&);
+value evaluate_expr(evaluator&, const sys_bool::if_expr&);
+value evaluate_expr(evaluator&, const sys_bool::and_then_expr&);
+value evaluate_expr(evaluator&, const sys_bool::or_else_expr&);
+value evaluate_expr(evaluator&, const sys_bool::assert_expr&);
 
 } // namespace beaker
 

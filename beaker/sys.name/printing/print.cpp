@@ -10,13 +10,13 @@
 namespace beaker {
 
 void 
-print(pretty_printer& pp, const sys_name::basic_name& n)
+print_name(pretty_printer& pp, const sys_name::basic_name& n)
 {
   pp.print(n.get_symbol().get_spelling());
 }
 
 void 
-print(pretty_printer& pp, const sys_name::internal_name& n)
+print_name(pretty_printer& pp, const sys_name::internal_name& n)
 {
   pp.print("<internal>");
 }

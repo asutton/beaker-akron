@@ -11,8 +11,8 @@
 
 namespace beaker {
 
-bool equal(const sys_name::basic_name&, const sys_name::basic_name&);
-bool equal(const sys_name::internal_name&, const sys_name::internal_name&);
+bool equal_name(const sys_name::basic_name&, const sys_name::basic_name&);
+bool equal_name(const sys_name::internal_name&, const sys_name::internal_name&);
 
 } // namespace beaker
 

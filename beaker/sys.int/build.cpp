@@ -57,7 +57,8 @@ int_type&
 builder::get_int_type(int p) 
 {
   assert(check_precision(p));
-  return int_->get(p);
+  int_type& ret = int_->get(p);
+  return ret;
 }
 
 /// Returns the canonical type `modp` with `p` bits of precision.

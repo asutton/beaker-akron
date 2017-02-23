@@ -9,21 +9,21 @@ namespace beaker {
 
 /// Hash a expression literal value.
 void
-hash(hasher& h, const literal_expr& e)
+hash_expr(hasher& h, const literal_expr& e)
 {
   hash(h, e.get_value());
 }
 
 /// Hash a unary expression e into h.
 void
-hash(hasher& h, const unary_expr& e)
+hash_expr(hasher& h, const unary_expr& e)
 {
   hash(h, e.get_first());
 }
 
 /// Hash a binary expression e into h.
 void
-hash(hasher& h, const binary_expr& e)
+hash_expr(hasher& h, const binary_expr& e)
 {
   hash(h, e.get_first());
   hash(h, e.get_second());
@@ -31,7 +31,7 @@ hash(hasher& h, const binary_expr& e)
 
 /// Hash a ternary expression e into h.
 void
-hash(hasher& h, const ternary_expr& e)
+hash_expr(hasher& h, const ternary_expr& e)
 {
   hash(h, e.get_first());
   hash(h, e.get_second());

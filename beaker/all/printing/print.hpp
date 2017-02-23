@@ -4,3 +4,4 @@
 #include <beaker/sys.void/printing/print.hpp>
 #include <beaker/sys.bool/printing/print.hpp>
 #include <beaker/sys.int/printing/print.hpp>
+#include <beaker/sys.name/printing/print.hpp>

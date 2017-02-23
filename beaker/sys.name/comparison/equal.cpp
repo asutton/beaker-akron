@@ -8,13 +8,13 @@
 namespace beaker {
 
 bool
-equal(const sys_name::basic_name& a, const sys_name::basic_name& b)
+equal_name(const sys_name::basic_name& a, const sys_name::basic_name& b)
 { 
   return &a.get_symbol() == &b.get_symbol();
 }
 
 bool
-equal(const sys_name::internal_name& a, const sys_name::internal_name& b)
+equal_name(const sys_name::internal_name& a, const sys_name::internal_name& b)
 {
   return a.get_id() == b.get_id();
 }

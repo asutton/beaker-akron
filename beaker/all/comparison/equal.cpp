@@ -18,7 +18,7 @@ equal(const name& a, const name& b)
   switch (a.get_kind()) {
 #define def_name(NS, N) \
     case NS::N ## _name_kind: \
-      return equal(cast<NS::N ## _name>(a), cast<NS::N ## _name>(b));
+      return equal_name(cast<NS::N ## _name>(a), cast<NS::N ## _name>(b));
 #include <beaker/all/name.def>
   }
   assert(false && "invalid type");
@@ -33,9 +33,9 @@ equal(const type& a, const type& b)
   if (a.get_kind() != b.get_kind())
     return false;
   switch (a.get_kind()) {
-#define def_type(NS, T, B) \
+#define def_type(NS, T) \
     case NS::T ## _type_kind: \
-      return equal(cast<NS::T ## _type>(a), cast<NS::T ## _type>(b));
+      return equal_type(cast<NS::T ## _type>(a), cast<NS::T ## _type>(b));
 #include <beaker/all/type.def>
   }
   assert(false && "invalid type");
@@ -50,9 +50,9 @@ equal(const expr& a, const expr& b)
   if (a.get_kind() != b.get_kind())
     return false;
   switch (a.get_kind()) {
-#define def_expr(NS, E, B) \
+#define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
-      return equal(cast<NS::E ## _expr>(a), cast<NS::E ## _expr>(b));
+      return equal_expr(cast<NS::E ## _expr>(a), cast<NS::E ## _expr>(b));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

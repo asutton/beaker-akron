@@ -11,8 +11,8 @@
 
 namespace beaker {
 
-void hash(hasher& h, const sys_name::basic_name&);
-void hash(hasher& h, const sys_name::internal_name&);
+void hash_name(hasher& h, const sys_name::basic_name&);
+void hash_name(hasher& h, const sys_name::internal_name&);
 
 } // namespace beaker
 

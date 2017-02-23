@@ -14,7 +14,7 @@ namespace sys_int {
 enum 
 {
   first_type_kind = sys_int_lang_block,
-#define def_type(NS, T, B) T ## _type_kind,
+#define def_type(NS, T) T ## _type_kind,
 #include "type.def"
   last_type_kind
 };

@@ -10,13 +10,13 @@
 namespace beaker {
 
 void 
-hash(hasher& h, const sys_name::basic_name& n)
+hash_name(hasher& h, const sys_name::basic_name& n)
 {
   hash(h, n.get_symbol());
 }
 
 void 
-hash(hasher& h, const sys_name::internal_name& n)
+hash_name(hasher& h, const sys_name::internal_name& n)
 {
   hash(h, n.get_id());
 }

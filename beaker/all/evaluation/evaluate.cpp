@@ -11,9 +11,9 @@ value
 evaluate(evaluator& eval, const expr& e)
 {
   switch (e.get_kind()) {
-#define def_expr(NS, E, B) \
+#define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
-      return evaluate(eval, cast<NS::E ## _expr>(e));
+      return evaluate_expr(eval, cast<NS::E ## _expr>(e));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

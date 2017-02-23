@@ -33,9 +33,9 @@ trap_error::trap_error(const expr& e)
 // -------------------------------------------------------------------------- //
 // Overrides
 
-value evaluate(evaluator&, const sys_void::nop_expr&);
-value evaluate(evaluator&, const sys_void::void_expr&);
-value evaluate(evaluator&, const sys_void::trap_expr&);
+value evaluate_expr(evaluator&, const sys_void::nop_expr&);
+value evaluate_expr(evaluator&, const sys_void::void_expr&);
+value evaluate_expr(evaluator&, const sys_void::trap_expr&);
 
 } // namespace beaker
 

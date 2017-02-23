@@ -4,6 +4,8 @@
 #include "hash.hpp"
 #include "../ast.hpp"
 
+#include <iostream>
+
 
 namespace beaker {
 
@@ -15,7 +17,7 @@ hash(hasher& h, const name& n)
   switch (n.get_kind()) {
 #define def_name(NS, N) \
     case NS::N ## _name_kind: \
-      return hash(h, cast<NS::N ## _name>(n));
+      return hash_name(h, cast<NS::N ## _name>(n));
 #include <beaker/all/name.def>
   }
   assert(false && "invalid name");
@@ -27,9 +29,9 @@ hash(hasher& h, const type& t)
 {
   hash(h, t.get_kind());
   switch (t.get_kind()) {
-#define def_type(NS, T, B) \
+#define def_type(NS, T) \
     case NS::T ## _type_kind: \
-      return hash(h, cast<NS::T ## _type>(t));
+      return hash_type(h, cast<NS::T ## _type>(t));
 #include <beaker/all/type.def>
   }
   assert(false && "invalid type");
@@ -41,9 +43,9 @@ hash(hasher& h, const expr& e)
 {
   hash(h, e.get_kind());
   switch (e.get_kind()) {
-#define def_expr(NS, E, B) \
+#define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
-      return hash(h, cast<NS::E ## _expr>(e));
+      return hash_expr(h, cast<NS::E ## _expr>(e));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

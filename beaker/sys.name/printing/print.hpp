@@ -11,8 +11,8 @@
 
 namespace beaker {
 
-void print(pretty_printer&, const sys_name::basic_name&);
-void print(pretty_printer&, const sys_name::internal_name&);
+void print_name(pretty_printer&, const sys_name::basic_name&);
+void print_name(pretty_printer&, const sys_name::internal_name&);
 
 } // namespace beaker
 

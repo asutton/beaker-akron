@@ -9,9 +9,9 @@ namespace beaker {
 namespace sys_void {
 
 struct feature;
-#define def_type(NS, T, B) struct T ##_type;
+#define def_type(NS, T) struct T ##_type;
 #include "type.def"
-#define def_expr(NS, E, B) struct E ##_expr;
+#define def_expr(NS, E) struct E ##_expr;
 #include "expr.def"
 struct builder;
 

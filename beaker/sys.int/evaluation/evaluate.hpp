@@ -49,20 +49,20 @@ division_error::division_error(const expr& e)
 // -------------------------------------------------------------------------- //
 // Overrides
 
-value evaluate(evaluator&, const sys_int::int_expr&);
-value evaluate(evaluator&, const sys_int::eq_expr&);
-value evaluate(evaluator&, const sys_int::ne_expr&);
-value evaluate(evaluator&, const sys_int::lt_expr&);
-value evaluate(evaluator&, const sys_int::gt_expr&);
-value evaluate(evaluator&, const sys_int::le_expr&);
-value evaluate(evaluator&, const sys_int::ge_expr&);
-value evaluate(evaluator&, const sys_int::add_expr&);
-value evaluate(evaluator&, const sys_int::sub_expr&);
-value evaluate(evaluator&, const sys_int::mul_expr&);
-value evaluate(evaluator&, const sys_int::quo_expr&);
-value evaluate(evaluator&, const sys_int::rem_expr&);
-value evaluate(evaluator&, const sys_int::neg_expr&);
-value evaluate(evaluator&, const sys_int::rec_expr&);
+value evaluate_expr(evaluator&, const sys_int::int_expr&);
+value evaluate_expr(evaluator&, const sys_int::eq_expr&);
+value evaluate_expr(evaluator&, const sys_int::ne_expr&);
+value evaluate_expr(evaluator&, const sys_int::lt_expr&);
+value evaluate_expr(evaluator&, const sys_int::gt_expr&);
+value evaluate_expr(evaluator&, const sys_int::le_expr&);
+value evaluate_expr(evaluator&, const sys_int::ge_expr&);
+value evaluate_expr(evaluator&, const sys_int::add_expr&);
+value evaluate_expr(evaluator&, const sys_int::sub_expr&);
+value evaluate_expr(evaluator&, const sys_int::mul_expr&);
+value evaluate_expr(evaluator&, const sys_int::quo_expr&);
+value evaluate_expr(evaluator&, const sys_int::rem_expr&);
+value evaluate_expr(evaluator&, const sys_int::neg_expr&);
+value evaluate_expr(evaluator&, const sys_int::rec_expr&);
 
 } // namespace beaker
 

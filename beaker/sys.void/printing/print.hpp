@@ -10,11 +10,11 @@
 
 namespace beaker {
 
-void print(pretty_printer&, const sys_void::void_type&);
+void print_type(pretty_printer&, const sys_void::void_type&);
 
-void print(pretty_printer&, const sys_void::nop_expr&);
-void print(pretty_printer&, const sys_void::void_expr&);
-void print(pretty_printer&, const sys_void::trap_expr&);
+void print_expr(pretty_printer&, const sys_void::nop_expr&);
+void print_expr(pretty_printer&, const sys_void::void_expr&);
+void print_expr(pretty_printer&, const sys_void::trap_expr&);
 
 } // namespace beaker
 

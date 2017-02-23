@@ -13,52 +13,15 @@
 namespace beaker {
 
 // -------------------------------------------------------------------------- //
-// Hashing for names
+// Primary interface.
 
 struct name;
+struct type;
+struct expr;
 
 void hash(hasher&, const name&);
-
-// -------------------------------------------------------------------------- //
-// Hashing for types
-
-struct type;
-struct base_type;
-struct object_type;
-
 void hash(hasher&, const type&);
-
-/// Appends no additional information for base types.
-constexpr void hash(hasher&, const base_type&) { }
-
-/// Appends no additional information for base types. This must be overriden
-/// if the object type has additional properties.
-constexpr void hash(hasher&, const object_type&) { }
-
-
-// -------------------------------------------------------------------------- //
-// Hashing for expressions
-
-struct expr;
-struct literal_expr;
-struct nullary_expr;
-struct unary_expr;
-struct binary_expr;
-struct ternary_expr;
-
 void hash(hasher&, const expr&);
-
-/// Append no additional information for nullary expressions.
-constexpr void hash(hasher&, const nullary_expr&) { }
-
-void hash(hasher&, const literal_expr&);
-void hash(hasher&, const unary_expr&);
-void hash(hasher&, const binary_expr&);
-void hash(hasher&, const ternary_expr&);
-
-
-// -------------------------------------------------------------------------- //
-// Hashing for supporting types
 
 /// Hash the elements of s into h.
 template<typename T>
@@ -69,6 +32,38 @@ hash(hasher& h, const seq<T>& s)
     hash(h, t);
   hash(h, s.size());
 }
+
+
+// -------------------------------------------------------------------------- //
+// Dispatch interface
+
+struct base_type;
+struct object_type;
+
+struct literal_expr;
+struct nullary_expr;
+struct unary_expr;
+struct binary_expr;
+struct ternary_expr;
+
+void hash_name(hasher&, const name&) = delete;
+void hash_type(hasher&, const type&) = delete;
+void hash_expr(hasher&, const expr&) = delete;
+
+/// Appends no additional information for base types.
+constexpr void hash_type(hasher&, const base_type&) { }
+
+/// Appends no additional information for base types. This must be overriden
+/// if the object type has additional properties.
+constexpr void hash_type(hasher&, const object_type&) { }
+
+/// Append no additional information for nullary expressions.
+constexpr void hash_expr(hasher&, const nullary_expr&) { }
+
+void hash_expr(hasher&, const literal_expr&);
+void hash_expr(hasher&, const unary_expr&);
+void hash_expr(hasher&, const binary_expr&);
+void hash_expr(hasher&, const ternary_expr&);
 
 
 // -------------------------------------------------------------------------- //
