@@ -1,7 +1,9 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_name(basic)
-def_name(internal)
+def_name(sys_name, basic)
+def_name(sys_name, internal)
 
-#undef def_name
+#ifndef do_not_undefine
+#  undef def_name
+#endif

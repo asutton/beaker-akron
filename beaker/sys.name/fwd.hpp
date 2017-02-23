@@ -9,7 +9,7 @@ namespace beaker {
 namespace sys_name {
 
 struct feature;
-#define def_name(N) struct N##_name;
+#define def_name(NS, N) struct N ## _name;
 #include "name.def"
 struct builder;
 

@@ -11,8 +11,8 @@ namespace beaker {
 namespace sys_name {
 
 builder::builder(module& m)
-  : basic_builder<sys_name_lang>(m), 
-    name_(&get_language().make_canonical_set<basic_name>()),
+  : factory(m),
+    name_(&make_canonical_set<basic_name>(get_language_allocator())),
     current_id_()
 { }
 

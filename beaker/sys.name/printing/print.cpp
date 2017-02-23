@@ -3,29 +3,22 @@
 
 #include "print.hpp"
 #include "../name.hpp"
-#include <beaker/util/symbol.hpp>
 
-#include <iostream>
+#include <beaker/util/symbol.hpp>
 
 
 namespace beaker {
-namespace sys_name {
 
-void
-print_algo::operator()(std::ostream& os, const name& n) const
+void 
+print(pretty_printer& pp, const sys_name::basic_name& n)
 {
-  switch (n.get_kind()) {
-    case basic_name_kind:
-      os << cast<basic_name>(n).get_symbol().get_spelling();
-      return;
-    case internal_name_kind:
-      os << "<internal>";
-      return;
-    default:
-      break;
-  }
-  assert(false && "not a system name");
+  pp.print(n.get_symbol().get_spelling());
 }
 
-} // namespace sys_name
+void 
+print(pretty_printer& pp, const sys_name::internal_name& n)
+{
+  pp.print("<internal>");
+}
+
 } // namespace beaker

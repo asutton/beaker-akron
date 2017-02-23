@@ -51,6 +51,7 @@ include_directories(.)
 
 
 add_subdirectory(beaker)
+add_subdirectory(lang)
 add_subdirectory(tests)
 add_subdirectory(examples/icalc)
 

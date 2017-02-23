@@ -4,6 +4,7 @@
 #ifndef BEAKER_ALL_AST_HPP
 #define BEAKER_ALL_AST_HPP
 
+#include "name.hpp"
 #include "type.hpp"
 #include "expr.hpp"
 

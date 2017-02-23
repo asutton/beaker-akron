@@ -14,15 +14,14 @@ namespace sys_name {
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate sys_name terms.
-struct builder : basic_builder<sys_name_lang>
+struct builder : factory
 {
   builder(module&);
 
-  // Names
-  basic_name& get_name(const char*);
   internal_name& get_name();
+  basic_name& get_name(const char*);
 
-  canonical_set<basic_name>* name_;
+  canonical_term_set<basic_name>* name_;
   int current_id_;
 };
 

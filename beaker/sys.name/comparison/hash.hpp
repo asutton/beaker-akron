@@ -4,18 +4,16 @@
 #ifndef BEAKER_SYS_NAME_COMPARISON_HASH_HPP
 #define BEAKER_SYS_NAME_COMPARISON_HASH_HPP
 
+#include <beaker/sys.name/fwd.hpp>
+
 #include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
-namespace sys_name {
 
-struct hash_algo : hash_algorithm
-{
-  void operator()(hasher&, const name&) const override;
-};
+void hash(hasher& h, const sys_name::basic_name&);
+void hash(hasher& h, const sys_name::internal_name&);
 
-} // namespace sys_name
 } // namespace beaker
 
 

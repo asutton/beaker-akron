@@ -16,7 +16,7 @@ namespace sys_name {
 enum 
 {
   first_name_kind = sys_name_lang_block,
-#define def_name(e) e ## _name_kind,
+#define def_name(NS, N) N ## _name_kind,
 #include "name.def"
   last_name_kind
 };

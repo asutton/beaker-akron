@@ -7,6 +7,20 @@
 
 namespace beaker {
 
+/// Appends the kind of n's hash code and dispatch to an appropriate overload.
+void
+hash(hasher& h, const name& n)
+{
+  hash(h, n.get_kind());
+  switch (n.get_kind()) {
+#define def_name(NS, N) \
+    case NS::N ## _name_kind: \
+      return hash(h, cast<NS::N ## _name>(n));
+#include <beaker/all/name.def>
+  }
+  assert(false && "invalid name");
+}
+
 /// Appends the kind of t's hash code and dispatch to an appropriate overload.
 void
 hash(hasher& h, const type& t)
@@ -21,7 +35,7 @@ hash(hasher& h, const type& t)
   assert(false && "invalid type");
 }
 
-/// Returns true if a and b denote the same computations.
+/// Appends the kind of n's hash code and dispatch to an appropriate overload.
 void
 hash(hasher& h, const expr& e)
 {

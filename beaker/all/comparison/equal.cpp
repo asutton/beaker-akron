@@ -7,6 +7,23 @@
 
 namespace beaker {
 
+/// Returns true if a and b are the same name.
+bool
+equal(const name& a, const name& b)
+{
+  if (&a == &b)
+    return true;
+  if (a.get_kind() != b.get_kind())
+    return false;
+  switch (a.get_kind()) {
+#define def_name(NS, N) \
+    case NS::N ## _name_kind: \
+      return equal(cast<NS::N ## _name>(a), cast<NS::N ## _name>(b));
+#include <beaker/all/name.def>
+  }
+  assert(false && "invalid type");
+}
+
 /// Returns true if a and b are the same type.
 bool
 equal(const type& a, const type& b)

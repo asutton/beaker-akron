@@ -4,18 +4,16 @@
 #ifndef BEAKER_SYS_NAME_PRINTING_PRINT_HPP
 #define BEAKER_SYS_NAME_PRINTING_PRINT_HPP
 
+#include <beaker/sys.name/fwd.hpp>
+
 #include <beaker/base/printing/print.hpp>
 
 
 namespace beaker {
-namespace sys_name {
 
-struct print_algo : print_algorithm
-{
-  void operator()(std::ostream&, const name&) const override;
-};
+void print(pretty_printer&, const sys_name::basic_name&);
+void print(pretty_printer&, const sys_name::internal_name&);
 
-} // namespace sys_name
 } // namespace beaker
 
 
