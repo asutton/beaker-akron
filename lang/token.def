@@ -1,0 +1,55 @@
+// Copyright (c) 2015-2017 Andrew Sutton
+// All rights reserved
+
+def_token(eof,       "<eof>")
+
+// Operators and punctuators
+def_token(lbrace,    "{")
+def_token(rbrace,    "}")
+def_token(lparen,    "(")
+def_token(rparen,    ")")
+def_token(lbrack,    "[")
+def_token(rbrack,    "")
+def_token(semicolon, ";")
+def_token(dot,       ".")
+def_token(plus,      "+")
+def_token(minus,     "-")
+def_token(star,      "*")
+def_token(slash,     "/")
+def_token(percent,   "%")
+def_token(amp,       "&")
+def_token(bar,       "|")
+def_token(caret,     "^")
+def_token(tilde,     "~")
+def_token(bang,      "!")
+def_token(question,  "?")
+def_token(colon,     ":")
+def_token(eq_eq,     "==")
+def_token(bang_eq,   "!=")
+def_token(lt,        "<")
+def_token(lt_eq,     "<=")
+def_token(lt_lt,     "<<")
+def_token(gt,        ">")
+def_token(gt_eq,     ">=")
+def_token(gt_gt,     ">>")
+def_token(amp_amp,   "&&")
+def_token(bar_bar,   "||")
+
+// Keywords
+def_keyword(bool,     "bool")
+def_keyword(def,      "def")
+def_keyword(int,      "int")
+def_keyword(import,   "import")
+def_keyword(module,   "module")
+def_keyword(return,   "return")
+def_keyword(var,      "var")
+
+// Multivalued tokens
+def_token(bool,       "boolean-literal")
+def_token(bin_int,    "binary-integer-literal")
+def_token(dec_int,    "decimal-integer-literal")
+def_token(hex_int,    "hexadecimal-integer-literal")
+def_token(id,         "identifier")
+
+#undef def_token
+#undef def_keyword
