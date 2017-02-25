@@ -13,7 +13,7 @@ namespace sys_var {
 enum 
 {
   first_type_kind = sys_var_lang_block,
-#define def_type(e) e ## _type_kind,
+#define def_type(NS, T) T ## _type_kind,
 #include "type.def"
   last_type_kind
 };
@@ -22,7 +22,7 @@ enum
 // -------------------------------------------------------------------------- //
 // Types
 
-/// Represents the type `ref t`.
+/// Represents the type `t&`.
 ///
 /// The type `t` is required to be an object type. References to `void`, other
 /// references, and functions are not allowed.

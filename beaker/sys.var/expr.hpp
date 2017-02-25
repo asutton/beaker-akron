@@ -19,8 +19,8 @@ namespace sys_var {
 enum 
 {
   first_expr_kind = sys_var_lang_block,
-#define def_expr(e) e ## _expr_kind,
-#define def_init(e) e ## _init_kind,
+#define def_expr(NS, E) E ## _expr_kind,
+#define def_init(NS, E) E ## _init_kind,
 #include "expr.def"
   last_expr_kind
 };
@@ -60,6 +60,7 @@ inline
 ref_expr::ref_expr(type& t, decl& d)
   : expr(node_kind, t), decl_(&d)
 { }
+
 
 /// Represents the the expression `deref(e)`.
 ///

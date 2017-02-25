@@ -4,19 +4,23 @@
 #ifndef BEAKER_SYS_VAR_COMPARISON_HASH_HPP
 #define BEAKER_SYS_VAR_COMPARISON_HASH_HPP
 
+#include <beaker/sys.var/fwd.hpp>
+
 #include <beaker/base/comparison/hash.hpp>
 
 
 namespace beaker {
-namespace sys_var {
 
-struct hash_algo : hash_algorithm
-{
-  void operator()(hasher&, const type&) const override;
-  void operator()(hasher&, const expr&) const override;
-};
+void hash_type(hasher&, const sys_var::ref_type&);
 
-} // namespace sys_var
+void hash_expr(hasher&, const sys_var::ref_expr&);
+void hash_expr(hasher&, const sys_var::deref_expr&);
+void hash_expr(hasher&, const sys_var::assign_expr&);
+void hash_expr(hasher&, const sys_var::nop_init&);
+void hash_expr(hasher&, const sys_var::zero_init&);
+void hash_expr(hasher&, const sys_var::copy_init&);
+void hash_expr(hasher&, const sys_var::ref_init&);
+
 } // namespace beaker
 
 

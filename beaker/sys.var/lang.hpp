@@ -10,10 +10,14 @@
 namespace beaker {
 namespace sys_var {
 
-/// Represents the feature allowing the declaration of variables.
-struct feature : feature_impl<sys_var_lang>
+struct builder;
+
+/// Adds core language support for the definition of local and global variables.
+struct feature : beaker::feature
 {
-  feature(language&);
+  using builder_type = builder;
+
+  factory& make_builder(module&) const override;
 };
 
 } // namespace sys_var

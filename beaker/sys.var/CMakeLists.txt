@@ -5,12 +5,12 @@ add_beaker_module(
   lang.cpp
   type.cpp
   expr.cpp
-  decl.cpp
+  # decl.cpp
   fwd.cpp
   build.cpp
-  comparison/eq.cpp
+  comparison/equal.cpp
   comparison/hash.cpp
   printing/print.cpp
-  generation/gen.cpp
-  serialization/write.cpp
+  # generation/gen.cpp
+  # serialization/write.cpp
 )

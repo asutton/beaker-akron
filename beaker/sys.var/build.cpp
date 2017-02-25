@@ -12,31 +12,10 @@
 namespace beaker {
 namespace sys_var {
 
-static inline sys_name::builder& 
-get_name_builder(builder& b)
-{
-  return b.get_module().get_builder<sys_name::builder>();
-}
-
-
 builder::builder(module& m)
-  : basic_builder<sys_var_lang>(m),
-    ref_(&get_language().make_canonical_set<ref_type>())
+  : factory(m),
+    ref_(&make_canonical_set<ref_type>(get_language_allocator())) 
 { }
-
-/// Returns the name corresponding to str.
-sys_name::basic_name& 
-builder::get_name(const char* str) 
-{
-  return get_name_builder(*this).get_name(str);
-}
-
-/// Returns a unique internal name.
-sys_name::internal_name& 
-builder::get_name() 
-{
-  return get_name_builder(*this).get_name();
-}
 
 /// Returns the canonical type `t&`.
 ref_type&
@@ -88,7 +67,7 @@ builder::make_assign_expr(expr& e1, expr& e2)
 {
   assert(is_reference_expression(e1));
   assert(is_object_expression(e2));
-  assert(equivalent(get_object_type(e1.get_type()), e2.get_type()));
+  assert(equal(get_object_type(e1.get_type()), e2.get_type()));
   return make<assign_expr>(e1.get_type(), e1, e2);
 }
 
@@ -124,65 +103,65 @@ builder::make_ref_init(expr& e)
   return make<ref_init>(e.get_type(), e);
 }
 
-/// Returns a new variable `var t n`. Variables with no initializer must have
-/// external linkage and static storage.
-var_decl&
-builder::make_var_decl(dc cxt, storage s, name& n, type& t)
-{
-  return make<var_decl>(generate_id(), cxt, s, n, t);
-}
+// /// Returns a new variable `var t n`. Variables with no initializer must have
+// /// external linkage and static storage.
+// var_decl&
+// builder::make_var_decl(dc cxt, storage s, name& n, type& t)
+// {
+//   return make<var_decl>(generate_id(), cxt, s, n, t);
+// }
 
-/// Returns a new variable `var t n`. Variables with no initializer must have
-/// external linkage and static storage.
-var_decl&
-builder::make_var_decl(dc cxt, storage s, const char* n, type& t)
-{
-  return make_var_decl(cxt, s, get_name(n), t);
-}
+// /// Returns a new variable `var t n`. Variables with no initializer must have
+// /// external linkage and static storage.
+// var_decl&
+// builder::make_var_decl(dc cxt, storage s, const char* n, type& t)
+// {
+//   return make_var_decl(cxt, s, get_name(n), t);
+// }
 
-/// Returns a new variable `var t n = e` with the given storage specifier
-/// and default variable linkage.
-///
-/// If e is not an initializer and we can infer which initialization would be
-/// required, a proper initializer is created.
-var_decl&
-builder::make_var_decl(dc cxt, linkage l, storage s, name& n, type& t, expr& e)
-{
-  assert(equivalent(t, e.get_type()));
-  if (is_object_type(t)) {
-    // Initializing an object requires copy, zero, or trivial initialization.
-    // This cannot be initialized by a reference initializer. If any other 
-    // expression is given, assume that copy initialization was meant.
-    assert(!is<ref_init>(e));
-    if (is<copy_init>(e) || is<zero_init>(e) || is<nop_init>(e))
-      return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
-    else
-      return make<var_decl>(generate_id(), cxt, l, s, n, t, make_copy_init(e));
-  }
-  else if(is_reference_type(t)) {
-    // Initializing a reference requires reference initialization. Copy, zero,
-    // and trivial initialization is not allowed for references. If any other
-    // expression is given, assume that reference initialization was meant.
-    assert(!is<copy_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
-    if (is<ref_init>(e))
-      return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
-    else
-      return make<var_decl>(generate_id(), cxt, l, s, n, t, make_ref_init(e));
-  }
-  else if (is_function_type(t)) {
-    assert(false && "function variable initialization not implemented");
-  }
-  else {
-    assert(false && "variable of unknown category");
-  }
-}
+// /// Returns a new variable `var t n = e` with the given storage specifier
+// /// and default variable linkage.
+// ///
+// /// If e is not an initializer and we can infer which initialization would be
+// /// required, a proper initializer is created.
+// var_decl&
+// builder::make_var_decl(dc cxt, linkage l, storage s, name& n, type& t, expr& e)
+// {
+//   assert(equivalent(t, e.get_type()));
+//   if (is_object_type(t)) {
+//     // Initializing an object requires copy, zero, or trivial initialization.
+//     // This cannot be initialized by a reference initializer. If any other 
+//     // expression is given, assume that copy initialization was meant.
+//     assert(!is<ref_init>(e));
+//     if (is<copy_init>(e) || is<zero_init>(e) || is<nop_init>(e))
+//       return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
+//     else
+//       return make<var_decl>(generate_id(), cxt, l, s, n, t, make_copy_init(e));
+//   }
+//   else if(is_reference_type(t)) {
+//     // Initializing a reference requires reference initialization. Copy, zero,
+//     // and trivial initialization is not allowed for references. If any other
+//     // expression is given, assume that reference initialization was meant.
+//     assert(!is<copy_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
+//     if (is<ref_init>(e))
+//       return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
+//     else
+//       return make<var_decl>(generate_id(), cxt, l, s, n, t, make_ref_init(e));
+//   }
+//   else if (is_function_type(t)) {
+//     assert(false && "function variable initialization not implemented");
+//   }
+//   else {
+//     assert(false && "variable of unknown category");
+//   }
+// }
 
-/// Returns a new variable `var t n = e`.
-var_decl&
-builder::make_var_decl(dc cxt, linkage l, storage s, const char* n, type& t, expr& e)
-{
-  return make_var_decl(cxt, l, s, get_name(n), t, e);
-}
+// /// Returns a new variable `var t n = e`.
+// var_decl&
+// builder::make_var_decl(dc cxt, linkage l, storage s, const char* n, type& t, expr& e)
+// {
+//   return make_var_decl(cxt, l, s, get_name(n), t, e);
+// }
 
 } // namespace sys_var
 } // namespace beaker

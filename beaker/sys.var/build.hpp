@@ -15,13 +15,9 @@ namespace sys_var {
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate core terms.
-struct builder : basic_builder<sys_var_lang>
+struct builder : factory
 {
   builder(module&);
-
-  // Names
-  sys_name::basic_name& get_name(const char*);
-  sys_name::internal_name& get_name();
 
   // Canonical types
   ref_type& get_ref_type(type&);
@@ -37,12 +33,12 @@ struct builder : basic_builder<sys_var_lang>
   ref_init& make_ref_init(expr&);
 
   // Declarations
-  var_decl& make_var_decl(dc, storage, name&, type&);
-  var_decl& make_var_decl(dc, storage, const char*, type&);
-  var_decl& make_var_decl(dc, linkage, storage, name&, type&, expr&);
-  var_decl& make_var_decl(dc, linkage, storage, const char*, type&, expr&);
+  // var_decl& make_var_decl(dc, storage, name&, type&);
+  // var_decl& make_var_decl(dc, storage, const char*, type&);
+  // var_decl& make_var_decl(dc, linkage, storage, name&, type&, expr&);
+  // var_decl& make_var_decl(dc, linkage, storage, const char*, type&, expr&);
   
-  canonical_set<ref_type>* ref_;
+  canonical_term_set<ref_type>* ref_;
 };
 
 } // namespace sys_var

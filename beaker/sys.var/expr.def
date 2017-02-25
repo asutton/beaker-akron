@@ -1,14 +1,18 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_expr(ref)
-def_expr(deref)
-def_expr(assign)
+def_expr(sys_var, ref)
+def_expr(sys_var, deref)
+def_expr(sys_var, assign)
 
-def_init(nop)
-def_init(zero)
-def_init(copy)
-def_init(ref)
+def_init(sys_var, nop)
+def_init(sys_var, zero)
+def_init(sys_var, copy)
+def_init(sys_var, ref)
 
-#undef def_expr
-#undef def_init
+#ifndef do_not_undefine
+#  undef def_expr
+#endif
+#ifndef do_not_undefine
+#  undef def_init
+#endif

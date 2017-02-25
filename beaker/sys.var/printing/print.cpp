@@ -4,7 +4,6 @@
 #include "print.hpp"
 #include "../type.hpp"
 #include "../expr.hpp"
-#include "../decl.hpp"
 
 #include <iostream>
 
@@ -12,106 +11,55 @@
 namespace beaker {
 namespace sys_var {
 
-
-// Pretty print a reference type.
-static void
-print_ref_type(std::ostream& os, const ref_type& t)
+/// \todo Do we need to enclose the object type in parens? Probably if the
+/// object type turns out to be a function.
+void
+print_type(pretty_printer& pp, const sys_var::ref_type& t)
 {
-  print(os, t.get_object_type());
-  os << '&';
+  print(pp, t.get_object_type());
+  pp.print('&');
 }
 
 void
-print_algo::operator()(std::ostream& os, const type& t) const
+print_expr(pretty_printer& pp, const sys_var::ref_expr& e)
 {
-  assert(is<ref_type>(t));
-  return print_ref_type(os, cast<ref_type>(t));
+  assert(false && "not implemented");
 }
 
-
-static void
-print_deref_expr(std::ostream& os, const deref_expr& e)
-{
-  os << "deref(";
-  print(os, e.get_source());
-  os << ')';
-}
-
-static void
-print_nop_init(std::ostream& os, const nop_init& e)
-{
-  os << "= nop";
-}
-
-static void
-print_zero_init(std::ostream& os, const zero_init& e)
-{
-  os << "= zero";
-}
-
-static void
-print_copy_init(std::ostream& os, const copy_init& e)
-{
-  os << "= copy ";
-  print(os, e.get_expression());
-}
-
-static void
-print_ref_init(std::ostream& os, const ref_init& e)
-{
-  os << "= ref ";
-  print(os, e.get_expression());
-}
-
-// FIXME: This is incomplete.
 void
-print_algo::operator()(std::ostream& os, const expr& e) const
+print_expr(pretty_printer& pp, const sys_var::deref_expr& e)
 {
-  switch (e.get_kind()) {
-    case ref_expr_kind:
-      return print(os, cast<ref_expr>(e).get_name());
-    case deref_expr_kind:
-      return print_deref_expr(os, cast<deref_expr>(e));
-    case assign_expr_kind:
-      return print_infix_expr(os, cast<assign_expr>(e), "=");
-
-    case nop_init_kind:
-      return print_nop_init(os, cast<nop_init>(e));
-    case zero_init_kind:
-      return print_zero_init(os, cast<zero_init>(e));
-    case copy_init_kind:
-      return print_copy_init(os, cast<copy_init>(e));
-    case ref_init_kind:
-      return print_ref_init(os, cast<ref_init>(e));
-    default:
-      break;
-  }
-  assert(false && "not a variable expression");
+  assert(false && "not implemented");
 }
 
-
-// Pretty print a value declaration.
-static void
-print_var_decl(std::ostream& os, const var_decl& d)
-{
-  os << "var ";
-  print(os, d.get_type());
-  os << ' ';
-  print(os, d.get_name());
-  if (d.has_initializer()) {
-    os << ' ';
-    print(os, d.get_initializer());
-  }
-  os << ";\n";
-}
-
-
-// FIXME: Allow language packs to add declarations.
 void
-print_algo::operator()(std::ostream& os, const decl& d) const
+print_expr(pretty_printer& pp, const sys_var::assign_expr& e)
 {
-  assert(is<var_decl>(d));
-  return print_var_decl(os, cast<var_decl>(d));
+  assert(false && "not implemented");
+}
+
+void
+print_expr(pretty_printer& pp, const sys_var::nop_init& e)
+{
+  assert(false && "not implemented");
+}
+
+void
+print_expr(pretty_printer& pp, const sys_var::zero_init& e)
+{
+  assert(false && "not implemented");
+}
+
+void
+print_expr(pretty_printer& pp, const sys_var::copy_init& e)
+{
+  assert(false && "not implemented");
+}
+
+void
+print_expr(pretty_printer& pp, const sys_var::ref_init& e)
+{
+  assert(false && "not implemented");
 }
 
 } // namespace sys_var
