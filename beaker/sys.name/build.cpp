@@ -21,8 +21,7 @@ basic_name&
 builder::get_name(const char* str) 
 {
   symbol_table& syms = mod_->get_symbol_table();
-  const symbol& sym = syms.insert(str, 0);
-  return name_->get(sym);
+  return name_->get(syms.get(str));
 }
 
 /// Returns a unique internal name.

@@ -5,6 +5,8 @@
 
 #include <beaker/all/ast.hpp>
 
+#include <beaker/util/symbol.hpp>
+
 #include <iostream>
 
 
@@ -65,7 +67,18 @@ pretty_printer::print_space()
 
 
 // -------------------------------------------------------------------------- //
-// Pretty printer
+// Primary interface
+
+/// Print the text of a symbol.
+void
+print(pretty_printer& pp, const symbol& sym)
+{
+  pp.print(sym.c_str());
+}
+
+
+// -------------------------------------------------------------------------- //
+// Print helpers
 
 /// Print an expression enclosed by the given characters.
 void

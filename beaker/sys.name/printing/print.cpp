@@ -12,7 +12,7 @@ namespace beaker {
 void 
 print_name(pretty_printer& pp, const sys_name::basic_name& n)
 {
-  pp.print(n.get_symbol().get_spelling());
+  print(pp, n.get_symbol());
 }
 
 void 

@@ -6,42 +6,25 @@
 
 namespace beaker {
 
-// Insert a new symbol with the given spelling and kind. 
+/// Try to find a symbol for `str` in the table. Returns a pointer to that
+/// symbol if it exists, and nullptr otherwise.
+const symbol*
+symbol_table::lookup(const std::string& str) const
+{
+  auto iter = syms.find(symbol(str));
+  if (iter == syms.end())
+    return nullptr;
+  else
+    return &*iter;
+}
+
+/// Gets a symbol for the given name, inserting a new symbol if it does not
+/// exist.
 const symbol&
-symbol_table::insert(const char* s, int k)
+symbol_table::get(const std::string& str)
 {
-  cstring str = s;
-  auto iter = syms.find(str);
-  if (iter != syms.end())
-    return *iter->second;
-
-  strs.push_back(s);
-  str = strs.back().c_str();
-  symbol* sym = new symbol(str, k);
-  syms.emplace(str, sym);
-  spell.emplace(k, sym);
-  return *sym;
-}
-
-const symbol*
-symbol_table::find_by_spelling(const char* s) const
-{
-  cstring str = s;
-  auto iter = syms.find(str);
-  if (iter != syms.end())
-    return iter->second;
-  else
-    return nullptr;
-}
-
-const symbol*
-symbol_table::find_by_kind(int k) const
-{
-  auto iter = spell.find(k);
-  if (iter != spell.end())
-    return iter->second;
-  else
-    return nullptr;
+  auto res = syms.emplace(symbol(str));
+  return *res.first;
 }
 
 } // namespace beaker

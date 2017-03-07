@@ -4,56 +4,64 @@
 #ifndef BEAKER_UTIL_SYMBOL_TABLE_HPP
 #define BEAKER_UTIL_SYMBOL_TABLE_HPP
 
-#include "string.hpp"
-#include "symbol.hpp"
+#include <beaker/util/symbol.hpp>
 
-#include <list>
-#include <string>
-#include <unordered_map>
+#include <unordered_set>
 
 
 namespace beaker {
+
+/// FIXME: For lexical definitions, this is properly a "scope".
+struct scope_contour : std::vector<const symbol*>
+{
+  ~scope_contour();
+
+  template<typename T, typename... Args>
+  T& add(const symbol& sym, Args&&... args);
+
+  void remove(const symbol& sym);
+};
+
+/// Remove all bindings added to this contour during its lifetime.
+inline 
+scope_contour::~scope_contour()
+{
+  for (const symbol* sym : *this)
+    remove(*sym);
+}
+
+/// Add a new binding to this contour.
+template<typename T, typename... Args>
+inline T&
+scope_contour::add(const symbol& sym, Args&&... args)
+{
+  scope_chain& chain = sym.get_bindings();
+  return chain.push<T>(std::forward<Args>(args...));
+}
+
+/// Remove a binding from this contour.
+inline void
+scope_contour::remove(const symbol& sym)
+{
+  sym.pop();
+}
+
+
+// -------------------------------------------------------------------------- //
+// Symbol table
 
 // The symbol table maintains a mapping of unique strings in an input
 // to their corresponding symbols.
 struct symbol_table
 {
-  struct hash
-  {
-    std::size_t operator()(cstring s) const
-    {
-      // TODO: This is a terrible hash function.
-      std::size_t n = 0;
-      for (char c : s)
-        n ^= c;
-      return n;
-    }
-  };
-
-  struct equal
-  {
-    bool operator()(cstring a, cstring b) const
-    {
-      if (a.size() != b.size())
-        return false;
-      return !std::strncmp(a.data(), b.data(), a.size());
-    }
-  };
-
-  using string_list = std::list<std::string>;
-  using symbol_map = std::unordered_map<cstring, symbol*, hash, equal>;
-  using spelling_map = std::unordered_map<int, symbol*>;
+  using symbol_map = std::unordered_set<symbol, symbol_hash, symbol_eq>;
 
   symbol_table() = default;
 
-  const symbol* find_by_spelling(const char*) const;
-  const symbol* find_by_kind(int) const;
+  const symbol* lookup(const std::string&) const;
+  const symbol& get(const std::string&);
 
-  symbol const& insert(char const*, int k);
-
-  string_list strs;   // Storage for underlying strings
-  symbol_map syms;    // Map from spelling to symbol
-  spelling_map spell; // Map from kind to symbol
+  symbol_map syms;
 };
 
 } // namespace beaker

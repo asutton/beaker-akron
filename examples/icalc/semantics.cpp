@@ -133,7 +133,7 @@ semantics::on_logical_or(expr& e1, token tok, expr& e2)
 {
   check_bool(e1, e2);
   expr& ret = build.make_or_else_expr(e1, e2);
-  return set_locations(ret, e1, tok, e2);;
+  return set_locations(ret, e1, tok, e2);
 }
 
 /// Process the expression `e1 && e2`.
@@ -142,7 +142,7 @@ semantics::on_logical_and(expr& e1, token tok, expr& e2)
 {
   check_bool(e1, e2);
   expr& ret = build.make_and_then_expr(e1, e2);
-  return set_locations(ret, e1, tok, e2);;
+  return set_locations(ret, e1, tok, e2);
 }
 
 // -------------------------------------------------------------------------- //

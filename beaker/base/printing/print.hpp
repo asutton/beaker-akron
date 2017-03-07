@@ -13,6 +13,9 @@
 
 namespace beaker {
 
+struct symbol;
+
+
 /// The pretty printer object provides context for printing terms of the
 /// languages. This wraps an output stream and helps manages indentation and
 /// other printing options.
@@ -41,6 +44,7 @@ struct pretty_printer
 inline const language& pretty_printer::get_language() const { return lang; }
 
 
+void print(pretty_printer&, const symbol&);
 void print(pretty_printer&, const name&);
 void print(pretty_printer&, const type&);
 void print(pretty_printer&, const expr&);
