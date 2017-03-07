@@ -7,11 +7,12 @@
 #include <beaker/util/symbol.hpp>
 
 #include <unordered_set>
+#include <vector>
 
 
 namespace beaker {
 
-/// FIXME: For lexical definitions, this is properly a "scope".
+/// FIXME: For, this is properly a "scope".
 struct scope_contour : std::vector<const symbol*>
 {
   ~scope_contour();
@@ -36,14 +37,15 @@ inline T&
 scope_contour::add(const symbol& sym, Args&&... args)
 {
   scope_chain& chain = sym.get_bindings();
-  return chain.push<T>(std::forward<Args>(args...));
+  return chain.push<T>(std::forward<Args>(args)...);
 }
 
 /// Remove a binding from this contour.
 inline void
 scope_contour::remove(const symbol& sym)
 {
-  sym.pop();
+  scope_chain& chain = sym.get_bindings();
+  chain.pop();
 }
 
 

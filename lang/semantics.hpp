@@ -29,6 +29,7 @@ type_error::type_error(location loc, const char* msg)
 
 inline location type_error::get_location() const { return loc; }
 
+
 /// The semantic actions of the parser. This defines the meaning of a syntactic
 /// expression by mapping it onto an abstract syntax with precise meaning.
 ///
