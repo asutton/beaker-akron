@@ -2,10 +2,10 @@
 // All rights reserved
 
 #include "print.hpp"
+#include "../type.hpp"
+#include "../expr.hpp"
 
-#include <beaker/all/ast.hpp>
-
-#include <beaker/util/symbol.hpp>
+#include <beaker/base/symbol.hpp>
 
 #include <iostream>
 

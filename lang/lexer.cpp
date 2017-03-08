@@ -3,6 +3,8 @@
 
 #include "lexer.hpp"
 
+#include <beaker/base/symbol_table.hpp>
+
 #include <iostream>
 #include <sstream>
 
@@ -12,8 +14,8 @@ namespace bpl {
 // The global keyword table.
 lexer::keyword_table lexer::kw;
 
-lexer::lexer(stream_type& s) 
-  : cs(s), line(1), col(1) 
+lexer::lexer(beaker::symbol_table& syms, stream_type& s) 
+  : syms(syms), cs(s), line(1), col(1) 
 {
   // Build the keyword table.
   if (kw.empty()) {
@@ -188,12 +190,21 @@ token lexer::dot() { return require(';'), finish_token(dot_tok); }
 /// Returns the corresponding token.
 token lexer::plus() { return require('+'), finish_token(plus_tok); }
 
-/// Matches '-' operator.
+/// Matches '-' operator or '->' punctuator/
 ///
 ///   minus-operator -> '-'
+///   arrow-punctuator -> '->'
 ///
 /// Returns the corresponding token.
-token lexer::minus() { return require('-'), finish_token(minus_tok); }
+token 
+lexer::minus()
+{ 
+  require('-');
+  if (match('>'))
+    return finish_token(arrow_tok);
+  else
+    return finish_token(minus_tok); 
+}
 
 /// Matches '*' operator.
 ///
@@ -208,7 +219,8 @@ token lexer::star() { return require('*'), finish_token(star_tok); }
 ///   comment -> '//' [all characters except newline]
 ///
 /// Returns the corresponding token.
-token lexer::slash() 
+token 
+lexer::slash() 
 { 
   require('/'); 
   if (match('/'))
@@ -414,7 +426,7 @@ lexer::word()
   if (iter != kw.end())
     return finish_token(iter->second);
   else
-    return finish_token(id_tok);
+    return finish_token<beaker::symbol_attr>(id_tok, syms.get(buf));
 }
 
 /// Matches an integer value.

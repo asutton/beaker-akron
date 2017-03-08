@@ -10,6 +10,9 @@
 
 
 namespace beaker {
+
+struct symbol;
+
 namespace sys_name {
 
 /// Provides access to resources needed to construct, validate, and
@@ -20,6 +23,7 @@ struct builder : factory
 
   internal_name& get_name();
   basic_name& get_name(const char*);
+  basic_name& get_name(const symbol&);
 
   canonical_term_set<basic_name>* name_;
   int current_id_;

@@ -34,6 +34,7 @@ def_token(gt_eq,     ">=")
 def_token(gt_gt,     ">>")
 def_token(amp_amp,   "&&")
 def_token(bar_bar,   "||")
+def_token(arrow,     "->")
 
 // Keywords
 def_keyword(bool,     "bool")

@@ -4,7 +4,7 @@
 #include "build.hpp"
 #include "name.hpp"
 
-#include <beaker/util/symbol_table.hpp>
+#include <beaker/base/symbol_table.hpp>
 
 
 namespace beaker {
@@ -22,6 +22,13 @@ builder::get_name(const char* str)
 {
   symbol_table& syms = mod_->get_symbol_table();
   return name_->get(syms.get(str));
+}
+
+/// Returns the name for the given symbol.
+basic_name& 
+builder::get_name(const symbol& sym) 
+{
+  return name_->get(sym);
 }
 
 /// Returns a unique internal name.

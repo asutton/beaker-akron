@@ -6,6 +6,7 @@
 
 #include <beaker/base/token.hpp>
 
+#include <array>
 #include <string>
 
 
@@ -28,6 +29,11 @@ const char* get_token_name(const token&);
 
 const char* get_token_spelling(int);
 std::string get_token_spelling(const token&);
+
+
+/// An array of tokens.
+template<int N>
+using tokens = std::array<token, N>;
 
 } // namespace bpl
 

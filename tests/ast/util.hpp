@@ -6,12 +6,12 @@
 
 #include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
+#include <beaker/base/symbol_table.hpp>
 #include <beaker/base/comparison/equal.hpp>
 #include <beaker/base/comparison/hash.hpp>
 #include <beaker/base/printing/print.hpp>
 #include <beaker/base/evaluation/evaluate.hpp>
 
-#include <beaker/util/symbol_table.hpp>
 
 #include <iostream>
 

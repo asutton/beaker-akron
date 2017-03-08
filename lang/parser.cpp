@@ -49,6 +49,7 @@ parser::require(int k)
 } // namespace bpl
 
 #include "parse_name.cpp"
-#include "parse_decl.cpp"
 #include "parse_type.cpp"
 #include "parse_expr.cpp"
+#include "parse_decl.cpp"
+#include "parse_stmt.cpp"

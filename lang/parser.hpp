@@ -65,15 +65,6 @@ struct parser
   name& declaration_name();
   name& identifier();
 
-  // Declarations
-  decl& module();
-  decl_seq toplevel_declaration_seq();
-  decl& module_declaration();
-  decl& import_declaration();
-  decl& function_declaration();
-  decl& parameter_declaration();
-  decl& variable_declaration();
-
   // Types
   type& type_id();
   type& simple_type();
@@ -94,6 +85,20 @@ struct parser
   expr& primary_expression();
   expr& boolean_literal();
   expr& integer_literal();
+
+  // Declarations
+  decl& module();
+  decl_seq toplevel_declaration_seq();
+  decl& module_declaration();
+  decl& import_declaration();
+  decl& function_declaration();
+  decl& parameter_declaration();
+  decl& variable_declaration();
+
+  // Statements
+  stmt& statement();
+  stmt_seq statement_seq();
+  stmt& block_statement();
 
   stream_type& ts;
   semantics act;

@@ -12,6 +12,8 @@
 
 namespace beaker {
 
+struct symbol;
+
 /// Represents an abstract symbol in the source language. A token is defined
 /// by its kind (an integer value) and an optional attribute. 
 ///
@@ -62,6 +64,12 @@ public:
   bool has_attribute() const;
   const attr& get_attribute() const;
   attr& get_attribute();
+
+  template<typename T>
+  const T& get_attribute() const;
+
+  template<typename T>
+  T& get_attribute();
 
   location get_location() const;
   
@@ -126,6 +134,24 @@ inline const token::attr& token::get_attribute() const { return *attr_; }
 /// Returns the token's associated attribute.
 inline token::attr& token::get_attribute() { return *attr_; }
 
+/// Returns the token's associated attribute cast as the derived type T. Throws
+/// a bad cast exception if the attribute does not have that dynamic type.
+template<typename T>
+inline const T& 
+token::get_attribute() const 
+{ 
+  return dynamic_cast<const T&>(*attr_); 
+}
+
+/// Returns the token's associated attribute cast as the derived type T. Throws
+/// a bad cast exception if the attribute does not have that dynamic type.
+template<typename T>
+inline T& 
+token::get_attribute() 
+{ 
+  return dynamic_cast<T&>(*attr_); 
+}
+
 /// Returns the token's location in the input text.
 inline location token::get_location() const { return loc_; }
 
@@ -163,12 +189,15 @@ struct value_attr : token::attr
   T value_;
 };
 
+/// Initialize this object with the given value.
 template<typename T>
 inline value_attr<T>::value_attr(T v) : value_(v) { }
 
+/// Clone this symbol.
 template<typename T>
 inline value_attr<T>* value_attr<T>::clone() const { return new value_attr<T>(*this); }
 
+/// Returns the value associated with the token.
 template<typename T>
 inline T value_attr<T>::get_value() const { return value_; }
 
@@ -196,6 +225,29 @@ get_int_attribute(const token& tok)
 {
   return static_cast<const int_attr&>(tok.get_attribute());
 }
+
+
+/// A token attribute that links to a symbol in the symbol table.
+struct symbol_attr : token::attr
+{
+  symbol_attr(const symbol&);
+
+  symbol_attr* clone() const override;
+
+  const symbol& get_symbol() const;
+
+  const symbol* sym_;
+};
+
+/// Initialize this object with a reference the symbol `s`.
+inline symbol_attr::symbol_attr(const symbol& s) : sym_(&s) { }
+
+/// Clone this symbol.
+inline symbol_attr* symbol_attr::clone() const { return new symbol_attr(*this); }
+
+/// Returns the symbol for the token.
+inline const symbol& symbol_attr::get_symbol() const { return * sym_; }
+
 
 // -------------------------------------------------------------------------- //
 // Token strings

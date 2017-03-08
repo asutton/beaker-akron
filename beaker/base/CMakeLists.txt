@@ -14,6 +14,8 @@ add_beaker_module(
   stmt.cpp
   module.cpp
   token.cpp
+  symbol.cpp
+  symbol_table.cpp
   comparison/equal.cpp
   comparison/hash.cpp
   printing/print.cpp

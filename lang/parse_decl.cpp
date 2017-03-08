@@ -37,9 +37,9 @@ parser::toplevel_declaration_seq()
 decl&
 parser::module_declaration()
 {
-  token mod = require(module_kw);
-  name& id = identifier();
-  token semi = expect(semicolon_tok);
+  // token mod = require(module_kw);
+  // name& id = identifier();
+  // token semi = expect(semicolon_tok);
   assert(false && "not implemented");
 }
 
@@ -51,35 +51,39 @@ parser::module_declaration()
 decl&
 parser::import_declaration()
 {
-  token imp = require(import_kw);
-  name& id = identifier();
-  token semi = expect(semicolon_tok);
+  // token imp = require(import_kw);
+  // name& id = identifier();
+  // token semi = expect(semicolon_tok);
   assert(false && "not implemented");
 }
 
 /// Parse a function declaration.
 ///
 ///   function-declaration
-///     -> 'def' identifier '(' parameter-list ')' '->' type function-definition
+///     -> 'def' identifier '(' parameter-list ')' '->' type ';'
+///      | 'def' identifier '(' parameter-list ')' '->' type function-definition
 ///
-/// \todo A function name may be a specialization name.
+/// \todo Allow different forms of function name.
+///
+/// \todo Support different forms of function definitions (e.g., deleted).
 decl&
 parser::function_declaration()
 {
   token def = require(def_kw);
+
   name& id = declaration_name();
 
-  // Consume through the parameter list.
-  token_seq toks;
-  toks.push_back(expect(lparen_tok));
-  int match = 1;
-  while (match != 0) {
-    if (next_token_is(lparen_tok))
-      ++match;
-    if (next_token_is(rparen_tok))
-      --match;
-    toks.push_back(consume());
-  }
+  token lpar = expect(lparen_tok);
+  token rpar = expect(rparen_tok);
+
+  token arrow = expect(arrow_tok);
+  type& ty = type_id();
+
+  if (token semi = accept(semicolon_tok))
+    return act.on_function_declaration(id, ty, {def, lpar, rpar, arrow, semi});
+
+  stmt& body = block_statement();
+  return act.on_function_declaration(id, ty, body, {def, lpar, rpar, arrow});
 
   assert(false && "not implemented");
 }

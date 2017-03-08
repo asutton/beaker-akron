@@ -16,6 +16,13 @@
 #include <unordered_map>
 
 
+namespace beaker {
+
+struct symbol;
+struct symbol_table;
+
+} // namespace beaker
+
 namespace bpl {
 
 /// Represents a lexical error.
@@ -43,7 +50,7 @@ struct lexer
 {
   using stream_type = beaker::input_stream<char>;
 
-  lexer(stream_type&);
+  lexer(beaker::symbol_table&, stream_type&);
   
   token operator()();
 
@@ -109,7 +116,8 @@ struct lexer
   template<typename T, typename... Args>
   token finish_token(int, Args&&...);
 
-  stream_type& cs; // The underlying character stream.
+  beaker::symbol_table& syms; // The symbol table.
+  stream_type& cs; // The input character stream.
   std::string buf; // The text of the current symbol.
   
   int line; // The current line.

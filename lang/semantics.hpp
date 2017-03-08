@@ -68,6 +68,11 @@ struct semantics
   expr& on_bool(token);
   expr& on_int(token);
 
+  decl& on_function_declaration(name&, type&, tokens<5>);
+  decl& on_function_declaration(name&, type&, stmt&, tokens<4>);
+
+  stmt& on_block_statement(stmt_seq&&, tokens<2>);
+
   void check_bool(expr&);
   void check_bool(expr&, expr&);
   void check_int(expr&);

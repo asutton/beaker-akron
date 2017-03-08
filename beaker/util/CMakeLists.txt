@@ -8,8 +8,6 @@ add_beaker_module(
   hash.cpp
   canonical_set.cpp
   singleton_set.cpp
-  symbol.cpp
-  symbol_table.cpp
   stream.cpp
   location.cpp
 )

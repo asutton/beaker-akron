@@ -1,10 +1,10 @@
 // Copyright (c) 2015-2016 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_UTIL_SYMBOL_TABLE_HPP
-#define BEAKER_UTIL_SYMBOL_TABLE_HPP
+#ifndef BEAKER_BASE_SYMBOL_TABLE_HPP
+#define BEAKER_BASE_SYMBOL_TABLE_HPP
 
-#include <beaker/util/symbol.hpp>
+#include <beaker/base/symbol.hpp>
 
 #include <unordered_set>
 #include <vector>
@@ -12,10 +12,13 @@
 
 namespace beaker {
 
-/// FIXME: For, this is properly a "scope".
+/// Represents the sequence declared names within a region of text.
+///
+/// \todo Should we have multiple kinds of scopes? Probably. Should scopes
+/// be associated with syntactic constructs? Probably.
 struct scope_contour : std::vector<const symbol*>
 {
-  ~scope_contour();
+  virtual ~scope_contour();
 
   template<typename T, typename... Args>
   T& add(const symbol& sym, Args&&... args);
@@ -46,6 +49,40 @@ scope_contour::remove(const symbol& sym)
 {
   scope_chain& chain = sym.get_bindings();
   chain.pop();
+}
+
+
+// -------------------------------------------------------------------------- //
+// Scope stack
+
+/// The scope stack maintains a stack of contours, which maintains the list
+/// of names declared within a region of text.
+///
+/// \todo Support the allocation different kinds of scopes. These should
+/// have a nice object-oriented flavor to them, and they can be specialized
+/// to enforce language-specific declaration policies.
+struct scope_stack : std::vector<scope_contour*>
+{
+  void push();
+  void pop();
+};
+
+/// Push a new empty scope stack.
+inline void
+scope_stack::push()
+{
+  push_back(new scope_contour{});
+}
+
+/// Pop the current scope from the stack and remove all of the bindings
+/// in that contour.
+inline void
+scope_stack::pop()
+{
+  assert(!empty() && "unbalanced scope stack");
+  scope_contour* s = back();
+  pop_back();
+  delete s;
 }
 
 

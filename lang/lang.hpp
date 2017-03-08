@@ -6,6 +6,7 @@
 
 #include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
+#include <beaker/base/symbol_table.hpp>
 
 // FIXME: We shouldn't have these dependencies here. Refactor the builder
 // to use a compiler firewall to prevent physical dependencies.
@@ -13,8 +14,6 @@
 #include <beaker/sys.bool/ast.hpp>
 #include <beaker/sys.int/ast.hpp>
 #include <beaker/sys.name/ast.hpp>
-
-#include <beaker/util/symbol_table.hpp>
 
 
 namespace bpl {

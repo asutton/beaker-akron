@@ -2,8 +2,7 @@
 // All rights reserved
 
 #include "module.hpp"
-#include <beaker/util/memory.hpp>
-#include <beaker/util/symbol_table.hpp>
+#include "symbol_table.hpp"
 
 
 namespace beaker {

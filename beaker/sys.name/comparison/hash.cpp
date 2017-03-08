@@ -4,7 +4,7 @@
 #include "hash.hpp"
 #include "../name.hpp"
 
-#include <beaker/util/symbol.hpp>
+#include <beaker/base/symbol.hpp>
 
 
 namespace beaker {
