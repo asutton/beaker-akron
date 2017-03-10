@@ -38,13 +38,19 @@ inline location type_error::get_location() const { return loc; }
 /// the source language.
 struct semantics
 {
-  semantics(builder& b) : build(b) { }
+  semantics(module& m) : build(b) { }
 
   const language& get_language() const;
   language& get_language();
 
   name& on_identifier(token);
 
+  // Types
+  type& on_void_type(location);
+  type& on_bool_type(location);
+  type& on_int_type(location);
+
+  // Expressions
   expr& on_condition(expr&, token, expr&, token, expr&);
   expr& on_logical_or(expr&, token, expr&);
   expr& on_logical_and(expr&, token, expr&);
@@ -68,10 +74,10 @@ struct semantics
   expr& on_bool(token);
   expr& on_int(token);
 
-  decl& on_function_declaration(name&, type&, tokens<5>);
-  decl& on_function_declaration(name&, type&, stmt&, tokens<4>);
+  decl& on_function_declaration(name&, type&, locations<5>);
+  decl& on_function_declaration(name&, type&, stmt&, locations<4>);
 
-  stmt& on_block_statement(stmt_seq&&, tokens<2>);
+  stmt& on_block_statement(stmt_seq&&, locations<2>);
 
   void check_bool(expr&);
   void check_bool(expr&, expr&);
@@ -79,14 +85,14 @@ struct semantics
   void check_int(expr&, expr&);
   void check_same(expr&, expr&);
 
-  builder& build;
+  module& mod;
 };
 
 /// Returns the language for the semantics.
-inline const language& semantics::get_language() const { return build.get_language(); }
+inline const language& semantics::get_language() const { return mod.get_language(); }
 
 /// Returns the language for the semantics.
-inline language& semantics::get_language() { return build.get_language(); }
+inline language& semantics::get_language() { return mod.get_language(); }
 
 } // namespace bpl
 

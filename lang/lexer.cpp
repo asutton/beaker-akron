@@ -219,12 +219,16 @@ token lexer::star() { return require('*'), finish_token(star_tok); }
 ///   comment -> '//' [all characters except newline]
 ///
 /// Returns the corresponding token.
+///
+/// \todo Scrape comments into a comment buffer to support IDE's.
 token 
 lexer::slash() 
 { 
   require('/'); 
-  if (match('/'))
-    assert(false && "comments not implemented");
+  if (match('/')) {
+    while (lookahead() != '\n')
+      ignore();
+  }
   return finish_token(slash_tok); 
 }
 
@@ -426,7 +430,7 @@ lexer::word()
   if (iter != kw.end())
     return finish_token(iter->second);
   else
-    return finish_token<beaker::symbol_attr>(id_tok, syms.get(buf));
+    return finish_token<symbol_attr>(id_tok, syms.get(buf));
 }
 
 /// Matches an integer value.
@@ -444,7 +448,7 @@ lexer::number()
   consume();
   while (!eof() && digit())
     ;
-  return finish_token<beaker::int_attr>(dec_int_tok, std::stoi(buf));
+  return finish_token<int_attr>(dec_int_tok, std::stoi(buf));
 }
 
 /// Throws lexical error exception with the given message.

@@ -6,7 +6,7 @@ namespace bpl {
 
 /// Returns a new block statement.
 stmt&
-semantics::on_block_statement(stmt_seq&& ss, tokens<2> toks)
+semantics::on_block_statement(stmt_seq&& ss, locations<2> toks)
 {
   assert(false && "not implemented");
 }

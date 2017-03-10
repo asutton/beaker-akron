@@ -35,7 +35,7 @@ parser::expect(int k)
   std::stringstream ss;
   ss << "expected '" << get_token_spelling(k) 
      << "' but got '" << get_token_spelling(current()) << "'";
-  throw syntax_error(get_location(), ss.str().c_str());
+  throw syntax_error(current_location(), ss.str().c_str());
 }
 
 /// Require that a token that is known to have kind `k`.

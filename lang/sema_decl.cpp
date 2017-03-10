@@ -4,13 +4,13 @@
 namespace bpl {
 
 decl& 
-semantics::on_function_declaration(name& id, type& ty, tokens<5> toks)
+semantics::on_function_declaration(name& id, type& ty, locations<5> locs)
 {
   assert(false && "not implemented");
 }
 
 decl& 
-semantics::on_function_declaration(name& id, type& ty, stmt& body, tokens<4> toks)
+semantics::on_function_declaration(name& id, type& ty, stmt& body, locations<4> locs)
 {
   assert(false && "not implemented");
 }

@@ -42,7 +42,7 @@ struct parser
 {
   using stream_type = beaker::input_stream<token>;
 
-  parser(stream_type& s, builder& b) : ts(s), act(b) { }
+  parser(stream_type& s, module& m) : ts(s), act(m) { }
 
   // Stream control
   bool eof() const;
@@ -59,7 +59,7 @@ struct parser
   bool next_token_is(int) const;
   bool next_token_is_not(int) const;
 
-  location get_location() const;
+  location current_location() const;
 
   // Grammar productions
   name& declaration_name();
@@ -142,13 +142,15 @@ parser::next_token_is_not(int k) const
   return !next_token_is(k);
 }
 
+/// Returns the source location of the current token.
 inline location
-parser::get_location() const
+parser::current_location() const
 {
   return ts.peek().get_location();
 }
 
 } // namespace bpl
+
 
 #endif
 

@@ -301,7 +301,7 @@ parser::primary_expression()
     default:
       break;
   }
-  throw syntax_error(get_location(), "expected primary expression");
+  throw syntax_error(current_location(), "expected primary expression");
 }
 
 /// Parses a boolean literal.

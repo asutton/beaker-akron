@@ -41,7 +41,7 @@ parser::block_statement()
   token lb = expect(lbrace_tok);
   stmt_seq ss = statement_seq();
   token rb = expect(rbrace_tok);
-  return act.on_block_statement(std::move(ss), {lb, rb});
+  return act.on_block_statement(std::move(ss), get_locations(lb, rb));
 }
 
 

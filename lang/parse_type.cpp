@@ -7,7 +7,7 @@ namespace bpl {
 ///
 ///   type-id -> simple-type
 ///
-/// Returns the corresponding module.
+/// Returns the corresponding type.
 type&
 parser::type_id()
 {
@@ -16,14 +16,24 @@ parser::type_id()
 }
 
 /// Parse a simple type.
+///
+///   simple-type -> 'void' | 'bool' | 'int'
 type&
 parser::simple_type()
 {
   switch (lookahead()) {
-    case bool_kw:
-      assert(false && "bool type not implemented");
-    case int_kw:
-      assert(false && "bool type not implemented");
+    case void_kw: {
+      token tok = consume();
+      return act.on_int_type(get_location(tok));
+    }
+    case bool_kw: {
+      token tok = consume();
+      return act.on_bool_type(get_location(tok));
+    }
+    case int_kw: {
+      token tok = consume();
+      return act.on_int_type(get_location(tok));
+    }
   }
   throw syntax_error(location(), "expected simple-type");
 }

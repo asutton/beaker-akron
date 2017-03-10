@@ -34,8 +34,18 @@ struct language : beaker::language
 {
   language();
 
+  const beaker::symbol_table& get_symbols() const;
+  beaker::symbol_table& get_symbols();  
+
   beaker::symbol_table syms;
 };
+
+
+/// Returns the symbol table for the language.
+inline const beaker::symbol_table& language::get_symbols() const { return syms; }
+
+/// Returns the symbol table for the language.
+inline beaker::symbol_table& language::get_symbols() { return syms; }
 
 
 /// Defines a beaker source module.

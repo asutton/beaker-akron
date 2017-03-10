@@ -79,13 +79,14 @@ parser::function_declaration()
   token arrow = expect(arrow_tok);
   type& ty = type_id();
 
-  if (token semi = accept(semicolon_tok))
-    return act.on_function_declaration(id, ty, {def, lpar, rpar, arrow, semi});
+  if (token semi = accept(semicolon_tok)) {
+    auto locs = get_locations(def, lpar, rpar, arrow, semi);
+    return act.on_function_declaration(id, ty, locs);
+  }
 
   stmt& body = block_statement();
-  return act.on_function_declaration(id, ty, body, {def, lpar, rpar, arrow});
-
-  assert(false && "not implemented");
+  auto locs = get_locations(def, lpar, rpar, arrow);
+  return act.on_function_declaration(id, ty, body, locs);
 }
 
 
