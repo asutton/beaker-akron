@@ -38,7 +38,7 @@ inline location type_error::get_location() const { return loc; }
 /// the source language.
 struct semantics
 {
-  semantics(module& m) : build(b) { }
+  semantics(module& m) : mod(m), build(mod) { }
 
   const language& get_language() const;
   language& get_language();
@@ -86,10 +86,12 @@ struct semantics
   void check_same(expr&, expr&);
 
   module& mod;
+  builder build;
 };
 
 /// Returns the language for the semantics.
-inline const language& semantics::get_language() const { return mod.get_language(); }
+inline const language& 
+semantics::get_language() const { return mod.get_language(); }
 
 /// Returns the language for the semantics.
 inline language& semantics::get_language() { return mod.get_language(); }

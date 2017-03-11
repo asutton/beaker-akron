@@ -29,6 +29,9 @@ using beaker::stmt;
 using beaker::stmt_seq;
 
 
+// -------------------------------------------------------------------------- //
+// Language
+
 /// Defines the Beaker Programming Language..
 struct language : beaker::language
 {
@@ -48,9 +51,34 @@ inline const beaker::symbol_table& language::get_symbols() const { return syms; 
 inline beaker::symbol_table& language::get_symbols() { return syms; }
 
 
-/// Defines a beaker source module.
-using module = beaker::module;
+// -------------------------------------------------------------------------- //
+// Module
 
+/// Defines a beaker source module.
+struct module : beaker::module
+{
+  using beaker::module::module;
+
+  const language& get_language() const;
+  language& get_language();
+};
+
+/// Returns the language for the module.
+inline const language&
+module::get_language() const
+{ 
+  return static_cast<const language&>(beaker::module::get_language());
+}
+/// Returns the language for the module.
+inline
+language& module::get_language()
+{ 
+  return static_cast<language&>(beaker::module::get_language());
+}
+
+
+// -------------------------------------------------------------------------- //
+// Builder
 
 /// Provides a single interface for node construction.
 ///

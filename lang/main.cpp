@@ -5,6 +5,8 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 
+#include <beaker/base/printing/print.hpp>
+
 #include <fstream>
 #include <iterator>
 #include <iostream>
@@ -52,10 +54,9 @@ main(int argc, char* argv[])
     }
   }
 
-
   auto ts = beaker::make_stream(toks);
-  icalc::builder build(mod);
-  icalc::parser parse(ts, build);
-  beaker::expr* e = &parse.expression();
+  bpl::parser parse(ts, mod);
+  bpl::expr& e = parse.expression();
+  print(lang, e);
 
 }

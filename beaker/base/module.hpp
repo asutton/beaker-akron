@@ -102,7 +102,10 @@ struct module : decl, builder_set, node_store
 
   module(language&);
 
+  const language& get_language() const;
   language& get_language();
+  
+  const symbol_table& get_symbol_table() const;
   symbol_table& get_symbol_table();
   
   int generate_id();
@@ -123,7 +126,13 @@ struct module : decl, builder_set, node_store
 };
 
 /// Returns the language of the module.
+inline const language& module::get_language() const { return *lang_; }
+
+/// Returns the language of the module.
 inline language& module::get_language() { return *lang_; }
+
+/// Returns the symbol table used by the module.
+inline const symbol_table& module::get_symbol_table() const { return lang_->get_symbol_table(); }
 
 /// Returns the symbol table used by the module.
 inline symbol_table& module::get_symbol_table() { return lang_->get_symbol_table(); }

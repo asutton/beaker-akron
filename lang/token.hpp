@@ -83,7 +83,8 @@ template<typename... Args>
 inline locations<sizeof...(Args)> 
 get_locations(const Args&... toks)
 {
-  return locations<sizeof...(Args)>{(toks.get_location())...};
+  // FIXME: Clang warns if I don't have extra braces. I shouldn't need them.
+  return {{toks.get_location()...}};
 }
 
 } // namespace bpl
