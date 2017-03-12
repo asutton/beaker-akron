@@ -62,22 +62,26 @@ ref_expr::ref_expr(type& t, decl& d)
 { }
 
 
-/// Represents the the expression `deref(e)`.
-///
-/// A dereference expression converts a reference into an object. This 
-/// generally corresponds to loading the stored value of an object.
+/// Represents the the expression `deref(e)`. A dereference expression converts 
+/// a reference into an object. This generally corresponds to loading the 
+/// stored value of an object.
 ///
 /// The type of e shall be a reference type `ref t`. The type of the expression
 /// is the object type `t`. The value of the expression is the object referred
 /// to by the expression `e`.
-///
-/// \todo This nominally represents an lvalue to rvalue conversion, but
-/// those aren't typically applied to class objects. We usually end up
-/// invoking a constructor to produce a copy... right? Investigate.
-struct deref_expr : conversion_expr<deref_expr_kind>
+struct deref_expr : unary_expr_impl<deref_expr_kind>
 {
-  using conversion_expr<deref_expr_kind>::conversion_expr;
+  using unary_expr_impl<deref_expr_kind>::unary_expr_impl;
+
+  const expr& get_source() const;
+  expr& get_source();
 };
+
+/// Returns the source operand of the conversion.
+inline const expr& deref_expr::get_source() const { return get_first(); }
+
+/// Returns the source operand of the conversion.
+inline expr& deref_expr::get_source() { return get_first(); }
 
 
 /// Represents the expression `e1 = e2`.

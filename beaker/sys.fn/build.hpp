@@ -43,12 +43,11 @@ struct builder : factory
   fn_decl& make_fn_decl(dc, const char*, type&, decl_seq&&, decl&, stmt&);
   
   // Parameters
+  parm_decl& make_parm_decl(type&);
   parm_decl& make_parm_decl(name&, type&);
   parm_decl& make_parm_decl(const char*, type&);
 
-  // Variable declarations
-  var_decl& make_var_decl(dc, name&, type&);
-  var_decl& make_var_decl(dc, const char*, type&);
+  // Variables
   var_decl& make_var_decl(dc, name&, type&, expr&);
   var_decl& make_var_decl(dc, const char*, type&, expr&);
 
@@ -60,7 +59,7 @@ struct builder : factory
   decl_stmt& make_decl_stmt(decl&);
   ret_stmt& make_ret_stmt(expr&);
 
-  canonical_set<fn_type> fn_;
+  canonical_term_set<fn_type>* fn_;
 };
 
 } // namespace sys_fn

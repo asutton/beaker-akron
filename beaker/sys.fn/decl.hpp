@@ -48,8 +48,8 @@ struct parm_decl : value_decl_impl<parm_decl_kind>
   parm_decl(uid, name&, type&);
 };
 
-/// Initialize the parameter. Note that the declaration context is null
-/// until the parameter is added to a function.
+/// Initialize the parameter. Note that the declaration context of a parameter 
+/// is null until the parameter is added to a function.
 inline
 parm_decl::parm_decl(uid id, name& n, type& t)
   : value_decl_impl<parm_decl_kind>(id, dc(), automatic_storage, n, t)
@@ -60,16 +60,46 @@ parm_decl::parm_decl(uid id, name& n, type& t)
 /// and automatic storage.
 struct var_decl : value_decl_impl<var_decl_kind>
 {
-  using value_decl_impl<var_decl_kind>::value_decl_impl;
+  var_decl(uid, dc, name& n, type& t, expr& e);
 };
+
+/// Initialize the variable with with the given name, type, and initializer.
+/// Note that local variables are always initialized, although this may be by
+/// trivial initialization.
+inline
+var_decl::var_decl(uid id, dc cxt, name& n, type& t, expr& e)
+  : value_decl_impl<var_decl_kind>(id, cxt, no_link, automatic_storage, n, t, e)
+{ }
 
 
 // -------------------------------------------------------------------------- //
 // Operations
 
-bool is_function(const decl&);
-bool is_variable(const decl&);
-bool is_parameter(const decl&);
+
+/// Returns true if `d` is a function declaration.
+inline bool
+is_function(const decl& d)
+{
+  return d.get_kind() == fn_decl_kind;
+}
+
+/// Returns true if `d` is a parameter declaration.
+inline bool 
+is_parameter(const decl& d)
+{
+  return d.get_kind() == parm_decl_kind;
+}
+
+/// Returns true if `d` is a variable or parameter. 
+///
+/// \todo Do we want a generic notion of variables like we do with type
+/// categories (object, reference, etc.)? That would move these functions up 
+/// to the base declaration module?
+inline bool 
+is_variable(const decl& d)
+{
+  return is<var_decl>(d) || is<parm_decl>(d);
+}
 
 } // namespace sys_fn
 } // namespace beaker
