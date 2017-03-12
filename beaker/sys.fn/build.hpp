@@ -30,24 +30,27 @@ struct builder : factory
   eq_expr& make_eq_expr(expr&, expr&);
   ne_expr& make_ne_expr(expr&, expr&);
 
-  // Declarations
+  // Function declarations
   fn_decl& make_fn_decl(dc, name&, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(dc, const char*, type&, const decl_seq&, decl&);
   fn_decl& make_fn_decl(dc, name&, type&, decl_seq&&, decl&);
   fn_decl& make_fn_decl(dc, const char*, type&, decl_seq&&, decl&);
 
+  // Function definitions
   fn_decl& make_fn_decl(dc, name&, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(dc, const char*, type&, const decl_seq&, decl&, stmt&);
   fn_decl& make_fn_decl(dc, name&, type&, decl_seq&&, decl&, stmt&);
   fn_decl& make_fn_decl(dc, const char*, type&, decl_seq&&, decl&, stmt&);
   
-  fn_decl& make_fn_decl(dc, linkage, name&, type&, const decl_seq&, decl&, stmt&);
-  fn_decl& make_fn_decl(dc, linkage, const char*, type&, const decl_seq&, decl&, stmt&);
-  fn_decl& make_fn_decl(dc, linkage, name&, type&, decl_seq&&, decl&, stmt&);
-  fn_decl& make_fn_decl(dc, linkage, const char*, type&, decl_seq&&, decl&, stmt&);
-  
+  // Parameters
   parm_decl& make_parm_decl(name&, type&);
   parm_decl& make_parm_decl(const char*, type&);
+
+  // Variable declarations
+  var_decl& make_var_decl(dc, name&, type&);
+  var_decl& make_var_decl(dc, const char*, type&);
+  var_decl& make_var_decl(dc, name&, type&, expr&);
+  var_decl& make_var_decl(dc, const char*, type&, expr&);
 
   // Statements
   block_stmt& make_block_stmt();

@@ -31,12 +31,6 @@ struct builder : factory
   zero_init& make_zero_init(type&);
   copy_init& make_copy_init(expr&);
   ref_init& make_ref_init(expr&);
-
-  // Declarations
-  // var_decl& make_var_decl(dc, storage, name&, type&);
-  // var_decl& make_var_decl(dc, storage, const char*, type&);
-  // var_decl& make_var_decl(dc, linkage, storage, name&, type&, expr&);
-  // var_decl& make_var_decl(dc, linkage, storage, const char*, type&, expr&);
   
   canonical_term_set<ref_type>* ref_;
 };

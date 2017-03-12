@@ -5,7 +5,6 @@ add_beaker_module(
   lang.cpp
   type.cpp
   expr.cpp
-  # decl.cpp
   fwd.cpp
   build.cpp
   comparison/equal.cpp

@@ -243,6 +243,73 @@ builder::make_parm_decl(const char* n, type& t)
   return make_parm_decl(get_name(n), t);
 }
 
+/// Returns a new variable `var t n`. Variables with no initializer must have
+/// external linkage and static storage.
+var_decl&
+builder::make_var_decl(dc cxt, name& n, type& t)
+{
+  return make<var_decl>(generate_id(), cxt, automatic_storage, n, t);
+}
+
+/// Returns a new variable `var t n`. Variables with no initializer must have
+/// external linkage and static storage.
+var_decl&
+builder::make_var_decl(dc cxt, const char* n, type& t)
+{
+  return make_var_decl(cxt, get_name(n), t);
+}
+
+/// Returns a new variable `var t n = e` with the given storage specifier
+/// and default variable linkage.
+///
+/// If e is not an initializer and we can infer which initialization would be
+/// required, a proper initializer is created.
+///
+/// FIXME: Should we be inferring initialization semantics here?
+var_decl&
+builder::make_var_decl(dc cxt, name& n, type& t, expr& e)
+{
+  assert(equal(t, e.get_type()));
+  return make<var_decl>(generate_id(), cxt, automatic_storage, n, t, e);
+  
+  #if 0
+  assert(equivalent(t, e.get_type()));
+  if (is_object_type(t)) {
+    // Initializing an object requires copy, zero, or trivial initialization.
+    // This cannot be initialized by a reference initializer. If any other 
+    // expression is given, assume that copy initialization was meant.
+    assert(!is<ref_init>(e));
+    if (is<copy_init>(e) || is<zero_init>(e) || is<nop_init>(e))
+      return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
+    else
+      return make<var_decl>(generate_id(), cxt, l, s, n, t, make_copy_init(e));
+  }
+  else if(is_reference_type(t)) {
+    // Initializing a reference requires reference initialization. Copy, zero,
+    // and trivial initialization is not allowed for references. If any other
+    // expression is given, assume that reference initialization was meant.
+    assert(!is<copy_init>(e) && !is<zero_init>(e) && !is<nop_init>(e));
+    if (is<ref_init>(e))
+      return make<var_decl>(generate_id(), cxt, l, s, n, t, e);
+    else
+      return make<var_decl>(generate_id(), cxt, l, s, n, t, make_ref_init(e));
+  }
+  else if (is_function_type(t)) {
+    assert(false && "function variable initialization not implemented");
+  }
+  else {
+    assert(false && "variable of unknown category");
+  }
+  #endif
+}
+
+/// Returns a new variable `var t n = e`.
+var_decl&
+builder::make_var_decl(dc cxt, const char* n, type& t, expr& e)
+{
+  return make_var_decl(cxt, l, s, get_name(n), t, e);
+}
+
 /// Returns a new block statement with statements s.
 block_stmt& 
 builder::make_block_stmt()
@@ -288,6 +355,9 @@ builder::make_decl_stmt(decl& d)
 ret_stmt& 
 builder::make_ret_stmt(expr& e)
 {
+  return make<ret_stmt>(e);
+  
+  #if 0
   auto& vb = get_var_builder(*this);
   type& t = e.get_type();
   if (sys_void::is_void_type(t)) {
@@ -325,6 +395,7 @@ builder::make_ret_stmt(expr& e)
   else {
     assert(false && "unknown return category");
   }
+  #endif
 }
 
 } // namespace sys_fn

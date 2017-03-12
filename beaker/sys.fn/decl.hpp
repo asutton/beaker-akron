@@ -39,13 +39,10 @@ struct fn_decl : mapping_decl_impl<fn_decl_kind>
 };
 
 
-/// Represents the declaration of (formal) function parameter.
+/// Represents the declaration of (formal) function parameter. Parameters, in
+/// the definition of a function are essentially local variables (see below).
 ///
-/// A parameter represent the way in which objects and references are passed
-/// to a function. In general, parameters are like variables in the sense that
-/// they are names that refer to local storage. However, that storage may be
-/// allocated by the calling function or the caller, depending on the type of
-/// the parameter.
+/// \todo Support default arguments.
 struct parm_decl : value_decl_impl<parm_decl_kind>
 {
   parm_decl(uid, name&, type&);
@@ -59,11 +56,19 @@ parm_decl::parm_decl(uid id, name& n, type& t)
 { }
 
 
+/// Represents a local variable declaration. Local variables have no linkage 
+/// and automatic storage.
+struct var_decl : value_decl_impl<var_decl_kind>
+{
+  using value_decl_impl<var_decl_kind>::value_decl_impl;
+};
+
+
 // -------------------------------------------------------------------------- //
 // Operations
 
-bool is_variable(const decl&);
 bool is_function(const decl&);
+bool is_variable(const decl&);
 bool is_parameter(const decl&);
 
 } // namespace sys_fn
