@@ -54,9 +54,14 @@ main(int argc, char* argv[])
     }
   }
 
-  auto ts = beaker::make_stream(toks);
-  bpl::parser parse(ts, mod);
-  bpl::expr& e = parse.expression();
-  print(lang, e);
+  try {
+    auto ts = beaker::make_stream(toks);
+    bpl::parser parse(ts, mod);
+    bpl::decl& d = parse.module();
+    print(lang, d);
+  }
+  catch (bpl::syntax_error& err) {
+    std::cerr << err.get_location() << ": error [parse]: " << err.what() << '\n';
+  }
 
 }

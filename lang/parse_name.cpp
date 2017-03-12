@@ -6,6 +6,8 @@ namespace bpl {
 /// Parse a declaration name.
 ///
 ///   declaration-name -> identifier
+///
+/// \todo Support a broader range of declaration names.
 name&
 parser::declaration_name()
 {
@@ -18,8 +20,6 @@ parser::declaration_name()
 name&
 parser::identifier()
 {
-  require(id_tok);
-  assert(false && "not implemented");
   return act.on_identifier(require(id_tok));
 }
 

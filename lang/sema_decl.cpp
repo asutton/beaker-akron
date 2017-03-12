@@ -3,6 +3,13 @@
 
 namespace bpl {
 
+/// FIXME: I don't like this.
+decl&
+semantics::finish_module()
+{
+  return mod;
+}
+
 decl& 
 semantics::on_function_declaration(name& id, type& ty, locations<5> locs)
 {

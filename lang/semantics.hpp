@@ -74,6 +74,7 @@ struct semantics
   expr& on_bool(token);
   expr& on_int(token);
 
+  decl& finish_module();
   decl& on_function_declaration(name&, type&, locations<5>);
   decl& on_function_declaration(name&, type&, stmt&, locations<4>);
 

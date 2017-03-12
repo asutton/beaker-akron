@@ -11,18 +11,43 @@ namespace bpl {
 decl&
 parser::module()
 {
+  // FIXME: Establish a new declaration region for toplevel declarations
+  // and ensure that declarations are (in fact) added to the the module.
   decl_seq decls = toplevel_declaration_seq();
-  assert(false && "not implemented");
+  return act.finish_module();
 }
 
 /// Parse a sequence of declarations.
+///
+///   toplevel-declaration-seq -> toplevel-declaration-seq toplevel-declaration
+///                             | toplevel-declaration
 decl_seq
 parser::toplevel_declaration_seq()
 {
+  decl_seq ds;
+  while (!eof()) {
+    // FIXME: Trap syntax errors and try to recover as gracefully as possible.
+    decl& d = toplevel_declaration();
+    ds.push_back(d);
+  }
+  return ds;
+}
+
+/// Parse a toplevel declaration.
+///
+///   toplevel-declaration -> module-declaration
+///                         | import-declaration
+///                         | function-declaration
+decl&
+parser::toplevel_declaration()
+{
   switch (lookahead()) {
     case module_kw:
+      return module_declaration();
     case import_kw:
+      return import_declaration();
     case def_kw:
+      return function_declaration();
     default:
       break;
   }
@@ -73,6 +98,7 @@ parser::function_declaration()
 
   name& id = declaration_name();
 
+  // FIXME: Parse a parameter declaration list.
   token lpar = expect(lparen_tok);
   token rpar = expect(rparen_tok);
 

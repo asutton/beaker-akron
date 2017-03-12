@@ -89,6 +89,7 @@ struct parser
   // Declarations
   decl& module();
   decl_seq toplevel_declaration_seq();
+  decl& toplevel_declaration();
   decl& module_declaration();
   decl& import_declaration();
   decl& function_declaration();

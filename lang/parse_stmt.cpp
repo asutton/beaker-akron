@@ -10,6 +10,8 @@ parser::statement()
   switch (lookahead()) {
     case '{':
       return block_statement();
+    default:
+      break;
   }
   assert(false && "not implemented");
 }
@@ -25,7 +27,7 @@ stmt_seq
 parser::statement_seq()
 {
   stmt_seq ss;
-  while (!eof() && next_token_is_not(lbrace_tok)) {
+  while (!eof() && next_token_is_not(rbrace_tok)) {
     stmt& s = statement();
     ss.push_back(s);
   }
@@ -39,6 +41,7 @@ stmt&
 parser::block_statement()
 {
   token lb = expect(lbrace_tok);
+  // TODO: Enter a new declarative region here...
   stmt_seq ss = statement_seq();
   token rb = expect(rbrace_tok);
   return act.on_block_statement(std::move(ss), get_locations(lb, rb));

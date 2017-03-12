@@ -11,8 +11,7 @@ namespace bpl {
 type&
 parser::type_id()
 {
-  decl_seq decls = toplevel_declaration_seq();
-  assert(false && "not implemented");
+  return simple_type();
 }
 
 /// Parse a simple type.
