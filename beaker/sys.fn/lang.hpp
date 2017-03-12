@@ -10,9 +10,14 @@
 namespace beaker {
 namespace sys_fn {
 
-struct feature : feature_impl<sys_fn_lang>
+struct builder;
+
+/// Adds support for boolean expressions.
+struct feature : beaker::feature
 {
-  feature(language&);
+  using builder_type = builder;
+
+  factory& make_builder(module&) const override;
 };
 
 } // namespace sys_fn

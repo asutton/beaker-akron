@@ -15,13 +15,9 @@ namespace sys_fn {
 
 /// Provides access to resources needed to construct, validate, and
 /// evaluate core terms.
-struct builder : basic_builder<sys_fn_lang>
+struct builder : factory
 {
   builder(module&);
-
-  // Names
-  sys_name::basic_name& get_name(const char*);
-  sys_name::internal_name& get_name();
 
   // Canonical types
   fn_type& get_fn_type(const type_seq&, type&);
