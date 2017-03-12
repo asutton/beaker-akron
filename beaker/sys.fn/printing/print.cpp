@@ -7,160 +7,132 @@
 #include "../decl.hpp"
 #include "../stmt.hpp"
 
-#include <iostream>
-
 
 namespace beaker {
-namespace sys_fn {
 
-// Pretty print a function type.
-static void
-print_fn_type(std::ostream& os, const fn_type& t)
+/// Pretty print a function type.
+void
+print_type(pretty_printer& pp, const sys_fn::fn_type& t)
 {
-  os << '(';
+  pp.print('(');
   const type_seq& parms = t.get_parameter_types();
   for (auto iter = parms.begin(); iter != parms.end(); ++iter) {
-    print(os, *iter);
+    print(pp, *iter);
     if (std::next(iter) != parms.end())
-      os << ',';
+      pp.print(',');
   }
-  os << ')';
-  os << "->";
-  print(os, t.get_return_type());
+  pp.print(')');
+  pp.print("->");
+  print(pp, t.get_return_type());
 }
 
-// Pretty print a common type.
+/// Pretty print a call expression.
 void
-print_algo::operator()(std::ostream& os, const type& t) const
+print_expr(pretty_printer& pp, const sys_fn::call_expr& e)
 {
-  assert(is<fn_type>(t));
-  return print_fn_type(os, cast<fn_type>(t));
-}
-
-static void
-print_call_expr(std::ostream& os, const call_expr& e)
-{
-  print(os, e.get_function());
-  os << '(';
+  print(pp, e.get_function());
+  pp.print('(');
   const expr_seq& args = e.get_arguments();
   for (auto iter = args.begin(); iter != args.end(); ++iter) {
-    print(os, *iter);
+    print(pp, *iter);
     if (std::next(iter) != args.end())
-      os << ',';
+      pp.print(',');
   }
-  os << ')';
+  pp.print(')');
 }
 
 void
-print_algo::operator()(std::ostream& os, const expr& e) const
+print_expr(pretty_printer& pp, const sys_fn::eq_expr& e)
 {
-  switch (e.get_kind()) {
-    case call_expr_kind:
-      return print_call_expr(os, cast<call_expr>(e));
-    case eq_expr_kind:
-      return print_infix_expr(os, static_cast<const binary_expr&>(e), "==");
-    case ne_expr_kind:
-      return print_infix_expr(os, static_cast<const binary_expr&>(e), "!=");
-    default:
-      break;
-  }
-  assert(false && "not a function expression");
+  print_infix_expr(pp, e, "==");
 }
 
-// Pretty print a function declaration.
-static void
-print_fn_decl(std::ostream& os, const fn_decl& d)
+void
+print_expr(pretty_printer& pp, const sys_fn::ne_expr& e)
 {
-  os << "fn" << ' ';
-  print(os, d.get_name());
-  os << '(';
+  print_infix_expr(pp, e, "!=");
+}
+
+void
+print_decl(pretty_printer& pp, const sys_fn::fn_decl& d)
+{
+  pp.print("def");
+  pp.print_space();
+  print(pp, d.get_name());
+  pp.print('(');
   decl_seq const& parms = d.get_parameters();
   for (auto iter = parms.begin(); iter != parms.end(); ++iter) {
-    print(os, *iter);
+    print(pp, *iter);
     if (std::next(iter) != parms.end())
-      os << ',';
+      pp.print(',');
   }
-  os << ')';
-  os <<  " -> ";
-  print(os, d.get_return());
+  pp.print(')');
+  print_binary_op(pp, "->");
+  print(pp, d.get_return());
 
   if (d.has_definition()) {
-    os << ' ';
-    print(os, d.get_definition());
+    pp.print_space();
+    print(pp, d.get_definition());
+  } 
+  else {
+    pp.print(';');
   }
-  os << '\n';
+  pp.print_newline();
 }
 
 void
-print_parm_decl(std::ostream& os, const parm_decl& d)
+print_decl(pretty_printer& pp, const sys_fn::parm_decl& d)
 {
-  print(os, d.get_type());
-  os << ' ';
-  print(os, d.get_name());
+  print(pp, d.get_type());
+  pp.print_space();
+  print(pp, d.get_name());
 }
 
 void
-print_algo::operator()(std::ostream& os, const decl& d) const
+print_decl(pretty_printer& pp, const sys_fn::var_decl& d)
 {
-  switch (d.get_kind()) {
-    case fn_decl_kind:
-      return print_fn_decl(os, cast<fn_decl>(d));
-    case parm_decl_kind:
-      return print_parm_decl(os, cast<parm_decl>(d));
-    default:
-      break;
+  pp.print("var");
+  pp.print_space();
+  print(pp, d.get_type());
+  pp.print_space();
+  print(pp, d.get_name());
+  print_binary_op(pp, "=");
+  print(pp, d.get_initializer());
+  pp.print(';');
+}
+
+// FIXME: Manage indentations.
+void
+print_stmt(pretty_printer& pp, const sys_fn::block_stmt& s)
+{
+  pp.print('{');
+  pp.print_newline();
+  for (const stmt& s1 : s.get_statements()) {
+    print(pp, s1);
+    pp.print_newline();
   }
-  assert(false && "not a function declaration");
-}
-
-
-static void
-print_block_stmt(std::ostream& os, const block_stmt& s)
-{
-  os << "{\n";
-  for (const stmt& s1 : s.get_statements())
-    print(os, s1);
-  os << "}\n";
-}
-
-static void
-print_decl_stmt(std::ostream& os, const decl_stmt& s)
-{
-  print(os, s.get_declaration());
-}
-
-static void
-print_expr_stmt(std::ostream& os, const expr_stmt& s)
-{
-  print(os, s.get_expression());
-  os << ";\n";
-}
-
-static void
-print_ret_stmt(std::ostream& os, const ret_stmt& s)
-{
-  os << "return ";
-  print(os, s.get_return());
-  os << ";\n";
+  pp.print('}');
 }
 
 void
-print_algo::operator()(std::ostream& os, const stmt& s) const
+print_stmt(pretty_printer& pp, const sys_fn::decl_stmt& s)
 {
-  switch (s.get_kind()) {
-    case block_stmt_kind:
-      return print_block_stmt(os, cast<block_stmt>(s));
-    case decl_stmt_kind:
-      return print_decl_stmt(os, cast<decl_stmt>(s));
-    case expr_stmt_kind:
-      return print_expr_stmt(os, cast<expr_stmt>(s));
-    case ret_stmt_kind:
-      return print_ret_stmt(os, cast<ret_stmt>(s));
-    default:
-      break;
-  }
-  assert(false && "not a function statement");
+  print(pp, s.get_declaration());
 }
 
-} // namespace sys_fn
+void
+print_stmt(pretty_printer& pp, const sys_fn::expr_stmt& s)
+{
+  print(pp, s.get_expression());
+  pp.print(';');
+}
+
+void
+print_stmt(pretty_printer& pp, const sys_fn::ret_stmt& s)
+{
+  pp.print("return");
+  pp.print_space();
+  print(pp, s.get_return());
+}
+
 } // namespace beaker

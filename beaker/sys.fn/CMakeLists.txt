@@ -10,9 +10,9 @@ add_beaker_module(
   build.cpp
   ast.cpp
   fwd.cpp
-  comparison/eq.cpp
+  comparison/equal.cpp
   comparison/hash.cpp
   printing/print.cpp
-  generation/gen.cpp
-  serialization/write.cpp
+  # generation/gen.cpp
+  # serialization/write.cpp
 )

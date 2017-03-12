@@ -1,22 +1,18 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-#ifndef BEAKER_SYS_FN_COMPARISON_EQ_HPP
-#define BEAKER_SYS_FN_COMPARISON_EQ_HPP
+#ifndef BEAKER_SYS_FN_COMPARISON_EQUAL_HPP
+#define BEAKER_SYS_FN_COMPARISON_EQUAL_HPP
 
-#include <beaker/base/comparison/eq.hpp>
+#include <beaker/sys.fn/fwd.hpp>
+
+#include <beaker/base/comparison/equal.hpp>
 
 
 namespace beaker {
-namespace sys_fn {
 
-struct eq_algo : equivalence_algorithm
-{
-  bool operator()(const type&, const type&) const override;
-  bool operator()(const expr&, const expr&) const override;
-};
+bool equal_type(const sys_fn::fn_type&, const sys_fn::fn_type&);
 
-} // namespace sys_fn
 } // namespace beaker
 
 
