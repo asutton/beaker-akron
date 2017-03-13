@@ -86,6 +86,10 @@ struct semantics
   decl& on_finish_function(location);
   decl& on_finish_function(stmt&);
 
+  stmt& on_expression_statement(expr&, location);
+  stmt& on_declaration_statement(decl&);
+  stmt& on_return_statement(locations<2>);
+  stmt& on_return_statement(expr&, locations<2>);
   stmt& on_block_statement(stmt_seq&&, locations<2>);
 
   void check_bool(expr&);
@@ -110,6 +114,8 @@ struct semantics
   scope& current_scope();
   const decl& current_context() const;
   decl& current_context();
+  const beaker::sys_fn::fn_decl& current_function() const;
+  beaker::sys_fn::fn_decl& current_function();
 
   scope_stack scopes;
   dc cur_cxt;

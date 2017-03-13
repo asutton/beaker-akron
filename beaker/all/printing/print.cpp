@@ -4,6 +4,8 @@
 #include "print.hpp"
 #include "../ast.hpp"
 
+#include <beaker/base/module.hpp>
+
 #include <iostream>
 
 
@@ -27,8 +29,8 @@ void
 print(pretty_printer& pp, const type& t)
 {
   switch (t.get_kind()) {
-  default:
-    break;
+    default:
+      break;
 #define def_type(NS, T) \
     case NS::T ## _type_kind: \
       return print_type(pp, cast<NS::T ## _type>(t));
@@ -42,8 +44,8 @@ void
 print(pretty_printer& pp, const expr& e)
 {
   switch (e.get_kind()) {
-  default:
-    break;
+    default:
+      break;
 #define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
       return print_expr(pp, cast<NS::E ## _expr>(e));
@@ -59,12 +61,14 @@ void
 print(pretty_printer& pp, const decl& d)
 {
   switch (d.get_kind()) {
-  default:
-    break;
+    default:
+      break;
 #define def_decl(NS, D) \
     case NS::D ## _decl_kind: \
       return print_decl(pp, cast<NS::D ## _decl>(d));
 #include <beaker/all/decl.def>
+    case module_decl_kind:
+      return print_decl(pp, cast<module>(d));
   }
   assert(false && "invalid declaration");
 }
@@ -73,8 +77,8 @@ void
 print(pretty_printer& pp, const stmt& s)
 {
   switch (s.get_kind()) {
-  default:
-    break;
+    default:
+      break;
 #define def_stmt(NS, S) \
     case NS::S ## _stmt_kind: \
       return print_stmt(pp, cast<NS::S ## _stmt>(s));

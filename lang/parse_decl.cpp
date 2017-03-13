@@ -26,10 +26,7 @@ parser::toplevel_declaration_seq()
 {
   decl_seq ds;
   while (!eof()) {
-    // FIXME: Trap syntax errors and try to recover as gracefully as possible.
     decl& d = toplevel_declaration();
-    std::cout << "HERE\n";
-    print(act.get_language(), d);
     ds.push_back(d);
   }
   return ds;

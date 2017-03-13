@@ -136,7 +136,7 @@ scope::~scope()
 /// Returns the kind of scope.
 inline int scope::get_kind() const { return kind; }
 
-/// Add a new binding to this contour.
+/// Add a new binding to this scope.
 template<typename T, typename... Args>
 inline T&
 scope::add(const symbol& sym, Args&&... args)

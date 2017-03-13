@@ -29,6 +29,24 @@ semantics::semantics(module& m)
 { }
 
 
+/// Returns the current funtion. Behavior is undefined if not in a function.
+///
+/// \todo If we allow scoped declarations within a function definition, should
+/// we walk up to the function or not?
+const beaker::sys_fn::fn_decl& 
+semantics::current_function() const
+{
+  return cast<beaker::sys_fn::fn_decl>(current_context());
+}
+
+/// Returns the current funtion. Behavior is undefined if not in a function.
+beaker::sys_fn::fn_decl& 
+semantics::current_function()
+{
+  return cast<beaker::sys_fn::fn_decl>(current_context());
+}
+
+
 /// Returns the default scope kind corresponding to the given declaration.
 static int
 get_scope_kind(const decl& d)

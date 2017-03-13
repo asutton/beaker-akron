@@ -8,12 +8,15 @@ stmt&
 parser::statement()
 {
   switch (lookahead()) {
-    case '{':
-      return block_statement();
     default:
-      break;
+      return expression_statement();
+    case var_kw:
+      return declaration_statement();
+    case return_kw:
+      return return_statement();
+    case lbrace_tok:
+      return block_statement();
   }
-  assert(false && "not implemented");
 }
 
 /// Parse a sequence of statements.
@@ -32,6 +35,42 @@ parser::statement_seq()
     ss.push_back(s);
   }
   return ss;
+}
+
+/// Parse an expression statement.
+///
+///   expression-statement -> expression ';'
+stmt&
+parser::expression_statement()
+{
+  expr& e = expression();
+  token semi = expect(semicolon_tok);
+  return act.on_expression_statement(e, get_location(semi));
+}
+
+/// Parse a declaration statement.
+///
+///   declaration-statement -> local-declaration
+stmt&
+parser::declaration_statement()
+{
+  // decl& d = declaration();
+  // return act.on_declaration_statement(d);
+  assert(false && "not implemented");
+}
+
+/// Parse a return statement.
+///
+///   return-statement -> 'return' [expression] ';'
+stmt&
+parser::return_statement()
+{
+  token ret = require(return_kw);
+  if (token semi = accept(semicolon_tok))
+    return act.on_return_statement(get_locations(ret, semi));
+  expr& e = expression();
+  token semi = expect(semicolon_tok);
+  return act.on_return_statement(e, get_locations(ret, semi));
 }
 
 /// Parse a block statement.

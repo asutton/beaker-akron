@@ -18,6 +18,14 @@
 namespace beaker {
 namespace sys_fn {
 
+/// Returns the module's void builder.
+static inline sys_void::builder& 
+get_void_builder(builder& b)
+{
+  return b.get_module().get_builder<sys_void::feature>();
+}
+
+/// Retrus the module's bool builder.
 static inline sys_bool::builder& 
 get_bool_builder(builder& b)
 {
@@ -355,6 +363,13 @@ builder::make_ret_stmt(expr& e)
     assert(false && "unknown return category");
   }
   #endif
+}
+
+/// Returns the statement `return nop`.
+ret_stmt& 
+builder::make_ret_stmt()
+{
+  return make<ret_stmt>(get_void_builder(*this).make_nop_expr());
 }
 
 } // namespace sys_fn

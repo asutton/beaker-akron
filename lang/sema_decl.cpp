@@ -28,6 +28,10 @@ semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4>
   type& fty = build_fn.get_fn_type(parms, ret);
   decl& cxt = current_context();
   decl& fn = build_fn.make_fn_decl(cxt, id, fty, std::move(parms), ret);
+
+  // FIXME: Figure out how declarations should work.
+  // current_scope().add(fn);
+
   return fn;
 }
 

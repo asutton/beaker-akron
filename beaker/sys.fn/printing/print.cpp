@@ -106,10 +106,15 @@ void
 print_stmt(pretty_printer& pp, const sys_fn::block_stmt& s)
 {
   pp.print('{');
+  pp.indent();
   pp.print_newline();
-  for (const stmt& s1 : s.get_statements()) {
-    print(pp, s1);
+  const stmt_seq& ss = s.get_statements();
+  for (auto iter = ss.begin(); iter != ss.end(); ++iter) {
+    print(pp, *iter);
+    if (std::next(iter) == ss.end())
+      pp.undent();
     pp.print_newline();
+
   }
   pp.print('}');
 }
@@ -133,6 +138,7 @@ print_stmt(pretty_printer& pp, const sys_fn::ret_stmt& s)
   pp.print("return");
   pp.print_space();
   print(pp, s.get_return());
+  pp.print(';');
 }
 
 } // namespace beaker

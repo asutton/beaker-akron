@@ -6,6 +6,7 @@
 #include "../expr.hpp"
 
 #include <beaker/base/symbol.hpp>
+#include <beaker/base/module.hpp>
 
 #include <iostream>
 
@@ -20,7 +21,7 @@ pretty_printer::pretty_printer(const language& lang)
 { }
 
 pretty_printer::pretty_printer(const language& lang, std::ostream& os)
-  : lang(lang), os(os)
+  : lang(lang), os(os), depth(0)
 { }
 
 /// Print a single character.
@@ -51,11 +52,13 @@ pretty_printer::print(std::uintmax_t n)
   os << n;
 }
 
-/// Prints a newline character.
+/// Prints a newline character and indents to the current depth.
 void
 pretty_printer::print_newline()
 {
   os << '\n';
+  std::string tab(depth * 2, ' ');
+  os << tab;
 }
 
 /// Print a single space character.
@@ -65,7 +68,6 @@ pretty_printer::print_space()
   os << ' ';
 }
 
-
 // -------------------------------------------------------------------------- //
 // Primary interface
 
@@ -74,6 +76,14 @@ void
 print(pretty_printer& pp, const symbol& sym)
 {
   pp.print(sym.c_str());
+}
+
+
+void
+print_decl(pretty_printer& pp, const module& m)
+{
+  for (const decl& d : m.get_declarations())
+    print(pp, d);
 }
 
 

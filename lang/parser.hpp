@@ -100,13 +100,23 @@ struct parser
   stmt& statement();
   stmt_seq statement_seq();
   stmt& block_statement();
+  stmt& return_statement();
+  stmt& declaration_statement();
+  stmt& expression_statement();
 
   stream_type& ts;
   semantics act;
 };
 
 /// Returns true if the at the end of input.
-inline bool parser::eof() const { return ts.eof(); }
+inline bool parser::eof() const 
+{
+  if (ts.eof())
+    return true;
+  if (lookahead() == eof_tok)
+    return true;
+  return false;
+}
 
 /// Returns the current token.
 inline const token& parser::current() const { return ts.peek(); }

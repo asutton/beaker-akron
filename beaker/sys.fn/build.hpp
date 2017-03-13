@@ -57,6 +57,7 @@ struct builder : factory
   block_stmt& make_block_stmt(stmt_seq&&);
   expr_stmt& make_expr_stmt(expr&);
   decl_stmt& make_decl_stmt(decl&);
+  ret_stmt& make_ret_stmt();
   ret_stmt& make_ret_stmt(expr&);
 
   canonical_term_set<fn_type>* fn_;

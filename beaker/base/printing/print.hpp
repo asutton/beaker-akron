@@ -19,8 +19,6 @@ struct symbol;
 /// The pretty printer object provides context for printing terms of the
 /// languages. This wraps an output stream and helps manages indentation and
 /// other printing options.
-///
-/// \todo Implement indentation.
 struct pretty_printer
 {
   pretty_printer(const language&);
@@ -36,8 +34,12 @@ struct pretty_printer
   void print_space();
   void print_newline();
 
+  void indent() { ++depth; }
+  void undent() { --depth; }
+
   const language& lang;
   std::ostream& os;
+  int depth;
 };
 
 /// Returns the language used for printing.
@@ -66,6 +68,8 @@ void print_type(pretty_printer&, const type&) = delete;
 void print_expr(pretty_printer&, const expr&) = delete;
 void print_decl(pretty_printer&, const decl&) = delete;
 void print_stmt(pretty_printer&, const stmt&) = delete;
+
+void print_decl(pretty_printer&, const module&);
 
 
 // -------------------------------------------------------------------------- //
