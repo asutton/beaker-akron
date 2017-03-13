@@ -32,65 +32,75 @@ lexer::lexer(beaker::symbol_table& syms, stream_type& s)
 token
 lexer::operator()() 
 {
-  // Reset the symbol buffer.
-  buf.clear();
+  while (true) {
+    // Reset the symbol buffer.
+    buf.clear();
 
-  // Ignore whitespace.
-  space();
+    // Ignore whitespace.
+    space();
 
-  // Match a token at the current location.
-  start_token();
-  switch (lookahead()) {
-    case 0: return end();
+    // Match a token at the current location.
+    start_token();
+    switch (lookahead()) {
+      case 0: return end();
 
-    // Matches punctuators and operators.
-    case '{': return lbrace();
-    case '}': return rbrace();
-    case '(': return lparen();
-    case ')': return rparen();
-    case '[': return lbrack();
-    case ']': return rbrack();
-    case ';': return semicolon();
-    case '.': return dot();
-    case '+': return plus();
-    case '-': return minus();
-    case '*': return star();
-    case '/': return slash();
-    case '%': return percent();
-    case '&': return amp();
-    case '|': return bar();
-    case '^': return caret();
-    case '~': return tilde();
-    case '<': return lt();
-    case '>': return gt();
-    case '=': return eq();
-    case '!': return bang();
-    case '?': return question();
-    case ':': return colon();
+      // Matches punctuators and operators.
+      case '{': return lbrace();
+      case '}': return rbrace();
+      case '(': return lparen();
+      case ')': return rparen();
+      case '[': return lbrack();
+      case ']': return rbrack();
+      case ';': return semicolon();
+      case '.': return dot();
+      case '+': return plus();
+      case '-': return minus();
+      case '*': return star();
+      case '/': 
+        if (lookahead(1) == '/') {
+          comment();
+          continue;
+        }
+        return slash();
+      
+      case '%': return percent();
+      case '&': return amp();
+      case '|': return bar();
+      case '^': return caret();
+      case '~': return tilde();
+      case '<': return lt();
+      case '>': return gt();
+      case '=': return eq();
+      case '!': return bang();
+      case '?': return question();
+      case ':': return colon();
 
-    // Matches digits.
-    case '0': case '1': case '2': case '3': case '4':
-    case '5': case '6': case '7': case '8': case '9':
-      return number();
+      // Matches digits.
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        return number();
 
-    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
-    case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
-    case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
-    case 'v': case 'w': case 'x': case 'y': case 'z':
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
-    case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
-    case 'V': case 'W': case 'X': case 'Y': case 'Z':
-    case '_':
-      return word();
+      case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+      case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
+      case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
+      case 'v': case 'w': case 'x': case 'y': case 'z':
+      case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+      case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+      case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+      case 'V': case 'W': case 'X': case 'Y': case 'Z':
+      case '_':
+        return word();
 
-    default: {
-      char ch = consume();
-      note_end();
-      std::stringstream ss;
-      ss << "invalid character '" << ch << '\'';
-      error(loc, ss.str());
-      break;
+      default: {
+        // TODO: Don't propagate the error. Just buffer it for future use
+        // and then continue lexing.
+        char ch = consume();
+        note_end();
+        std::stringstream ss;
+        ss << "invalid character '" << ch << '\'';
+        error(loc, ss.str());
+        break;
+      }
     }
   }
 
@@ -122,6 +132,18 @@ lexer::space()
         return;
     }
   }
+}
+
+/// Remove a comment from the character stream.
+///
+///   comment -> '//' all characters until '\n'
+///
+/// \todo Scrape comments into a side buffer to support documentation tools.
+void
+lexer::comment()
+{
+  while (lookahead() != '\n')
+    ignore();
 }
 
 /// Returns the end-of-file token.
@@ -216,21 +238,8 @@ token lexer::star() { return require('*'), finish_token(star_tok); }
 /// Matches '/' operator or the '//' comment delimiter.
 ///
 ///   slash-operator -> '/'
-///   comment -> '//' [all characters except newline]
-///
-/// Returns the corresponding token.
-///
-/// \todo Scrape comments into a comment buffer to support IDE's.
 token 
-lexer::slash() 
-{ 
-  require('/'); 
-  if (match('/')) {
-    while (lookahead() != '\n')
-      ignore();
-  }
-  return finish_token(slash_tok); 
-}
+lexer::slash() { return require('/'), finish_token(slash_tok); }
 
 /// Matches '%' operator.
 ///

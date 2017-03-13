@@ -58,6 +58,7 @@ struct lexer
 
   // Token constructors
   void space();
+  void comment();
   token end();
   token lbrace();
   token rbrace();
