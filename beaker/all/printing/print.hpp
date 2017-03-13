@@ -5,3 +5,5 @@
 #include <beaker/sys.bool/printing/print.hpp>
 #include <beaker/sys.int/printing/print.hpp>
 #include <beaker/sys.name/printing/print.hpp>
+#include <beaker/sys.var/printing/print.hpp>
+#include <beaker/sys.fn/printing/print.hpp>

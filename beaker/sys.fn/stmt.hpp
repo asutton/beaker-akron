@@ -17,7 +17,7 @@ namespace sys_fn {
 enum 
 {
   first_stmt_kind = sys_fn_lang_block,
-#define def_stmt(e) e ## _stmt_kind,
+#define def_stmt(NS, S) S ## _stmt_kind,
 #include "stmt.def"
   last_stmt_kind
 };

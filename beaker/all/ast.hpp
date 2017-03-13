@@ -7,5 +7,7 @@
 #include "name.hpp"
 #include "type.hpp"
 #include "expr.hpp"
+#include "decl.hpp"
+#include "stmt.hpp"
 
 #endif

@@ -46,9 +46,30 @@ struct unary_expr;
 struct binary_expr;
 struct ternary_expr;
 
-void hash_name(hasher&, const name&) = delete;
-void hash_type(hasher&, const type&) = delete;
-void hash_expr(hasher&, const expr&) = delete;
+/// Hash the given name. Behavior is undefined if overload resolution selects
+/// this function.
+inline void 
+hash_name(hasher&, const name&)
+{
+  assert(false && "function not defined");
+}
+
+/// Hash the given type. Behavior is undefined if overload resolution selects
+/// this function.
+inline void 
+hash_type(hasher&, const type&)
+{
+  assert(false && "function not defined");
+}
+
+/// Hash the given expression. Behavior is undefined if overload resolution 
+/// selects this function.
+inline void 
+hash_expr(hasher&, const expr&)
+{
+  assert(false && "function not defined");
+}
+
 
 /// Appends no additional information for base types.
 constexpr void hash_type(hasher&, const base_type&) { }

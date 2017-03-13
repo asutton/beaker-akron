@@ -5,11 +5,73 @@
 
 #include <beaker/base/printing/print.hpp>
 
+#include <beaker/sys.void/ast.hpp>
+#include <beaker/sys.bool/ast.hpp>
+#include <beaker/sys.int/ast.hpp>
+#include <beaker/sys.name/ast.hpp>
+#include <beaker/sys.var/ast.hpp>
+#include <beaker/sys.fn/ast.hpp>
+
 #include <iostream>
 #include <stdexcept>
 
 
 namespace bpl {
+
+semantics::semantics(module& m)
+  : mod(m),
+    build_void(m.get_void_builder()),
+    build_bool(m.get_bool_builder()),
+    build_int(m.get_int_builder()),
+    build_name(m.get_name_builder()),
+    build_var(m.get_var_builder()),
+    build_fn(m.get_fn_builder())
+{ }
+
+
+/// Returns the default scope kind corresponding to the given declaration.
+static int
+get_scope_kind(const decl& d)
+{
+  switch (d.get_kind()) {
+    case beaker::module_decl_kind: 
+      return module_scope;
+    case beaker::sys_fn::fn_decl_kind: 
+      return function_scope;
+    default: 
+      break;
+  }
+  assert(false && "no scope associated with declaration");
+};
+
+
+/// Enter a declarative region corresponding to declaration `d`.
+declarative_region::declarative_region(semantics& s, decl& d)
+  : sema(s), prev_dc(sema.cur_cxt)
+{
+  // Set the current declaration context.
+  sema.cur_cxt = dc(d);
+
+  // Enter the corresponding scope.
+  sema.enter_scope(get_scope_kind(d));
+}
+
+/// Enter a declarative region that is not explicitly associated with a 
+/// declaration context. Examples are function prototype scope amd block
+/// scope.
+declarative_region::declarative_region(semantics& s, int k)
+  : sema(s), prev_dc(sema.cur_cxt)
+{
+  sema.enter_scope(k);
+}
+
+/// Restore the previous declarative region and the scope stack.
+declarative_region::~declarative_region()
+{
+  sema.cur_cxt = prev_dc;
+  sema.leave_scope();
+}
+
 
 } // namespace bpl
 

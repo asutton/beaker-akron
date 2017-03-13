@@ -11,10 +11,10 @@ namespace bpl {
 decl&
 parser::module()
 {
-  // FIXME: Establish a new declaration region for toplevel declarations
-  // and ensure that declarations are (in fact) added to the the module.
-  decl_seq decls = toplevel_declaration_seq();
-  return act.finish_module();
+  decl& mod = act.on_start_module();
+  declarative_region reg(act, mod);
+  toplevel_declaration_seq();
+  return act.on_finish_module();
 }
 
 /// Parse a sequence of declarations.
@@ -28,6 +28,8 @@ parser::toplevel_declaration_seq()
   while (!eof()) {
     // FIXME: Trap syntax errors and try to recover as gracefully as possible.
     decl& d = toplevel_declaration();
+    std::cout << "HERE\n";
+    print(act.get_language(), d);
     ds.push_back(d);
   }
   return ds;
@@ -85,8 +87,16 @@ parser::import_declaration()
 /// Parse a function declaration.
 ///
 ///   function-declaration
-///     -> 'def' identifier '(' parameter-list ')' '->' type ';'
-///      | 'def' identifier '(' parameter-list ')' '->' type function-definition
+///     -> 'def' identifier '(' parameter-list ')' return-clause ';'
+///      | 'def' identifier '(' parameter-list ')' return-clause function-definition
+///
+///   return-clause -> '->' type
+///
+/// Note that the return "type" is actually an output parameter declaration.
+///
+/// \todo Support named return types?
+///
+/// \todo Support deduced return types by make the return clause optional.
 ///
 /// \todo Allow different forms of function name.
 ///
@@ -95,24 +105,35 @@ decl&
 parser::function_declaration()
 {
   token def = require(def_kw);
-
   name& id = declaration_name();
 
   // FIXME: Parse a parameter declaration list.
-  token lpar = expect(lparen_tok);
-  token rpar = expect(rparen_tok);
-
-  token arrow = expect(arrow_tok);
-  type& ty = type_id();
-
-  if (token semi = accept(semicolon_tok)) {
-    auto locs = get_locations(def, lpar, rpar, arrow, semi);
-    return act.on_function_declaration(id, ty, locs);
+  decl_seq parms;
+  token lpar, rpar;
+  {
+    declarative_region parm_reg(act, function_parameter_scope);
+    lpar = expect(lparen_tok);
+    rpar = expect(rparen_tok);
   }
 
-  stmt& body = block_statement();
+  // TODO: Implement named return types.
+  // TODO: Support deduced return types.
+  token arrow = expect(arrow_tok);
+  type& ret = type_id();
+
+  // Declare the function.
   auto locs = get_locations(def, lpar, rpar, arrow);
-  return act.on_function_declaration(id, ty, body, locs);
+  decl& fn = act.on_start_function(id, std::move(parms), ret, locs);
+  declarative_region fn_reg(act, fn);
+
+  // ';' | function-definitin
+  if (token semi = accept(semicolon_tok)) {
+    return act.on_finish_function(get_location(semi));
+  }
+  else {
+    stmt& body = block_statement();
+    return act.on_finish_function(body);
+  }
 }
 
 

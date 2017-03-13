@@ -10,7 +10,7 @@ namespace beaker {
 
 // Returns true if a and b have parameter and return types.
 bool
-equal(const sys_fn::fn_type& a, const sys_fn::fn_type& b)
+equal_type(const sys_fn::fn_type& a, const sys_fn::fn_type& b)
 {
   return equal(a.get_return_type(), b.get_return_type()) &&
          equal(a.get_parameter_types(), b.get_parameter_types());

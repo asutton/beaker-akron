@@ -7,5 +7,7 @@
 #include <beaker/sys.void/expr.hpp>
 #include <beaker/sys.bool/expr.hpp>
 #include <beaker/sys.int/expr.hpp>
+#include <beaker/sys.var/expr.hpp>
+#include <beaker/sys.fn/expr.hpp>
 
 #endif

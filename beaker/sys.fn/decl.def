@@ -1,8 +1,10 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_decl(fn)
-def_decl(parm)
-def_decl(var)
+def_decl(sys_fn, fn)
+def_decl(sys_fn, parm)
+def_decl(sys_fn, var)
 
-#undef def_decl
+#ifndef do_not_undefine
+#  undef def_decl
+#endif

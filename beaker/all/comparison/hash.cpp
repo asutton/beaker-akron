@@ -46,6 +46,9 @@ hash(hasher& h, const expr& e)
 #define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
       return hash_expr(h, cast<NS::E ## _expr>(e));
+#define def_init(NS, E) \
+    case NS::E ## _init_kind: \
+      return hash_expr(h, cast<NS::E ## _init>(e));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

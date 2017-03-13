@@ -15,7 +15,7 @@ struct fn_type;
 enum 
 {
   first_decl_kind = sys_fn_lang_block,
-#define def_decl(e) e ## _decl_kind,
+#define def_decl(NS, D) D ## _decl_kind,
 #include "decl.def"
   last_decl_kind
 };

@@ -6,3 +6,5 @@
 #include <beaker/sys.void/type.def>
 #include <beaker/sys.bool/type.def>
 #include <beaker/sys.int/type.def>
+#include <beaker/sys.var/type.def>
+#include <beaker/sys.fn/type.def>

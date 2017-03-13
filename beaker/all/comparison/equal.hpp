@@ -3,3 +3,5 @@
 
 #include <beaker/sys.int/comparison/equal.hpp>
 #include <beaker/sys.name/comparison/equal.hpp>
+#include <beaker/sys.var/comparison/equal.hpp>
+#include <beaker/sys.fn/comparison/equal.hpp>

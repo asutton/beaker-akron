@@ -8,7 +8,7 @@ name&
 semantics::on_identifier(token tok)
 {
   const auto& attr = tok.get_attribute<beaker::symbol_attr>();
-  return build.get_name(attr.get_symbol());
+  return build_name.get_name(attr.get_symbol());
 }
 
 } // namespace bpl

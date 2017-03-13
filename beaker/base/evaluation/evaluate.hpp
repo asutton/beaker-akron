@@ -45,9 +45,30 @@ value evaluate(evaluator&, const stmt&);
 // -------------------------------------------------------------------------- //
 // Dispatch interface
 
-value evaluate_expr(evaluator&, const expr&) = delete;
-value evaluate_decl(evaluator&, const decl&) = delete;
-value evaluate_stmt(evaluator&, const stmt&) = delete;
+/// Evaluate the given expression. Behavior is undefined if overload resolution
+/// selects this function.
+inline value 
+evaluate_expr(evaluator&, const expr&)
+{
+  assert(false && "function not defined");
+}
+
+/// Elaborate the given declaration. Behavior is undefined if overload 
+/// resolution selects this function.
+inline value 
+evaluate_decl(evaluator&, const decl&)
+{
+  assert(false && "function not defined");
+}
+
+/// Evaluate the given statement. Behavior is undefined if overload resolution
+/// selects this function.
+inline value 
+evaluate_stmt(evaluator&, const stmt&)
+{
+  assert(false && "function not defined");
+}
+
 
 } // namespace beaker
 

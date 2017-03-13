@@ -134,6 +134,7 @@ builder::make_ne_expr(expr& e1, expr& e2)
   return make<ne_expr>(t, e1, e2);
 }
 
+
 /// Returns a new function that has no definition. By default, a function with 
 /// no definition has external linkage.
 fn_decl&

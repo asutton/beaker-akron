@@ -53,6 +53,9 @@ equal(const expr& a, const expr& b)
 #define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
       return equal_expr(cast<NS::E ## _expr>(a), cast<NS::E ## _expr>(b));
+#define def_init(NS, E) \
+    case NS::E ## _init_kind: \
+      return equal_expr(cast<NS::E ## _init>(a), cast<NS::E ## _init>(b));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

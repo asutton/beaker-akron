@@ -41,9 +41,29 @@ struct unary_expr;
 struct binary_expr;
 struct ternary_expr;
 
-bool equal_name(const expr&, const expr&) = delete;
-bool equal_type(const type&, const type&) = delete;
-bool equal_expr(const expr&, const expr&) = delete;
+/// Returns true if two names are equal. Behavior is undefined if overload
+/// resolution selects this function.
+inline bool
+equal_name(const name&, const name&)
+{
+  assert(false && "function not defined");
+}
+
+/// Returns true if two types are equal. Behavior is undefined if overload
+/// resolution selects this function.
+inline bool
+equal_type(const type&, const type&)
+{
+  assert(false && "function not defined");
+}
+
+/// Returns true if two expressions are equal. Behavior is undefined if 
+/// overload resolution selects this function.
+inline bool
+equal_expr(const expr&, const expr&)
+{
+  assert(false && "function not defined");
+}
 
 /// The same base types are always equal.
 constexpr bool equal_type(const base_type&, const base_type&) { return true; }

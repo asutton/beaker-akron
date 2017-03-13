@@ -3,23 +3,56 @@
 
 namespace bpl {
 
-/// FIXME: I don't like this.
+/// Simply return the module.
 decl&
-semantics::finish_module()
+semantics::on_start_module()
 {
   return mod;
 }
 
-decl& 
-semantics::on_function_declaration(name& id, type& ty, locations<5> locs)
+/// Simply return the module.
+///
+/// \todo Apply all deferred actions here.
+decl&
+semantics::on_finish_module()
 {
-  assert(false && "not implemented");
+  return mod;
 }
 
-decl& 
-semantics::on_function_declaration(name& id, type& ty, stmt& body, locations<4> locs)
+
+/// Construct and declare a function.
+decl&
+semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4> locs)
 {
-  assert(false && "not implemented");
+  decl& ret = build_fn.make_parm_decl(rty);
+  type& fty = build_fn.get_fn_type(parms, ret);
+  decl& cxt = current_context();
+  decl& fn = build_fn.make_fn_decl(cxt, id, fty, std::move(parms), ret);
+  return fn;
+}
+
+/// Returns a function declaration.
+decl& 
+semantics::on_finish_function(location semi)
+{
+  return current_context();
+}
+
+/// Attach the body to the current function defintion.
+///
+/// \todo Build a set of lowering functions to iteratively lower the definition
+/// until we can emit IR code. Note that we can also release all nodes
+/// allocated by those passes once we've finished the definition. This will
+/// help keep memory low.
+decl& 
+semantics::on_finish_function(stmt& body)
+{
+  beaker::sys_fn::fn_decl& fn = cast<beaker::sys_fn::fn_decl>(current_context());
+  fn.def_ = &body;
+
+  // TODO: Lower or analyze the function?
+
+  return fn;
 }
 
 } // namespace bpl

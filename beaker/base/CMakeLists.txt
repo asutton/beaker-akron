@@ -14,6 +14,7 @@ add_beaker_module(
   stmt.cpp
   module.cpp
   token.cpp
+  scope.cpp
   symbol.cpp
   symbol_table.cpp
   comparison/equal.cpp

@@ -13,7 +13,7 @@ namespace sys_fn {
 enum 
 {
   first_type_kind = sys_fn_lang_block,
-#define def_type(e) e ## _type_kind,
+#define def_type(NS, T) T ## _type_kind,
 #include "type.def"
   last_type_kind
 };

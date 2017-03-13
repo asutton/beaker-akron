@@ -8,7 +8,7 @@ namespace bpl {
 stmt&
 semantics::on_block_statement(stmt_seq&& ss, locations<2> toks)
 {
-  assert(false && "not implemented");
+  return build_fn.make_block_stmt(std::move(ss));
 }
 
 } // namespace bpl

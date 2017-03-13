@@ -15,10 +15,11 @@ print_name(pretty_printer& pp, const sys_name::basic_name& n)
   print(pp, n.get_symbol());
 }
 
+/// \todo Support a flag on the pretty printer to show internal names?
 void 
 print_name(pretty_printer& pp, const sys_name::internal_name& n)
 {
-  pp.print("<internal>");
+  // pp.print("<internal>");
 }
 
 } // namespace beaker

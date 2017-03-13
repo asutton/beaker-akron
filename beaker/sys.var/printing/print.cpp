@@ -9,7 +9,6 @@
 
 
 namespace beaker {
-namespace sys_var {
 
 /// \todo Do we need to enclose the object type in parens? Probably if the
 /// object type turns out to be a function.
@@ -62,5 +61,4 @@ print_expr(pretty_printer& pp, const sys_var::ref_init& e)
   assert(false && "not implemented");
 }
 
-} // namespace sys_var
 } // namespace beaker

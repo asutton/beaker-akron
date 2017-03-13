@@ -1,9 +1,11 @@
 // Copyright (c) 2015-2017 Andrew Sutton
 // All rights reserved
 
-def_stmt(block)
-def_stmt(expr)
-def_stmt(decl)
-def_stmt(ret)
+def_stmt(sys_fn, block)
+def_stmt(sys_fn, expr)
+def_stmt(sys_fn, decl)
+def_stmt(sys_fn, ret)
 
-#undef def_stmt
+#ifndef do_not_undefine
+#  undef def_stmt
+#endif

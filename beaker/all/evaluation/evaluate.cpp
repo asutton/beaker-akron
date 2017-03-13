@@ -7,6 +7,7 @@
 
 namespace beaker {
 
+/// \todo Should _init functions get special treatment?
 value
 evaluate(evaluator& eval, const expr& e)
 {
@@ -14,6 +15,9 @@ evaluate(evaluator& eval, const expr& e)
 #define def_expr(NS, E) \
     case NS::E ## _expr_kind: \
       return evaluate_expr(eval, cast<NS::E ## _expr>(e));
+#define def_init(NS, E) \
+    case NS::E ## _init_kind: \
+      return evaluate_expr(eval, cast<NS::E ## _init>(e));
 #include <beaker/all/expr.def>
   }
   assert(false && "invalid expression");

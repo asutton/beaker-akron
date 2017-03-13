@@ -2,8 +2,11 @@
 # All rights reserved
 
 add_beaker_module(
+  name.cpp
   type.cpp
   expr.cpp
+  decl.cpp
+  stmt.cpp
   ast.cpp
   comparison/equal.cpp
   comparison/hash.cpp

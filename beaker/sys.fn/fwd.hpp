@@ -9,13 +9,13 @@ namespace beaker {
 namespace sys_fn {
 
 struct feature;
-#define def_type(T) struct T##_type;
-#define def_expr(E) struct E##_expr;
-#define def_decl(D) struct D##_decl;
-#define def_stmt(S) struct S##_stmt;
+#define def_type(NS, T) struct T ## _type;
 #include "type.def"
+#define def_expr(NS, E) struct E ## _expr;
 #include "expr.def"
+#define def_decl(NS, D) struct D ## _decl;
 #include "decl.def"
+#define def_stmt(NS, S) struct S ## _stmt;
 #include "stmt.def"
 struct builder;
 

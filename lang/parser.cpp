@@ -30,8 +30,6 @@ parser::expect(int k)
 {
   if (next_token_is(k))
     return consume();
-  
-  // FIXME: Actually generate the token spelling.
   std::stringstream ss;
   ss << "expected '" << get_token_spelling(k) 
      << "' but got '" << get_token_spelling(current()) << "'";

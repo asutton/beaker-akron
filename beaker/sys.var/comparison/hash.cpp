@@ -7,7 +7,6 @@
 
 
 namespace beaker {
-namespace sys_var {
 
 // Append the hash of the object type of t to h.
 void 
@@ -59,5 +58,4 @@ hash_expr(hasher& h, const sys_var::ref_init& e)
 }
 
 
-} // namespace sys_var
 } // namespace beaker

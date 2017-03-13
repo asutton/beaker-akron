@@ -13,7 +13,7 @@ namespace sys_fn {
 enum 
 {
   first_expr_kind = sys_fn_lang_block,
-#define def_expr(e) e ## _expr_kind,
+#define def_expr(NS, E) E ## _expr_kind,
 #include "expr.def"
   last_expr_kind
 };

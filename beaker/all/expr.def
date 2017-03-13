@@ -6,3 +6,5 @@
 #include <beaker/sys.void/expr.def>
 #include <beaker/sys.bool/expr.def>
 #include <beaker/sys.int/expr.def>
+#include <beaker/sys.var/expr.def>
+#include <beaker/sys.fn/expr.def>

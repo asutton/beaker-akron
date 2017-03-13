@@ -7,5 +7,7 @@
 #include <beaker/sys.void/type.hpp>
 #include <beaker/sys.bool/type.hpp>
 #include <beaker/sys.int/type.hpp>
+#include <beaker/sys.var/type.hpp>
+#include <beaker/sys.fn/type.hpp>
 
 #endif

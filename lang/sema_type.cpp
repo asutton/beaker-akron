@@ -7,21 +7,21 @@ namespace bpl {
 type&
 semantics::on_void_type(location loc)
 {
-  return build.get_void_type();
+  return build_void.get_void_type();
 }
 
 /// Returns the bool type.
 type&
 semantics::on_bool_type(location loc)
 {
-  return build.get_bool_type();
+  return build_bool.get_bool_type();
 }
 
 /// Returns the default integer type.
 type&
 semantics::on_int_type(location loc)
 {
-  return build.get_int32_type();
+  return build_int.get_int32_type();
 }
 
 } // namespace bpl

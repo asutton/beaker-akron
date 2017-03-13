@@ -7,16 +7,25 @@
 #include <beaker/base/lang.hpp>
 #include <beaker/base/module.hpp>
 #include <beaker/base/symbol_table.hpp>
+#include <beaker/base/name.hpp>
+#include <beaker/base/type.hpp>
+#include <beaker/base/expr.hpp>
+#include <beaker/base/decl.hpp>
+#include <beaker/base/stmt.hpp>
 
-// FIXME: We shouldn't have these dependencies here. Refactor the builder
-// to use a compiler firewall to prevent physical dependencies.
-#include <beaker/sys.void/ast.hpp>
-#include <beaker/sys.bool/ast.hpp>
-#include <beaker/sys.int/ast.hpp>
-#include <beaker/sys.name/ast.hpp>
+#include <beaker/sys.void/fwd.hpp>
+#include <beaker/sys.bool/fwd.hpp>
+#include <beaker/sys.int/fwd.hpp>
+#include <beaker/sys.name/fwd.hpp>
+#include <beaker/sys.var/fwd.hpp>
+#include <beaker/sys.fn/fwd.hpp>
 
 
 namespace bpl {
+
+using beaker::is;
+using beaker::as;
+using beaker::cast;
 
 using beaker::name;
 using beaker::type;
@@ -61,6 +70,14 @@ struct module : beaker::module
 
   const language& get_language() const;
   language& get_language();
+
+  // Builders
+  beaker::sys_void::builder& get_void_builder();
+  beaker::sys_bool::builder& get_bool_builder();
+  beaker::sys_int::builder& get_int_builder();
+  beaker::sys_name::builder& get_name_builder();
+  beaker::sys_var::builder& get_var_builder();
+  beaker::sys_fn::builder& get_fn_builder();
 };
 
 /// Returns the language for the module.
@@ -76,52 +93,6 @@ language& module::get_language()
   return static_cast<language&>(beaker::module::get_language());
 }
 
-
-// -------------------------------------------------------------------------- //
-// Builder
-
-/// Provides a single interface for node construction.
-///
-/// \todo Factor this into a separate module.
-struct builder : 
-  beaker::sys_void::builder, 
-  beaker::sys_bool::builder, 
-  beaker::sys_int::builder,
-  beaker::sys_name::builder
-{
-  builder(module&);
-
-  const language& get_language() const;
-  language& get_language();
-
-  const beaker::factory& get_base() const;
-  beaker::factory& get_base();
-};
-
-// Returns the builder for void terms.
-inline const beaker::factory& builder::get_base() const 
-{ 
-  return static_cast<const beaker::sys_void::builder&>(*this); 
-}
-
-// Returns the builder for void terms.
-inline beaker::factory& 
-builder::get_base()
-{ 
-  return static_cast<beaker::sys_void::builder&>(*this); 
-}
-
-/// Returns the language for the builder.
-inline const language& builder::get_language() const 
-{ 
-  return static_cast<const language&>(get_base().get_language()); 
-}
-
-/// Returns the language for the builder.
-inline language& builder::get_language() 
-{ 
-  return static_cast<language&>(get_base().get_language()); 
-}
 
 } // namespace bpl
 

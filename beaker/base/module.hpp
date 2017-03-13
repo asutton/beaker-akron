@@ -92,13 +92,17 @@ struct id_generator
   int next = 1;
 };
 
+enum {
+  module_decl_kind = -1
+};
+
 
 /// Represents a named collection of types, values, and functions. A module
 /// is the root container of declarations for a translation; it is equivalent
 /// to a translation unit in C/C++.
 struct module : decl, builder_set, node_store
 {
-  static constexpr int node_kind = -1;
+  static constexpr int node_kind = module_decl_kind;
 
   module(language&);
 

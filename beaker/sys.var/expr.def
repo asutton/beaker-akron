@@ -12,7 +12,5 @@ def_init(sys_var, ref)
 
 #ifndef do_not_undefine
 #  undef def_expr
-#endif
-#ifndef do_not_undefine
 #  undef def_init
 #endif
