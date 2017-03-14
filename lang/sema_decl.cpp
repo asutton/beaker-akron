@@ -24,13 +24,24 @@ semantics::on_finish_module()
 decl&
 semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4> locs)
 {
+  // FIXME: This isn't right as it disallows name hiding. We really just want
+  // to search the current scope for corresponding declaration. Move this
+  // into declaration.
+  if (env.lookup(id))
+    throw decl_error(locs[0], "name already declared");
+
   decl& ret = build_fn.make_parm_decl(rty);
   type& fty = build_fn.get_fn_type(parms, ret);
   decl& cxt = current_context();
   decl& fn = build_fn.make_fn_decl(cxt, id, fty, std::move(parms), ret);
 
-  // FIXME: Figure out how declarations should work.
-  // current_scope().add(fn);
+  // Delare the function.
+  //
+  // FIXME: Support overloading and redeclaration.
+  //
+  // FIXME: Add the declaration to the current context. Factor this into
+  // a new function, declare(cxt, fn).
+  env.add(fn);
 
   return fn;
 }

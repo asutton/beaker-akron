@@ -27,6 +27,7 @@ parser::toplevel_declaration_seq()
   decl_seq ds;
   while (!eof()) {
     decl& d = toplevel_declaration();
+    print(act.get_language(), d);
     ds.push_back(d);
   }
   return ds;
@@ -128,6 +129,8 @@ parser::function_declaration()
     return act.on_finish_function(get_location(semi));
   }
   else {
+    // FIXME: We need a new semantic action that will declare the function's
+    // parameters.
     stmt& body = block_statement();
     return act.on_finish_function(body);
   }

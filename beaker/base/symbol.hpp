@@ -4,18 +4,12 @@
 #ifndef BEAKER_BASE_SYMBOL_HPP
 #define BEAKER_BASE_SYMBOL_HPP
 
-#include <beaker/base/scope.hpp>
-
 #include <beaker/util/hash.hpp>
+
+#include <string>
 
 
 namespace beaker {
-
-struct name;
-struct decl;
-struct type;
-
-
 
 // -------------------------------------------------------------------------- //
 // Symbols
@@ -28,6 +22,12 @@ struct type;
 /// can create these objects, and that only occurs when a unique symbol is
 /// inserted into the table. A corollary of this is that symbol equality can
 /// be defined in terms of object identity.
+///
+/// Note that symbols are not directly linked to their meaning. This is differs
+/// from many common approaches to working with symbols and their declarations.
+/// In order to accommodate languages with structured names, we separate symbols
+/// and the symbol table from their use in scope chains. That is defined over
+/// the name AST.
 struct symbol : std::string
 {
   friend struct symbol_table;
@@ -38,26 +38,14 @@ public:
 
   const std::string& get_spelling() const;
 
-  scope_chain& get_bindings() const;
-  scope_chain& get_bindings();
-
   bool operator==(const symbol&) const;
   bool operator!=(const symbol&) const;
-
-  mutable scope_chain chain;
 };
 
 inline symbol::symbol(const std::string& s) : std::string(s) { }
 
 /// Returns the spelling symbol as a string.
 inline const std::string& symbol::get_spelling() const { return *this; }
-
-/// Returns name bindings for the symbol. Note that this is non-const, meaning
-/// the symbol's scope chain can be modified at any time.
-inline scope_chain& symbol::get_bindings() const { return chain; }
-
-/// Returns name bindings for the symbol.
-inline scope_chain& symbol::get_bindings() { return chain; }
 
 /// Returns this and s have the same identity.
 inline bool symbol::operator==(const symbol& that) const { return this == &that; }

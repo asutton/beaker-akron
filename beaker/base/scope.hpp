@@ -4,8 +4,11 @@
 #ifndef BEAKER_BASE_SCOPE_HPP
 #define BEAKER_BASE_SCOPE_HPP
 
+#include <beaker/base/decl.hpp>
+
 #include <cassert>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 
@@ -13,84 +16,6 @@ namespace beaker {
 
 struct name;
 struct decl;
-struct type;
-struct symbol;
-
-
-// -------------------------------------------------------------------------- //
-// Scope chain
-
-/// A scope entry associates an entity with a declared name. This essentially
-/// refers to the declaration introduced by the given name.
-///
-/// In general a language's scope entry will contain a name binding: the
-/// the declaration of the name as a particular kind of entity.
-///
-/// FIXME: Do I need a reference to the enclosing contour?
-struct scope_entry
-{
-  scope_entry(decl&);
-
-  const decl& get_declaration() const;
-  decl& get_declaration();
-
-  decl* decl_;
-};
-
-inline scope_entry::scope_entry(decl& d) : decl_(&d) { }
-
-/// Returns the declaration introduced by the symbol.
-inline const decl& scope_entry::get_declaration() const { return *decl_; }
-
-/// Returns the declaration introduced by the symbol.
-inline decl& scope_entry::get_declaration() { return *decl_; }
-
-
-/// The scope chain is stack of records that associates meaning with a symbol
-/// in a symbol table.
-struct scope_chain : std::vector<std::unique_ptr<scope_entry>>
-{
-  const scope_entry& top() const;
-  scope_entry& top();
-
-  template<typename T, typename... Args>
-  T& push(Args&&... args);
-
-  void pop();
-};
-
-/// Returns the top of the stack.
-inline const scope_entry&
-scope_chain::top() const
-{
-  assert(!empty());
-  return *back();
-}
-
-/// Returns the top of the stack.
-inline scope_entry&
-scope_chain::top()
-{
-  assert(!empty());
-  return *back();
-}
-
-/// Push a new scope entry of type T (derived from scope_entry) with the given 
-/// arguments.
-template<typename T, typename... Args>
-inline T& 
-scope_chain::push(Args&&... args)
-{
-  emplace_back(new T(std::forward<Args>(args)...));
-}
-
-/// Pops the entry at the top of the stack.
-inline void
-scope_chain::pop()
-{
-  assert(!empty());
-  pop_back();
-}
 
 
 // -------------------------------------------------------------------------- //
@@ -100,21 +25,16 @@ scope_chain::pop()
 /// can derive from this class to provide specialized behaviors related to
 /// the declaration and lookup. The kind member is used as a descriminator,
 /// allowing those languages to determine properties of the scope.
-struct scope : std::vector<const symbol*>
+struct scope : decl_seq
 {
   scope();
   explicit scope(int);
 
-  virtual ~scope();
+  virtual ~scope() = default;
 
   int get_kind() const;
 
-  template<typename T, typename... Args>
-  T& add(const symbol& sym, Args&&... args);
-
-  void remove(const symbol& sym);
-
-  scope_chain& get_bindings(const symbol&);
+  void add(decl&);
 
   int kind;
 };
@@ -125,85 +45,137 @@ inline scope::scope() : kind(-1) { }
 /// Initialize a scope of the given kind.
 inline scope::scope(int k) : kind(k) { }
 
-/// Remove all bindings added to this contour during its lifetime.
-inline 
-scope::~scope()
-{
-  for (const symbol* sym : *this)
-    remove(*sym);
-}
-
 /// Returns the kind of scope.
 inline int scope::get_kind() const { return kind; }
 
-/// Add a new binding to this scope.
-template<typename T, typename... Args>
-inline T&
-scope::add(const symbol& sym, Args&&... args)
+
+/// Add this declaration to the current scope.
+inline void
+scope::add(decl& d)
 {
-  scope_chain& chain = get_bindings(sym);
-  return chain.push<T>(std::forward<Args>(args)...);
+  push_back(d);
 }
 
-/// Remove a binding from this contour.
-inline void
-scope::remove(const symbol& sym)
-{
-  scope_chain& chain = get_bindings(sym);
-  chain.pop();
-}
 
 
 // -------------------------------------------------------------------------- //
-// Scope stack
+// Lexcical environment
 
-/// The scope stack maintains a stack of contours, which maintains the list
-/// of names declared within a region of text.
+/// The lexical environment associates a name with its lexical binding (i.e.,
+/// its declaration and some other information). This allows the language
+/// to support declaration shadowing: the recycling of names for declarations
+/// in narrow scopes. For example:
 ///
-/// \todo Support the allocation different kinds of scopes. These should
-/// have a nice object-oriented flavor to them, and they can be specialized
-/// to enforce language-specific declaration policies.
-struct scope_stack : std::vector<scope*>
+///     int x = 0;
+///     {
+///       int x = 1; // shadows #1
+///       cout << x; // prints 1
+///     }
+///     cout << x; // prints 0
+///
+///
+/// Note that the declaration may in fact be a declaration set or an overload
+/// set. The semantics of these types must handled by the source language.
+struct lexical_environment
 {
-  ~scope_stack();
+  /// The list of declarations bound to a given name.
+  struct bindings : std::vector<decl*>
+  {
+    const decl& top() const;
+    decl& top();
 
-  void push(int k);
-  void pop();
+    void push(decl&);
+    void pop();
+  };
 
-  const scope& top() const;
-  scope& top();
+  /// The stack of scopes, which maintain the list of declarations in each
+  /// context.
+  struct stack : std::vector<std::unique_ptr<scope>>
+  {
+    ~stack();
+
+    void push(int k);
+    void pop();
+
+    const scope& top() const;
+    scope& top();
+  };
+
+  using map_type = std::unordered_map<const name*, bindings>;
+
+  void add(decl&);
+  void remove(const name&);
+  void remove(const decl&);
+
+  const bindings* get_bindings(const name&) const;
+  bindings* get_bindings(const name&);
+
+  const decl* lookup(const name&) const;
+  decl* lookup(const name&);
+
+  void enter_scope(int k);
+  void leave_scope();
+  const scope& current_scope() const;
+  scope& current_scope();
+
+  map_type map;
+  stack ss;
 };
 
+/// Returns the top (innermost) bindings for the name.
+inline const decl& lexical_environment::bindings::top() const { return *back(); }
+
+/// Returns the top (innermost) bindings for the name.
+inline decl& lexical_environment::bindings::top() { return *back(); }
+
+/// Push a new binding onto the stack.
+inline void lexical_environment::bindings::push(decl& d) { push_back(&d); }
+
+/// Pop the outermost binding from the stack.
+inline void lexical_environment::bindings::pop() { pop_back(); }
+
+
 inline 
-scope_stack::~scope_stack()
+lexical_environment::stack::~stack()
 {
   assert(empty() && "imbalanced scope stack");
 }
 
 /// Push a new empty scope stack.
 inline void
-scope_stack::push(int k)
+lexical_environment::stack::push(int k)
 {
-  push_back(new scope(k));
+  push_back(std::make_unique<scope>(k));
 }
 
 /// Pop the current scope from the stack and remove all of the bindings
 /// in that contour.
 inline void
-scope_stack::pop()
+lexical_environment::stack::pop()
 {
   assert(!empty() && "unbalanced scope stack");
-  scope* s = back();
   pop_back();
-  delete s;
 }
 
 /// Returns the current scope.
-inline const scope& scope_stack::top() const { return *back(); }
+inline const scope& 
+lexical_environment::stack::top() const 
+{ 
+  return *back().get(); 
+}
 
 /// Returns the current scope.
-inline scope& scope_stack::top() { return *back(); }
+inline scope& 
+lexical_environment::stack::top() 
+{ 
+  return *back().get(); 
+}
 
+/// Returns the current scope.
+inline const scope& lexical_environment::current_scope() const { return ss.top(); }
+
+/// Returns the current scope.
+inline scope& lexical_environment::current_scope() { return ss.top(); }
 
 } // namespace beaker
 

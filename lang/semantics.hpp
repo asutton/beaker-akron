@@ -7,12 +7,14 @@
 #include "lang.hpp"
 #include "lexer.hpp"
 
+#include <beaker/base/scope.hpp>
+
 
 namespace bpl {
 
-using beaker::scope;
-using beaker::scope_stack;
 using beaker::dc;
+using beaker::scope;
+using beaker::lexical_environment;
 
 
 /// Represents a lexical error.
@@ -33,6 +35,25 @@ type_error::type_error(location loc, const char* msg)
 { }
 
 inline location type_error::get_location() const { return loc; }
+
+
+/// Represents a declaration error.
+struct decl_error : std::runtime_error
+{
+  decl_error(location, const char*);
+
+  location get_location() const;
+
+  location loc;
+};
+
+inline 
+decl_error::decl_error(location loc, const char* msg)
+  : std::runtime_error(msg), loc(loc)
+{ }
+
+inline location decl_error::get_location() const { return loc; }
+
 
 
 /// The semantic actions of the parser. This defines the meaning of a syntactic
@@ -117,7 +138,7 @@ struct semantics
   const beaker::sys_fn::fn_decl& current_function() const;
   beaker::sys_fn::fn_decl& current_function();
 
-  scope_stack scopes;
+  lexical_environment env;
   dc cur_cxt;
 };
 
@@ -129,16 +150,16 @@ semantics::get_language() const { return mod.get_language(); }
 inline language& semantics::get_language() { return mod.get_language(); }
 
 /// Pushes a new scope onto the scope stack.
-inline void semantics::enter_scope(int k) { scopes.push(k); }
+inline void semantics::enter_scope(int k) { env.enter_scope(k); }
 
 /// Pops the current scope from the scope stack.
-inline void semantics::leave_scope() { scopes.pop(); }
+inline void semantics::leave_scope() { env.leave_scope(); }
 
 /// Returns the current scope.
-inline const scope& semantics::current_scope() const { return scopes.top(); }
+inline const scope& semantics::current_scope() const { return env.current_scope(); }
 
 /// Returns the current scope.
-inline scope& semantics::current_scope() { return scopes.top(); }
+inline scope& semantics::current_scope() { return env.current_scope(); }
 
 /// Returns the current declaration context.
 inline const decl& semantics::current_context() const { return *cur_cxt.get_context(); }
@@ -156,6 +177,7 @@ enum {
   module_scope,
   function_parameter_scope,
   function_scope,
+  function_block_scope,
   block_scope,
 };
 

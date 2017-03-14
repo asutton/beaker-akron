@@ -63,5 +63,12 @@ main(int argc, char* argv[])
   catch (bpl::syntax_error& err) {
     std::cerr << err.get_location() << ": error [parse]: " << err.what() << '\n';
   }
+  catch (bpl::type_error& err) {
+    std::cerr << err.get_location() << ": error [semantics]: " << err.what() << '\n';
+  }
+  catch (bpl::decl_error& err) {
+    std::cerr << err.get_location() << ": error [semantics]: " << err.what() << '\n';
+  }
+  std::cout << "done\n";
 
 }
