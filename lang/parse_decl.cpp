@@ -84,8 +84,8 @@ parser::import_declaration()
 /// Parse a function declaration.
 ///
 ///   function-declaration
-///     -> 'def' identifier '(' parameter-list ')' return-clause ';'
-///      | 'def' identifier '(' parameter-list ')' return-clause function-definition
+///     -> 'def' identifier '(' function-parameter-list ')' return-clause ';'
+///      | 'def' identifier '(' function-parameter-list ')' return-clause function-definition
 ///
 ///   return-clause -> '->' type
 ///
@@ -104,14 +104,12 @@ parser::function_declaration()
   token def = require(def_kw);
   name& id = declaration_name();
 
-  // FIXME: Parse a parameter declaration list.
+  declarative_region parm_reg(act, function_parameter_scope);
+  token lpar = expect(lparen_tok);
   decl_seq parms;
-  token lpar, rpar;
-  {
-    declarative_region parm_reg(act, function_parameter_scope);
-    lpar = expect(lparen_tok);
-    rpar = expect(rparen_tok);
-  }
+  if (next_token_is_not(rparen_tok))
+    parms = function_parameter_list();
+  token rpar = expect(rparen_tok);
 
   // TODO: Implement named return types.
   // TODO: Support deduced return types.
@@ -123,16 +121,56 @@ parser::function_declaration()
   decl& fn = act.on_start_function(id, std::move(parms), ret, locs);
   declarative_region fn_reg(act, fn);
 
-  // ';' | function-definitin
+  // ';' | function-definition
   if (token semi = accept(semicolon_tok)) {
     return act.on_finish_function(get_location(semi));
   }
-  else {
-    // FIXME: We need a new semantic action that will declare the function's
-    // parameters.
+  else if (next_token_is(lbrace_tok)) {
+    declarative_region fn_reg(act, fn);
     stmt& body = block_statement();
     return act.on_finish_function(body);
   }
+  else {
+    throw syntax_error(current_location(), "expected function-definition");
+  }
+}
+
+/// Parse a function parameter list.
+///
+///   function-parameter-list -> function-parameters [...]
+///
+///   function-parameters -> function-parameters ',' function-parameter
+///                        | function-parameter
+decl_seq
+parser::function_parameter_list()
+{
+  decl_seq parms;
+  while (true) {
+    decl& parm = function_parameter();
+    parms.push_back(parm);
+    if (accept(comma_tok))
+      continue;
+    if (next_token_is(rparen_tok))
+      break;
+    else
+      throw syntax_error(current_location(), "expected ',' or ')' after function-parameter");
+  }
+  return parms;
+}
+
+/// Parse a function parameteter.
+///
+///   function-parameter -> type-id identifier.
+///
+/// \todo Allow unnamed parameters.
+///
+/// \todo Implement default arguments.
+decl&
+parser::function_parameter()
+{
+  type& ty = type_id();
+  name& id = identifier();
+  return act.on_function_parameter(ty, id);
 }
 
 

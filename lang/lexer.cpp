@@ -52,6 +52,7 @@ lexer::operator()()
       case '[': return lbrack();
       case ']': return rbrack();
       case ';': return semicolon();
+      case ',': return comma();
       case '.': return dot();
       case '+': return plus();
       case '-': return minus();
@@ -146,6 +147,13 @@ lexer::comment()
     ignore();
 }
 
+token 
+lexer::monograph(char c, int k)
+{
+  require(c);
+  return finish_token(k);
+}
+
 /// Returns the end-of-file token.
 token lexer::end() { return finish_token(eof_tok); }
 
@@ -154,63 +162,99 @@ token lexer::end() { return finish_token(eof_tok); }
 ///   lbrace-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::lbrace() { return require('{'), finish_token(lbrace_tok); }
+token lexer::lbrace() { return monograph('{', lbrace_tok); }
 
 /// Matches right brace.
 ///
 ///   rbrace-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::rbrace() { require('}'); return finish_token(rbrace_tok); }
+token lexer::rbrace() { return monograph('}', rbrace_tok); }
 
 /// Matches left parenthesis.
 ///
 ///   lparen-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::lparen() { return require('('), finish_token(lparen_tok); }
+token lexer::lparen() { return monograph('(', lparen_tok); }
 
 /// Matches right parenthesis.
 ///
 ///   rparen-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::rparen() { return require(')'), finish_token(rparen_tok); }
+token lexer::rparen() { return monograph(')', rparen_tok); }
 
 /// Matches left bracket.
 ///
 ///   lbrack-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::lbrack() { return require('('), finish_token(lbrack_tok); }
+token lexer::lbrack() { return monograph('(', lbrack_tok); }
 
 /// Matches right bracket.
 ///
 ///   rbrack-token -> '('
 ///
 /// Returns the corresponding token.
-token lexer::rbrack() { return require(')'), finish_token(rbrack_tok); }
+token lexer::rbrack() { return monograph(']', rbrack_tok); }
 
 /// Matches a semicolon.
 ///
 ///   semicolon-token -> ';'
 ///
 /// Returns the corresponding token.
-token lexer::semicolon() { return require(';'), finish_token(semicolon_tok); }
+token lexer::semicolon() { return monograph(';', semicolon_tok); }
+
+/// Matches a comma token.
+///
+///   comma-token -> ','
+///
+/// Returns the corresponding token.
+token lexer::comma() { return monograph(',', comma_tok); }
 
 /// Matches a dot.
 ///
 ///   dot-token -> ';'
 ///
 /// Returns the corresponding token.
-token lexer::dot() { return require(';'), finish_token(dot_tok); }
+token lexer::dot() { return monograph(';', dot_tok); }
 
 /// Matches '+' operator.
 ///
 ///   plus-operator -> '+'
 ///
 /// Returns the corresponding token.
-token lexer::plus() { return require('+'), finish_token(plus_tok); }
+token lexer::plus() { return monograph('+', plus_tok); }
+
+/// Matches '*' operator.
+///
+///   star-operator -> '*'
+///
+/// Returns the corresponding token.
+token lexer::star() { return monograph('*', star_tok); }
+
+/// Matches '/' operator.
+///
+///   slash-operator -> '/'
+token lexer::slash() { return monograph('/', slash_tok); }
+
+/// Matches '%' operator.
+///
+///   percent-operator -> '%'
+///
+/// Returns the corresponding token.
+token lexer::percent() { return monograph('%', percent_tok); }
+
+/// Match the '?' token.
+///
+///   question -> '?'
+token lexer::question() { return monograph('?', question_tok); }
+
+/// Match the ':' token.
+///
+///   colon -> ':'
+token lexer::colon() { return monograph(':', colon_tok); }
 
 /// Matches '-' operator or '->' punctuator/
 ///
@@ -227,26 +271,6 @@ lexer::minus()
   else
     return finish_token(minus_tok); 
 }
-
-/// Matches '*' operator.
-///
-///   star-operator -> '*'
-///
-/// Returns the corresponding token.
-token lexer::star() { return require('*'), finish_token(star_tok); }
-
-/// Matches '/' operator or the '//' comment delimiter.
-///
-///   slash-operator -> '/'
-token 
-lexer::slash() { return require('/'), finish_token(slash_tok); }
-
-/// Matches '%' operator.
-///
-///   percent-operator -> '%'
-///
-/// Returns the corresponding token.
-token lexer::percent() { return require('%'), finish_token(percent_tok); }
 
 /// Matches '&' or '&&' operators.
 ///
@@ -370,26 +394,6 @@ lexer::bang()
     return finish_token(bang_eq_tok);
   else
     return finish_token(bang_tok);
-}
-
-/// Match the '?' token.
-///
-///   question -> '?'
-token
-lexer::question()
-{
-  require('?');
-  return finish_token(question_tok);
-}
-
-/// Match the ':' token.
-///
-///   colon -> ':'
-token
-lexer::colon()
-{
-  require(':');
-  return finish_token(colon_tok);
 }
 
 /// Consumes the lookahead if it is a letter and returns true. Returns

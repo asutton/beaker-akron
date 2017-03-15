@@ -104,8 +104,10 @@ struct semantics
   decl& on_finish_module();
   
   decl& on_start_function(name&, decl_seq&&, type&, locations<4>);
+  decl& on_define_function();
   decl& on_finish_function(location);
   decl& on_finish_function(stmt&);
+  decl& on_function_parameter(type&, name&);
 
   stmt& on_expression_statement(expr&, location);
   stmt& on_declaration_statement(decl&);
@@ -142,6 +144,7 @@ struct semantics
 
   // Declarations
   decl& declare(decl&);
+  decl& declare(scope& s, decl&);
 
   lexical_environment env;
   dc cur_cxt;
@@ -182,7 +185,6 @@ enum {
   module_scope,
   function_parameter_scope,
   function_scope,
-  function_block_scope,
   block_scope,
 };
 

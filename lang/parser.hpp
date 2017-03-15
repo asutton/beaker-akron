@@ -93,7 +93,8 @@ struct parser
   decl& module_declaration();
   decl& import_declaration();
   decl& function_declaration();
-  decl& parameter_declaration();
+  decl_seq function_parameter_list();
+  decl& function_parameter();
   decl& variable_declaration();
 
   // Statements

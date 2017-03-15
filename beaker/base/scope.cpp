@@ -11,24 +11,31 @@
 
 namespace beaker {
 
-/// Adds a new innermost binding to the named declaration d.
+/// Adds a named declaration d in the given scope. This declaration shall
+/// not replace another declaration in the same scope.
 ///
 /// \todo What if we want to merge d into the current binding level (i.e.,
 /// generate a declaration or overload set?).
 void
-lexical_environment::add(decl& d)
+lexical_environment::add(scope& s, decl& d)
 {
   named_decl& nd = *d.as_named();
 
-  // Insert d into the current scope.
-  scope& s = current_scope();
+  // Insert d into the given scope.
   s.add(d);
 
   // Push the declaration onto the bindings.
   auto result = map.emplace(&nd.get_name(), bindings{});
   bindings& decls = result.first->second;
+  assert((decls.empty() ? true : (decls.top().s != &s)) && "cannot rebind declaration");
   decls.push(s, d);
+}
 
+/// Adds a new innermost binding to the named declaration d.
+void
+lexical_environment::add(decl& d)
+{
+  return add(current_scope(), d);
 }
 
 /// Removes the innermost binding for n.

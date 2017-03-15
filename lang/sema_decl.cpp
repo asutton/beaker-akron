@@ -12,6 +12,38 @@ declare_in(module& m, decl& d)
 }
 
 decl&
+semantics::declare(scope& s, decl& d)
+{
+  named_decl& nd = *d.as_named();
+  
+  // Detemrine if the declaration is valid.
+  if (auto* ent = env.lookup(nd.get_name())) {
+    if (ent->s == &s) {
+      // FIXME: This could be a redeclaration.
+      //
+      // FIXME: Implement overloading.
+      //
+      // FIXME: Add the declaration's source code location and generate good 
+      // error messages.
+      throw decl_error(location(), "name already declared in this scope");
+    }
+  }
+
+  // Add d to the ennvironment.
+  env.add(d);
+
+  // Add the declaration to the current context, if needed.
+  decl& cxt = current_context();
+  switch (cxt.get_kind()) {
+    case beaker::module_decl_kind:
+      return declare_in(cast<module>(cxt), d);
+    default:
+      break;
+  }
+  assert(false && "invalid context for declaration");
+}
+
+decl&
 semantics::declare(decl& d)
 {
   named_decl& nd = *d.as_named();
@@ -61,7 +93,6 @@ semantics::on_finish_module()
   return mod;
 }
 
-
 /// Construct and declare a function.
 decl&
 semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4> locs)
@@ -71,13 +102,10 @@ semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4>
   decl& cxt = current_context();
   decl& fn = build_fn.make_fn_decl(cxt, id, fty, std::move(parms), ret);
 
-  // Delare the function.
-  //
-  // FIXME: Support overloading and redeclaration.
-  //
-  // FIXME: Add the declaration to the current context. Factor this into
-  // a new function, declare(cxt, fn).
-  declare(fn);
+  // Declare the function. Note that we've entered function parameter scope
+  // so we declare the function just outsie of that.
+  scope& s = *current_scope().get_parent();
+  declare(s, fn);
 
   return fn;
 }
@@ -89,7 +117,7 @@ semantics::on_finish_function(location semi)
   return current_context();
 }
 
-/// Attach the body to the current function defintion.
+/// Attach the body to the current function definition.
 ///
 /// \todo Build a set of lowering functions to iteratively lower the definition
 /// until we can emit IR code. Note that we can also release all nodes
@@ -98,12 +126,22 @@ semantics::on_finish_function(location semi)
 decl& 
 semantics::on_finish_function(stmt& body)
 {
-  beaker::sys_fn::fn_decl& fn = cast<beaker::sys_fn::fn_decl>(current_context());
+  sys_fn::fn_decl& fn = current_function();
   fn.def_ = &body;
 
   // TODO: Lower or analyze the function?
 
   return fn;
+}
+
+
+/// Construct and declare the function parameter.
+decl&
+semantics::on_function_parameter(type& t, name& n)
+{
+  decl& parm = build_fn.make_parm_decl(n, t);
+  declare(parm);
+  return parm;
 }
 
 } // namespace bpl

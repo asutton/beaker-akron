@@ -27,27 +27,36 @@ struct decl;
 /// allowing those languages to determine properties of the scope.
 struct scope : decl_seq
 {
-  scope();
-  explicit scope(int);
+  scope(scope*);
+  scope(int, scope*);
 
   virtual ~scope() = default;
 
   int get_kind() const;
+  
+  const scope* get_parent() const;
+  scope* get_parent();
 
   void add(decl&);
 
   int kind;
+  scope* parent;
 };
 
 /// Initialize a general purpose scope.
-inline scope::scope() : kind(-1) { }
+inline scope::scope(scope* s) : kind(-1), parent(s) { }
 
 /// Initialize a scope of the given kind.
-inline scope::scope(int k) : kind(k) { }
+inline scope::scope(int k, scope* s) : kind(k), parent(s) { }
 
 /// Returns the kind of scope.
 inline int scope::get_kind() const { return kind; }
 
+/// Returns the parent scope.
+inline const scope* scope::get_parent() const { return parent; }
+
+/// Returns the parent scope.
+inline scope* scope::get_parent() { return parent; }
 
 /// Add this declaration to the current scope.
 inline void
@@ -110,6 +119,7 @@ struct lexical_environment
   using map_type = std::unordered_map<const name*, bindings>;
 
   void add(decl&);
+  void add(scope&, decl&);
   void remove(const name&);
   void remove(const decl&);
 
@@ -145,7 +155,7 @@ lexical_environment::bindings::top() -> entry&
 /// Push a new declaration entry onto the stack.
 inline void 
 lexical_environment::bindings::push(scope& s, decl& d) 
-{ 
+{
   push_back({&s, &d}); 
 }
 
@@ -167,7 +177,8 @@ lexical_environment::stack::~stack()
 inline void
 lexical_environment::stack::push(int k)
 {
-  push_back(std::make_unique<scope>(k));
+  scope* s = empty() ? nullptr : back().get();
+  push_back(std::make_unique<scope>(k, s));
 }
 
 /// Pop the current scope from the stack and remove all of the bindings

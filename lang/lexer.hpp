@@ -59,6 +59,7 @@ struct lexer
   // Token constructors
   void space();
   void comment();
+  token monograph(char, int);
   token end();
   token lbrace();
   token rbrace();
@@ -68,6 +69,7 @@ struct lexer
   token rbrack();
   token colon();
   token semicolon();
+  token comma();
   token dot();
   token plus();
   token minus();
