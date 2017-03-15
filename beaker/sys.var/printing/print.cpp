@@ -19,10 +19,11 @@ print_type(pretty_printer& pp, const sys_var::ref_type& t)
   pp.print('&');
 }
 
+/// \todo Actually show the reference?
 void
 print_expr(pretty_printer& pp, const sys_var::ref_expr& e)
 {
-  assert(false && "not implemented");
+  print(pp, e.get_name());
 }
 
 void
@@ -52,13 +53,13 @@ print_expr(pretty_printer& pp, const sys_var::zero_init& e)
 void
 print_expr(pretty_printer& pp, const sys_var::copy_init& e)
 {
-  assert(false && "not implemented");
+  print(pp, e.get_expression());
 }
 
 void
 print_expr(pretty_printer& pp, const sys_var::ref_init& e)
 {
-  assert(false && "not implemented");
+  print(pp, e.get_expression());
 }
 
 } // namespace beaker

@@ -174,3 +174,4 @@ declarative_region::~declarative_region()
 #include "sema_expr.cpp"
 #include "sema_decl.cpp"
 #include "sema_stmt.cpp"
+#include "sema_init.cpp"

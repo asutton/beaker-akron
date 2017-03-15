@@ -83,6 +83,7 @@ struct parser
   expr& multiplicative_expression();
   expr& unary_expression();
   expr& primary_expression();
+  expr& id_expression();
   expr& boolean_literal();
   expr& integer_literal();
 

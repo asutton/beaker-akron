@@ -279,7 +279,8 @@ parser::unary_expression()
 
 /// Parse a primary expression.
 ///
-///   primary-expression -> boolean-literal
+///   primary-expression -> id-expression
+///                       | boolean-literal
 ///                       | integer-literal
 ///                       | '(' expression ')'
 ///
@@ -292,6 +293,8 @@ parser::primary_expression()
       return boolean_literal();
     case dec_int_tok:
       return integer_literal();
+    case id_tok:
+      return id_expression();
     case lparen_tok: {
       require(lparen_tok);
       expr& e = expression();
@@ -304,12 +307,25 @@ parser::primary_expression()
   throw syntax_error(current_location(), "expected primary expression");
 }
 
+/// Parses an id-expression.
+///
+///   id-expression -> identifier
+///
+/// \todo Allow qualified names.
+expr&
+parser::id_expression()
+{
+  token id = require(id_tok);
+  return act.on_id(get_symbol(id), get_location(id));
+}
+
 /// Parses a boolean literal.
 ///
 ///   boolean-literal -> 'true' | 'false'
 expr&
 parser::boolean_literal()
 {
+  // FIXME: Extract the value here.
   return act.on_bool(require(bool_tok));
 }
 
@@ -319,6 +335,7 @@ parser::boolean_literal()
 expr&
 parser::integer_literal()
 {
+  // FIXME: Extract the value here.
   return act.on_int(require(dec_int_tok));
 }
 

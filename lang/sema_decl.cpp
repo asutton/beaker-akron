@@ -148,7 +148,7 @@ semantics::on_function_parameter(type& t, name& n)
 }
 
 
-/// \todo The kindd of variable being declared on the scope in which it
+/// \todo The kind of variable being declared on the scope in which it
 /// was written and its declaration specifiers.
 decl&
 semantics::on_start_variable(type& t, name& n, location start)
@@ -159,23 +159,11 @@ semantics::on_start_variable(type& t, name& n, location start)
   decl& cxt = current_context();
   decl& var = build_fn.make_var_decl(cxt, n, t);
 
+  // FIXME: Do what C++ does and forbid local declarations in the function
+  // definition block.
   declare(var);
 
   return var;
-}
-
-/// Determine the initializer for a declaration by an expression.
-///
-/// \todo Actually implement initialization semantics. 
-///
-/// \todo Move this into a new module.
-void
-semantics::initialize(decl& d, expr& e)
-{
-  value_decl& vd = dynamic_cast<value_decl&>(d);
-  if (!equal(vd.get_type(), e.get_type()))
-    throw type_error(location(), "initialization with wrong type");
-  vd.init_ = &e;
 }
 
 /// Compute the initializer for the variable declaration.
@@ -183,7 +171,7 @@ decl&
 semantics::on_finish_variable(decl& d, expr& e, locations<2>)
 {
   sys_fn::var_decl& var = cast<sys_fn::var_decl>(d);
-  initialize(d, e);
+  copy_initialize(var, e);
   return var;
 }
 

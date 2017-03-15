@@ -4,10 +4,11 @@
 
 namespace bpl {
 
+/// Returns a new expression statement.
 stmt& 
-semantics::on_expression_statement(expr&, location)
+semantics::on_expression_statement(expr& e, location)
 {
-  assert(false && "not implemented");
+  return build_fn.make_expr_stmt(e);
 }
 
 /// Returns a new declaration statement.

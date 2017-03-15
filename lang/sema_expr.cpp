@@ -309,4 +309,26 @@ semantics::on_int(token tok)
   return ret;
 }
 
+expr&
+semantics::on_id(const symbol& sym, location loc)
+{
+  name& n = build_name.get_name(sym);
+  auto* ent = env.lookup(n);
+
+  // TODO: This might not be an error yet (e.g., ADL).
+  if (!ent)
+    throw decl_error(loc, "no matching declaration");
+
+  // Unpack information about the declaration. 
+  //
+  // FIXME: Handle overloads and other oddities.
+  decl& d = *ent->d;
+  expr& e = build_var.make_ref_expr(d);
+
+  // FIXME: Correctly set the end location?
+  e.set_fixed_layout(loc, loc);
+
+  return e;
+}
+
 } // namespace bpl

@@ -96,6 +96,9 @@ print_decl(pretty_printer& pp, const sys_fn::var_decl& d)
   print(pp, d.get_type());
   pp.print_space();
   print(pp, d.get_name());
+
+  // FIXME: The syntax of the initialization depends on the the kind
+  // of initializer (copy, direct, brace, etc.).
   print_binary_op(pp, "=");
   print(pp, d.get_initializer());
   pp.print(';');

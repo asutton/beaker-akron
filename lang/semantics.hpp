@@ -99,6 +99,7 @@ struct semantics
   expr& on_logical_not(token, expr&);
   expr& on_bool(token);
   expr& on_int(token);
+  expr& on_id(const symbol&, location);
 
   decl& on_start_module();
   decl& on_finish_module();
@@ -148,7 +149,9 @@ struct semantics
   decl& declare(scope&, decl&);
 
   // Initialization
-  void initialize(decl&, expr&);
+  void copy_initialize(value_decl&, expr&);
+  void object_initialize(value_decl&, expr&);
+  void reference_initialize(value_decl&, expr&);
 
   lexical_environment env;
   dc cur_cxt;
