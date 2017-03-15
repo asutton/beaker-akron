@@ -104,10 +104,11 @@ struct semantics
   decl& on_finish_module();
   
   decl& on_start_function(name&, decl_seq&&, type&, locations<4>);
-  decl& on_define_function();
-  decl& on_finish_function(location);
-  decl& on_finish_function(stmt&);
+  decl& on_finish_function(decl&, location);
+  decl& on_finish_function(decl&, stmt&);
   decl& on_function_parameter(type&, name&);
+  decl& on_start_variable(type&, name&, location);
+  decl& on_finish_variable(decl&, expr&, locations<2>);
 
   stmt& on_expression_statement(expr&, location);
   stmt& on_declaration_statement(decl&);
@@ -144,7 +145,10 @@ struct semantics
 
   // Declarations
   decl& declare(decl&);
-  decl& declare(scope& s, decl&);
+  decl& declare(scope&, decl&);
+
+  // Initialization
+  void initialize(decl&, expr&);
 
   lexical_environment env;
   dc cur_cxt;

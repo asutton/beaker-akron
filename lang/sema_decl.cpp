@@ -112,7 +112,7 @@ semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4>
 
 /// Returns a function declaration.
 decl& 
-semantics::on_finish_function(location semi)
+semantics::on_finish_function(decl& d, location semi)
 {
   return current_context();
 }
@@ -124,8 +124,9 @@ semantics::on_finish_function(location semi)
 /// allocated by those passes once we've finished the definition. This will
 /// help keep memory low.
 decl& 
-semantics::on_finish_function(stmt& body)
+semantics::on_finish_function(decl& d, stmt& body)
 {
+  assert(&current_function() == &d);
   sys_fn::fn_decl& fn = current_function();
   fn.def_ = &body;
 
@@ -134,14 +135,53 @@ semantics::on_finish_function(stmt& body)
   return fn;
 }
 
-
 /// Construct and declare the function parameter.
 decl&
 semantics::on_function_parameter(type& t, name& n)
 {
+  if (sys_void::is_void_type(t))
+    throw type_error(location(), "void parameter");
+
   decl& parm = build_fn.make_parm_decl(n, t);
   declare(parm);
+
   return parm;
+}
+
+
+/// \todo The kindd of variable being declared on the scope in which it
+/// was written and its declaration specifiers.
+decl&
+semantics::on_start_variable(type& t, name& n, location start)
+{
+  if (sys_void::is_void_type(t))
+    throw type_error(location(), "void variable");
+
+  decl& cxt = current_context();
+  decl& var = build_fn.make_var_decl(cxt, n, t);
+
+  return var;
+}
+
+/// \todo Actually implement initialization semantics. This needs to
+/// determine an initialization procedure for the given declaration based
+/// on the expression (and type) given.
+void
+semantics::initialize(decl& d, expr& e)
+{
+  value_decl& vd = dynamic_cast<value_decl&>(d);
+  if (!equal(vd.get_type(), e.get_type()))
+    throw type_error(location(), "initialization with wrong type");
+  vd.init_ = &e;
+}
+
+
+decl&
+semantics::on_finish_variable(decl& d, expr& e, locations<2>)
+{
+  sys_fn::var_decl& var = cast<sys_fn::var_decl>(d);
+  initialize(d, e);
+  return var;
 }
 
 } // namespace bpl

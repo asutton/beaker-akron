@@ -37,6 +37,7 @@ using beaker::expr_seq;
 using beaker::decl;
 using beaker::named_decl;
 using beaker::typed_decl;
+using beaker::value_decl;
 using beaker::decl_seq;
 using beaker::stmt;
 using beaker::stmt_seq;

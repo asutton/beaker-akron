@@ -229,6 +229,20 @@ builder::make_parm_decl(const char* n, type& t)
   return make_parm_decl(get_name(*this, n), t);
 }
 
+/// Returns a new partially constructed variable. No initializer is given.
+var_decl&
+builder::make_var_decl(dc cxt, name& n, type& t)
+{
+  return make<var_decl>(generate_id(), cxt, n, t);
+}
+
+/// Returns a new partially constructed variable. No initializer is given.
+var_decl&
+builder::make_var_decl(dc cxt, const char* n, type& t)
+{
+  return make_var_decl(cxt, get_name(*this, n), t);
+}
+
 /// Returns a new local variable of the form `var t n = e`.
 ///
 /// If e is not an initializer and we can infer which initialization would be

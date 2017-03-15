@@ -343,7 +343,7 @@ struct value_decl : typed_decl
   bool has_thread_storage() const;
 
   storage storage_;
-  expr* def_;
+  expr* init_;
 };
 
 /// Initialize this variable with no definition and default linkage. Note
@@ -351,28 +351,28 @@ struct value_decl : typed_decl
 /// is useful for declaring parameters.
 inline
 value_decl::value_decl(int k, uid id, dc cxt, storage s, name& n, type& t)
-  : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), def_()
+  : typed_decl(k, id, cxt, get_default_linkage(s), n, t), storage_(s), init_()
 { }
 
 /// Initialize this value declaration. Values with automatic storage shall
 /// have no linkage.
 inline
 value_decl::value_decl(int k, uid id, dc cxt, linkage l, storage s, name& n, type& t, expr& e)
-  : typed_decl(k, id, cxt, l, n, t), storage_(s), def_(&e)
+  : typed_decl(k, id, cxt, l, n, t), storage_(s), init_(&e)
 {
   assert(s == automatic_storage ? l == no_link : true);
 }
 
 /// Returns true when declaration has a local definition.
-inline bool value_decl::has_initializer() const { return def_; }
+inline bool value_decl::has_initializer() const { return init_; }
 
 /// Returns the initializer of the value declaration. This is defined only
 /// when has_initializer() is true.
-inline const expr& value_decl::get_initializer() const { return *def_; }
+inline const expr& value_decl::get_initializer() const { return *init_; }
 
 /// Returns the initializer of the value declaration. This is defined only
 /// when has_initializer() is true.
-inline expr& value_decl::get_initializer() { return *def_; }
+inline expr& value_decl::get_initializer() { return *init_; }
 
 /// Set the storage class of the declaration.
 inline void value_decl::set_storage(storage s) { storage_ = s; }

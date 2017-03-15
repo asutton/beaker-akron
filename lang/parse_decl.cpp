@@ -123,12 +123,12 @@ parser::function_declaration()
 
   // ';' | function-definition
   if (token semi = accept(semicolon_tok)) {
-    return act.on_finish_function(get_location(semi));
+    return act.on_finish_function(fn, get_location(semi));
   }
   else if (next_token_is(lbrace_tok)) {
     declarative_region fn_reg(act, fn);
     stmt& body = block_statement();
-    return act.on_finish_function(body);
+    return act.on_finish_function(fn, body);
   }
   else {
     throw syntax_error(current_location(), "expected function-definition");
@@ -171,6 +171,54 @@ parser::function_parameter()
   type& ty = type_id();
   name& id = identifier();
   return act.on_function_parameter(ty, id);
+}
+
+/// Parse a declaration that can be introduced by a statement.
+///
+///   statement-declaration -> variable-declaration
+decl&
+parser::statement_declaration()
+{
+  switch (lookahead()) {
+    case var_kw:
+      return variable_declaration();
+    default:
+      break;
+  }
+  throw syntax_error(current_location(), "expected statement-declaration");
+}
+
+/// Parse a variable declaration.
+///
+///   variable-declaration -> 'var' type-id identifier [variable-initializer] ';'
+///
+///   variable-initializer -> '=' initializer
+///
+///   initializer -> expression
+///
+/// \todo Implement default initialization.
+///
+/// \todo Support direct initialization and brace initialization.
+///
+/// \todo Allow variables to have names other than identifiers.
+///
+/// \todo Support decomposition patterns.
+decl&
+parser::variable_declaration()
+{
+  token start = require(var_kw);
+  type& ty = type_id();
+  name& id = identifier();
+
+  // Declare the variable.
+  decl& var = act.on_start_variable(ty, id, get_location(start));
+  
+  // FIXME
+  token eq = expect(eq_tok);
+  expr& init = expression();
+  token semi = expect(semicolon_tok);
+
+  return act.on_finish_variable(var, init, get_locations(eq, semi));
 }
 
 

@@ -60,12 +60,17 @@ parm_decl::parm_decl(uid id, name& n, type& t)
 /// and automatic storage.
 struct var_decl : value_decl_impl<var_decl_kind>
 {
-  var_decl(uid, dc, name& n, type& t, expr& e);
+  var_decl(uid, dc, name&, type&);
+  var_decl(uid, dc, name&, type&, expr&);
 };
 
+/// Initialize the variable with with the given name and type.
+inline
+var_decl::var_decl(uid id, dc cxt, name& n, type& t)
+  : value_decl_impl<var_decl_kind>(id, cxt, automatic_storage, n, t)
+{ }
+
 /// Initialize the variable with with the given name, type, and initializer.
-/// Note that local variables are always initialized, although this may be by
-/// trivial initialization.
 inline
 var_decl::var_decl(uid id, dc cxt, name& n, type& t, expr& e)
   : value_decl_impl<var_decl_kind>(id, cxt, no_link, automatic_storage, n, t, e)

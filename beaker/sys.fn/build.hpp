@@ -48,6 +48,8 @@ struct builder : factory
   parm_decl& make_parm_decl(const char*, type&);
 
   // Variables
+  var_decl& make_var_decl(dc, name&, type&);
+  var_decl& make_var_decl(dc, const char*, type&);
   var_decl& make_var_decl(dc, name&, type&, expr&);
   var_decl& make_var_decl(dc, const char*, type&, expr&);
 

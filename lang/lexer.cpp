@@ -147,6 +147,10 @@ lexer::comment()
     ignore();
 }
 
+/// Match and finish a single-token sequence.
+///
+/// \todo Implement a digraph function that takes a sequence of alternative
+/// second characters.
 token 
 lexer::monograph(char c, int k)
 {
@@ -371,13 +375,7 @@ lexer::eq()
   require('=');
   if (match('='))
     return finish_token(eq_eq_tok);
-
-  note_start();
-  char ch = consume();
-  note_end();
-  std::stringstream ss;
-  ss << "expected '=' but got '" << ch << '\'';
-  error(loc, ss.str());
+  return finish_token(eq_tok);
 }
 
 /// Matches the '!' or '!=' operators.

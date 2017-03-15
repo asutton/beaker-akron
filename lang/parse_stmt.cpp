@@ -54,9 +54,8 @@ parser::expression_statement()
 stmt&
 parser::declaration_statement()
 {
-  // decl& d = declaration();
-  // return act.on_declaration_statement(d);
-  assert(false && "not implemented");
+  decl& d = statement_declaration();
+  return act.on_declaration_statement(d);
 }
 
 /// Parse a return statement.
@@ -79,12 +78,11 @@ parser::return_statement()
 stmt&
 parser::block_statement()
 {
-  token lb = expect(lbrace_tok);
-  // TODO: Enter a new declarative region here...
+  token lb = require(lbrace_tok);
+  declarative_region(act, block_scope);
   stmt_seq ss = statement_seq();
   token rb = expect(rbrace_tok);
   return act.on_block_statement(std::move(ss), get_locations(lb, rb));
 }
-
 
 } // namespace bpl
