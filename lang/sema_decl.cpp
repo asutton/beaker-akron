@@ -3,6 +3,48 @@
 
 namespace bpl {
 
+/// Insert d as a declaration in m. Returns the declaration d.
+static decl&
+declare_in(module& m, decl& d)
+{
+  m.decls_.push_back(d);
+  return d;
+}
+
+decl&
+semantics::declare(decl& d)
+{
+  named_decl& nd = *d.as_named();
+  
+  // Detemrine if the declaration is valid.
+  if (auto* ent = env.lookup(nd.get_name())) {
+    scope& s = current_scope();
+    if (ent->s == &s) {
+      // FIXME: This could be a redeclaration.
+      //
+      // FIXME: Implement overloading.
+      //
+      // FIXME: Add the declaration's source code location and generate good 
+      // error messages.
+      throw decl_error(location(), "name already declared in this scope");
+    }
+  }
+
+  // Add d to the ennvironment.
+  env.add(d);
+
+  // Add the declaration to the current context, if needed.
+  decl& cxt = current_context();
+  switch (cxt.get_kind()) {
+    case beaker::module_decl_kind:
+      return declare_in(cast<module>(cxt), d);
+    default:
+      break;
+  }
+  assert(false && "invalid context for declaration");
+}
+
+
 /// Simply return the module.
 decl&
 semantics::on_start_module()
@@ -24,12 +66,6 @@ semantics::on_finish_module()
 decl&
 semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4> locs)
 {
-  // FIXME: This isn't right as it disallows name hiding. We really just want
-  // to search the current scope for corresponding declaration. Move this
-  // into declaration.
-  if (env.lookup(id))
-    throw decl_error(locs[0], "name already declared");
-
   decl& ret = build_fn.make_parm_decl(rty);
   type& fty = build_fn.get_fn_type(parms, ret);
   decl& cxt = current_context();
@@ -41,7 +77,7 @@ semantics::on_start_function(name& id, decl_seq&& parms, type& rty, locations<4>
   //
   // FIXME: Add the declaration to the current context. Factor this into
   // a new function, declare(cxt, fn).
-  env.add(fn);
+  declare(fn);
 
   return fn;
 }

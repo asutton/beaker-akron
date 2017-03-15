@@ -5,6 +5,9 @@
 #include "name.hpp"
 
 #include <beaker/base/symbol_table.hpp>
+#include <beaker/base/printing/print.hpp>
+
+#include <iostream>
 
 
 namespace beaker {

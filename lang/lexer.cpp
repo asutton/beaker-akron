@@ -142,7 +142,7 @@ lexer::space()
 void
 lexer::comment()
 {
-  while (lookahead() != '\n')
+  while (!eof() && lookahead() != '\n')
     ignore();
 }
 

@@ -11,11 +11,16 @@
 #include <iterator>
 #include <iostream>
 
+beaker::language* global_lang;
+
 int
 main(int argc, char* argv[])
 {
   // Defines the source language.
   bpl::language lang;
+
+  // FIXME: This is dumb.
+  global_lang = &lang;
 
   // FIXME: Actually parse arguments in a meaningful way.
   if (argc < 2) {
@@ -69,6 +74,5 @@ main(int argc, char* argv[])
   catch (bpl::decl_error& err) {
     std::cerr << err.get_location() << ": error [semantics]: " << err.what() << '\n';
   }
-  std::cout << "done\n";
 
 }

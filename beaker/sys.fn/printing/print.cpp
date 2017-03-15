@@ -105,10 +105,11 @@ print_decl(pretty_printer& pp, const sys_fn::var_decl& d)
 void
 print_stmt(pretty_printer& pp, const sys_fn::block_stmt& s)
 {
-  pp.print('{');
-  pp.indent();
-  pp.print_newline();
   const stmt_seq& ss = s.get_statements();
+  pp.print('{');
+  if (!ss.is_empty())
+    pp.indent();
+  pp.print_newline();
   for (auto iter = ss.begin(); iter != ss.end(); ++iter) {
     print(pp, *iter);
     if (std::next(iter) == ss.end())

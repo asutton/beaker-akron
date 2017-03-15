@@ -25,45 +25,45 @@ language::language()
 { }
 
 /// Returns a builder for the requested feature.
-beaker::sys_void::builder&
+sys_void::builder&
 module::get_void_builder()
 {
-  return get_builder<beaker::sys_void::feature>();
+  return get_builder<sys_void::feature>();
 }
 
 /// Returns a builder for the requested feature.
-beaker::sys_bool::builder&
+sys_bool::builder&
 module::get_bool_builder()
 {
-  return get_builder<beaker::sys_bool::feature>();
+  return get_builder<sys_bool::feature>();
 }
 
 /// Returns a builder for the requested feature.
-beaker::sys_int::builder&
+sys_int::builder&
 module::get_int_builder()
 {
-  return get_builder<beaker::sys_int::feature>();
+  return get_builder<sys_int::feature>();
 }
 
 /// Returns a builder for the requested feature.
-beaker::sys_name::builder&
+sys_name::builder&
 module::get_name_builder()
 {
-  return get_builder<beaker::sys_name::feature>();
+  return get_builder<sys_name::feature>();
 }
 
 /// Returns a builder for the requested feature.
-beaker::sys_var::builder&
+sys_var::builder&
 module::get_var_builder()
 {
-  return get_builder<beaker::sys_var::feature>();
+  return get_builder<sys_var::feature>();
 }
 
 /// Returns a builder for the requested feature.
-beaker::sys_fn::builder&
+sys_fn::builder&
 module::get_fn_builder()
 {
-  return get_builder<beaker::sys_fn::feature>();
+  return get_builder<sys_fn::feature>();
 }
 
 } // namespace bpl

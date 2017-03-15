@@ -60,24 +60,6 @@ hash(hasher& h, const symbol& s)
   hash(h, &s);
 }
 
-/// Hash support for unordered containers.
-struct symbol_hash
-{
-  std::size_t operator()(const symbol& sym) const
-  {
-    std::hash<const symbol*> h;
-    return h(&sym);
-  }
-};
-
-/// Equality support. Returns true when a and b have the same spelling.
-struct symbol_eq 
-{
-  bool operator()(const symbol& a, const symbol& b) const
-  {
-    return a.get_spelling() == b.get_spelling();
-  }
-};
 
 } // namespace beaker
 

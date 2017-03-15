@@ -19,8 +19,14 @@ struct symbol;
 /// The pretty printer object provides context for printing terms of the
 /// languages. This wraps an output stream and helps manages indentation and
 /// other printing options.
+///
+/// \todo: Should we allow the language object or not? Is syntax always
+/// self-describing (probably not).
 struct pretty_printer
 {
+  pretty_printer();
+  pretty_printer(std::ostream&);
+
   pretty_printer(const language&);
   pretty_printer(const language&, std::ostream&);
 
@@ -37,13 +43,13 @@ struct pretty_printer
   void indent() { ++depth; }
   void undent() { --depth; }
 
-  const language& lang;
+  const language* lang;
   std::ostream& os;
   int depth;
 };
 
 /// Returns the language used for printing.
-inline const language& pretty_printer::get_language() const { return lang; }
+inline const language& pretty_printer::get_language() const { return *lang; }
 
 
 void print(pretty_printer&, const symbol&);
@@ -127,19 +133,28 @@ print_comma_separated(pretty_printer& pp, const seq<T>& s)
 template<typename T>
 struct pretty_print_term
 {
-  const language& lang;
+  const language* lang;
   const T& term;
 };
 
 template<typename T>
-inline auto pretty(const language& l, const T& t) { return pretty_print_term<T>{l, t}; }
+inline auto pretty(const T& t) { return pretty_print_term<T>{nullptr, t}; }
+
+template<typename T>
+inline auto pretty(const language& l, const T& t) { return pretty_print_term<T>{&l, t}; }
 
 template<typename C, typename T, typename U>
 std::basic_ostream<C, T>&
 operator<<(std::basic_ostream<C, T>& os, pretty_print_term<U> t)
 {
-  pretty_printer pp(t.lang, os);
-  print(pp, t.term);
+  if (t.lang) {
+    pretty_printer pp(*t.lang, os);
+    print(pp, t.term);
+  }
+  else {
+    pretty_printer pp(os);
+    print(pp, t.term);
+  }
   return os;
 }
 

@@ -38,8 +38,7 @@ struct basic_name : name
 inline basic_name::basic_name(const symbol& s) : name(node_kind), sym_(&s) { }
 
 // Returns the symbol associated with the name.
-inline const symbol& 
-basic_name::get_symbol() const { return *sym_; }
+inline const symbol& basic_name::get_symbol() const { return *sym_; }
 
 
 /// Represents a name used internally by the language.

@@ -4,6 +4,10 @@
 #include "scope.hpp"
 #include "name.hpp"
 
+#include "printing/print.hpp"
+
+#include <iostream>
+
 
 namespace beaker {
 
@@ -16,14 +20,15 @@ lexical_environment::add(decl& d)
 {
   named_decl& nd = *d.as_named();
 
-  // Push the declaration onto the bindings.
-  auto result = map.emplace(&nd.get_name(), bindings{});
-  bindings& decls = result.first->second;
-  decls.push(d);
-
   // Insert d into the current scope.
   scope& s = current_scope();
   s.add(d);
+
+  // Push the declaration onto the bindings.
+  auto result = map.emplace(&nd.get_name(), bindings{});
+  bindings& decls = result.first->second;
+  decls.push(s, d);
+
 }
 
 /// Removes the innermost binding for n.
@@ -70,8 +75,8 @@ lexical_environment::get_bindings(const name& n) -> bindings*
 
 
 /// Returns the innermost declaration for the name.
-const decl*
-lexical_environment::lookup(const name& n) const
+auto
+lexical_environment::lookup(const name& n) const -> const entry*
 {
   if (const bindings* decls = get_bindings(n))
     return &decls->top();
@@ -80,8 +85,8 @@ lexical_environment::lookup(const name& n) const
 }
 
 /// Returns the innermost declaration for the name.
-decl*
-lexical_environment::lookup(const name& n)
+auto
+lexical_environment::lookup(const name& n) -> entry*
 {
   if (bindings* decls = get_bindings(n))
     return &decls->top();

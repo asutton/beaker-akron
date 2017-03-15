@@ -66,7 +66,8 @@ struct hasher
 struct universal_hash
 {
   template<typename T>
-  std::size_t operator()(const T& t) const {
+  std::size_t operator()(const T& t) const 
+  {
     hasher h;
     hash(h, t);
     return h;
@@ -89,7 +90,8 @@ struct universal_eq
 struct indirect_hash
 {
   template<typename T>
-  std::size_t operator()(T const* t) const {
+  std::size_t operator()(T const* t) const 
+  {
     hasher h;
     hash(h, *t);
     return h;

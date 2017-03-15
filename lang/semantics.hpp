@@ -121,22 +121,27 @@ struct semantics
 
   // Resources
   module& mod;
-  beaker::sys_void::builder& build_void;
-  beaker::sys_bool::builder& build_bool;
-  beaker::sys_int::builder& build_int;
-  beaker::sys_name::builder& build_name;
-  beaker::sys_var::builder& build_var;
-  beaker::sys_fn::builder& build_fn;
+  sys_void::builder& build_void;
+  sys_bool::builder& build_bool;
+  sys_int::builder& build_int;
+  sys_name::builder& build_name;
+  sys_var::builder& build_var;
+  sys_fn::builder& build_fn;
 
   // Scope management
   void enter_scope(int k);
   void leave_scope();
   const scope& current_scope() const;
   scope& current_scope();
+
+  // Context management
   const decl& current_context() const;
   decl& current_context();
-  const beaker::sys_fn::fn_decl& current_function() const;
-  beaker::sys_fn::fn_decl& current_function();
+  const sys_fn::fn_decl& current_function() const;
+  sys_fn::fn_decl& current_function();
+
+  // Declarations
+  decl& declare(decl&);
 
   lexical_environment env;
   dc cur_cxt;

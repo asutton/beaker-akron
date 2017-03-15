@@ -7,6 +7,7 @@
 
 namespace beaker {
 
+
 /// Returns true if a and b are the same name.
 bool
 equal(const name& a, const name& b)

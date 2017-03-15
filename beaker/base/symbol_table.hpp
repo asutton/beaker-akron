@@ -12,6 +12,28 @@
 
 namespace beaker {
 
+
+/// Hash support for the symbol table. Compute the hash on the spelling of
+/// the symbol.
+struct symbol_hash
+{
+  std::size_t operator()(const symbol& sym) const
+  {
+    std::hash<std::string> h;
+    return h(sym.get_spelling());
+  }
+};
+
+/// Equality support. Returns true when a and b have the same spelling.
+struct symbol_eq 
+{
+  bool operator()(const symbol& a, const symbol& b) const
+  {
+    return a.get_spelling() == b.get_spelling();
+  }
+};
+
+
 // -------------------------------------------------------------------------- //
 // Symbol table
 

@@ -97,11 +97,10 @@ struct term_hash
   template<typename T>
   std::size_t operator()(const T& t) const noexcept
   {
+    hasher algo;
     hash(algo, t);
     return algo;
   }
-
-  mutable hasher algo;
 };
 
 } // namespace beaker

@@ -27,7 +27,6 @@ parser::toplevel_declaration_seq()
   decl_seq ds;
   while (!eof()) {
     decl& d = toplevel_declaration();
-    print(act.get_language(), d);
     ds.push_back(d);
   }
   return ds;

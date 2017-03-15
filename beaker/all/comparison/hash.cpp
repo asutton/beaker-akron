@@ -4,8 +4,6 @@
 #include "hash.hpp"
 #include "../ast.hpp"
 
-#include <iostream>
-
 
 namespace beaker {
 

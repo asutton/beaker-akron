@@ -16,12 +16,20 @@ namespace beaker {
 // -------------------------------------------------------------------------- //
 // Pretty printer
 
+pretty_printer::pretty_printer()
+  : pretty_printer(std::cout)
+{ }
+
+pretty_printer::pretty_printer(std::ostream& os)
+  : lang(nullptr), os(os), depth(0)
+{ }
+
 pretty_printer::pretty_printer(const language& lang)
   : pretty_printer(lang, std::cout)
 { }
 
 pretty_printer::pretty_printer(const language& lang, std::ostream& os)
-  : lang(lang), os(os), depth(0)
+  : lang(&lang), os(os), depth(0)
 { }
 
 /// Print a single character.

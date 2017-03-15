@@ -57,7 +57,6 @@ scope::add(decl& d)
 }
 
 
-
 // -------------------------------------------------------------------------- //
 // Lexcical environment
 
@@ -78,13 +77,20 @@ scope::add(decl& d)
 /// set. The semantics of these types must handled by the source language.
 struct lexical_environment
 {
-  /// The list of declarations bound to a given name.
-  struct bindings : std::vector<decl*>
+  /// Represents a declaration within a particular scope.
+  struct entry
   {
-    const decl& top() const;
-    decl& top();
+    scope* s;
+    decl* d;
+  };
 
-    void push(decl&);
+  /// The list of declarations bound to a given name.
+  struct bindings : std::vector<entry>
+  {
+    const entry& top() const;
+    entry& top();
+
+    void push(scope&, decl&);
     void pop();
   };
 
@@ -110,8 +116,8 @@ struct lexical_environment
   const bindings* get_bindings(const name&) const;
   bindings* get_bindings(const name&);
 
-  const decl* lookup(const name&) const;
-  decl* lookup(const name&);
+  const entry* lookup(const name&) const;
+  entry* lookup(const name&);
 
   void enter_scope(int k);
   void leave_scope();
@@ -123,16 +129,32 @@ struct lexical_environment
 };
 
 /// Returns the top (innermost) bindings for the name.
-inline const decl& lexical_environment::bindings::top() const { return *back(); }
+inline auto 
+lexical_environment::bindings::top() const -> const entry&
+{ 
+  return back(); 
+}
 
 /// Returns the top (innermost) bindings for the name.
-inline decl& lexical_environment::bindings::top() { return *back(); }
+inline auto 
+lexical_environment::bindings::top() -> entry&
+{ 
+  return back(); 
+}
 
-/// Push a new binding onto the stack.
-inline void lexical_environment::bindings::push(decl& d) { push_back(&d); }
+/// Push a new declaration entry onto the stack.
+inline void 
+lexical_environment::bindings::push(scope& s, decl& d) 
+{ 
+  push_back({&s, &d}); 
+}
 
 /// Pop the outermost binding from the stack.
-inline void lexical_environment::bindings::pop() { pop_back(); }
+inline void 
+lexical_environment::bindings::pop()
+{ 
+  pop_back(); 
+}
 
 
 inline 

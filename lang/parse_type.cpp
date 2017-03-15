@@ -23,7 +23,7 @@ parser::simple_type()
   switch (lookahead()) {
     case void_kw: {
       token tok = consume();
-      return act.on_int_type(get_location(tok));
+      return act.on_void_type(get_location(tok));
     }
     case bool_kw: {
       token tok = consume();

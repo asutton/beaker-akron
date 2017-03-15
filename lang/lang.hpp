@@ -23,19 +23,31 @@
 
 namespace bpl {
 
+// Common operations
 using beaker::is;
 using beaker::as;
 using beaker::cast;
 
+// Common types
 using beaker::name;
 using beaker::type;
 using beaker::type_seq;
 using beaker::expr;
 using beaker::expr_seq;
 using beaker::decl;
+using beaker::named_decl;
+using beaker::typed_decl;
 using beaker::decl_seq;
 using beaker::stmt;
 using beaker::stmt_seq;
+
+// Simplified namespaces.
+namespace sys_void = beaker::sys_void;
+namespace sys_bool = beaker::sys_bool;
+namespace sys_int = beaker::sys_int;
+namespace sys_name = beaker::sys_name;
+namespace sys_var = beaker::sys_var;
+namespace sys_fn = beaker::sys_fn;
 
 
 // -------------------------------------------------------------------------- //
@@ -72,12 +84,12 @@ struct module : beaker::module
   language& get_language();
 
   // Builders
-  beaker::sys_void::builder& get_void_builder();
-  beaker::sys_bool::builder& get_bool_builder();
-  beaker::sys_int::builder& get_int_builder();
-  beaker::sys_name::builder& get_name_builder();
-  beaker::sys_var::builder& get_var_builder();
-  beaker::sys_fn::builder& get_fn_builder();
+  sys_void::builder& get_void_builder();
+  sys_bool::builder& get_bool_builder();
+  sys_int::builder& get_int_builder();
+  sys_name::builder& get_name_builder();
+  sys_var::builder& get_var_builder();
+  sys_fn::builder& get_fn_builder();
 };
 
 /// Returns the language for the module.
