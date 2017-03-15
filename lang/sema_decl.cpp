@@ -62,18 +62,17 @@ semantics::declare(decl& d)
     }
   }
 
-  // Add d to the ennvironment.
+  // Add d to the environment.
   env.add(d);
 
-  // Add the declaration to the current context, if needed.
+  // Add the declaration to the current context, if needed. 
   decl& cxt = current_context();
   switch (cxt.get_kind()) {
     case beaker::module_decl_kind:
       return declare_in(cast<module>(cxt), d);
     default:
-      break;
+      return d;
   }
-  assert(false && "invalid context for declaration");
 }
 
 
@@ -160,12 +159,16 @@ semantics::on_start_variable(type& t, name& n, location start)
   decl& cxt = current_context();
   decl& var = build_fn.make_var_decl(cxt, n, t);
 
+  declare(var);
+
   return var;
 }
 
-/// \todo Actually implement initialization semantics. This needs to
-/// determine an initialization procedure for the given declaration based
-/// on the expression (and type) given.
+/// Determine the initializer for a declaration by an expression.
+///
+/// \todo Actually implement initialization semantics. 
+///
+/// \todo Move this into a new module.
 void
 semantics::initialize(decl& d, expr& e)
 {
@@ -175,7 +178,7 @@ semantics::initialize(decl& d, expr& e)
   vd.init_ = &e;
 }
 
-
+/// Compute the initializer for the variable declaration.
 decl&
 semantics::on_finish_variable(decl& d, expr& e, locations<2>)
 {
