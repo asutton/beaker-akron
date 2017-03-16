@@ -22,6 +22,22 @@ set_locations(expr& r, expr& e1, token tok, expr& e2)
 }
 
 // -------------------------------------------------------------------------- //
+// Semantics of assignment
+
+/// Process an assignment expression.
+expr&
+semantics::on_assignment(expr& e1, expr& e2, location loc)
+{
+  type& dst = e1.get_type();
+  if (!is_reference_type(dst))
+    throw type_error(e1.get_location(), "assignment to non-reference");
+
+  // Convert e2 to the destination object type of e1.
+  expr& c2 = standard_conversion(e2, get_object_type(dst));
+  return build_var.make_assign_expr(e1, c2);
+}
+
+// -------------------------------------------------------------------------- //
 // Semantics of the conditional expression.
 
 /// Process a new condition.

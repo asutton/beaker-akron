@@ -97,6 +97,7 @@ struct semantics
   type& on_int_type(location);
 
   // Expressions
+  expr& on_assignment(expr&, expr&, location);
   expr& on_condition(expr&, token, expr&, token, expr&);
   expr& on_logical_or(expr&, token, expr&);
   expr& on_logical_and(expr&, token, expr&);

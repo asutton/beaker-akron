@@ -9,7 +9,27 @@ namespace bpl {
 expr&
 parser::expression()
 {
-  return conditional_expression();
+  return assignment_expression();
+}
+
+
+/// Parse an assignment expression.
+///
+///   assignment-expression -> conditional-expression '=' assignment-expression
+expr&
+parser::assignment_expression()
+{
+  expr* e1 = &conditional_expression();
+  while (true) {
+    if (token eq = accept(eq_tok)) {
+      expr* e2 = &assignment_expression();
+      e1 = &act.on_assignment(*e1, *e2, get_location(eq));
+    }
+    else {
+      break;
+    }
+  }
+  return *e1;
 }
 
 /// Parse a conditional expression.

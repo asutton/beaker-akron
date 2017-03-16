@@ -71,6 +71,7 @@ struct parser
 
   // Expressions
   expr& expression();
+  expr& assignment_expression();
   expr& conditional_expression();
   expr& logical_or_expression();
   expr& logical_and_expression();
