@@ -62,26 +62,26 @@ ref_expr::ref_expr(type& t, decl& d)
 { }
 
 
-/// Represents the the expression `deref(e)`. A dereference expression converts 
-/// a reference into an object. This generally corresponds to loading the 
-/// stored value of an object.
+/// Represents the the expression `val(e)`, which "converts" a reference into
+/// an value. This generally corresponds to loading the stored value of an 
+/// object.
 ///
-/// The type of e shall be a reference type `ref t`. The type of the expression
+/// The type of e shall be a reference type `t&`. The type of the expression
 /// is the object type `t`. The value of the expression is the object referred
 /// to by the expression `e`.
-struct deref_expr : unary_expr_impl<deref_expr_kind>
+struct val_expr : unary_expr_impl<val_expr_kind>
 {
-  using unary_expr_impl<deref_expr_kind>::unary_expr_impl;
+  using unary_expr_impl<val_expr_kind>::unary_expr_impl;
 
   const expr& get_source() const;
   expr& get_source();
 };
 
 /// Returns the source operand of the conversion.
-inline const expr& deref_expr::get_source() const { return get_first(); }
+inline const expr& val_expr::get_source() const { return get_first(); }
 
 /// Returns the source operand of the conversion.
-inline expr& deref_expr::get_source() { return get_first(); }
+inline expr& val_expr::get_source() { return get_first(); }
 
 
 /// Represents the expression `e1 = e2`.

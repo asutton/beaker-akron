@@ -4,10 +4,22 @@
 #include "expr.hpp"
 #include "type.hpp"
 
+#include "comparison/equal.hpp"
+
+
 namespace beaker {
 
 // Returns the kind of the expression's type.
 int expr::get_type_kind() const { return type_->get_kind(); }
+
+
+/// Returns true if `e` has the given type.
+bool
+has_type(const expr& e, const type& t)
+{
+  return equal(e.get_type(), t);
+}
+
 
 /// Returns true if `e` has object type.
 bool

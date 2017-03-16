@@ -23,7 +23,7 @@ equal_expr(const sys_var::ref_expr& a, const sys_var::ref_expr& b)
 }
 
 bool 
-equal_expr(const sys_var::deref_expr& a, const sys_var::deref_expr& b)
+equal_expr(const sys_var::val_expr& a, const sys_var::val_expr& b)
 {
   return equal(a.get_source(), b.get_source());
 }

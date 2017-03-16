@@ -42,6 +42,8 @@ using beaker::decl_seq;
 using beaker::stmt;
 using beaker::stmt_seq;
 
+using expr_pair = std::pair<expr&, expr&>;
+
 // Simplified namespaces.
 namespace sys_void = beaker::sys_void;
 namespace sys_bool = beaker::sys_bool;

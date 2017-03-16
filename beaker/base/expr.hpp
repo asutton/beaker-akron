@@ -477,6 +477,8 @@ inline expr& conversion_expr<K>::get_source() { return *arg_; }
 // -------------------------------------------------------------------------- //
 // Operations
 
+bool has_type(const expr&, const type&);
+
 /// Returns true if `e` is an initializer for an object.
 inline bool 
 is_initializer(const expr& e)

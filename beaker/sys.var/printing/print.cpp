@@ -27,15 +27,15 @@ print_expr(pretty_printer& pp, const sys_var::ref_expr& e)
 }
 
 void
-print_expr(pretty_printer& pp, const sys_var::deref_expr& e)
+print_expr(pretty_printer& pp, const sys_var::val_expr& e)
 {
-  assert(false && "not implemented");
+  print(pp, e.get_source());
 }
 
 void
 print_expr(pretty_printer& pp, const sys_var::assign_expr& e)
 {
-  assert(false && "not implemented");
+  print_infix_expr(pp, e, "=");
 }
 
 void

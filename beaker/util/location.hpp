@@ -206,13 +206,25 @@ inline const layout& locatable::get_layout() const { return *locs_; }
 inline layout& locatable::get_layout() { return *locs_; }
 
 /// Returns the location of the term.
-inline location locatable::get_location() const { return locs_->get_location(); }
+inline location 
+locatable::get_location() const
+{ 
+  return locs_ ? locs_->get_location() : location();
+}
 
 /// Returns the starting location of a term.
-inline location locatable::get_start_location() const { return locs_->get_start_location(); }
+inline location 
+locatable::get_start_location() const 
+{ 
+  return locs_ ? locs_->get_start_location() : location();
+}
 
 /// Returns the end location of a term.
-inline location locatable::get_end_location() const { return locs_->get_end_location(); }
+inline location 
+locatable::get_end_location() const 
+{ 
+  return locs_ ? locs_->get_end_location() : location();
+}
 
 /// Sets the layout of a term to the locations in `args`.
 template<typename... Args>

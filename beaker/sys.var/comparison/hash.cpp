@@ -22,7 +22,7 @@ hash_expr(hasher& h, const sys_var::ref_expr& e)
 }
 
 void
-hash_expr(hasher& h, const sys_var::deref_expr& e)
+hash_expr(hasher& h, const sys_var::val_expr& e)
 {
   assert(false && "not implemented");
 }

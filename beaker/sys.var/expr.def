@@ -2,7 +2,7 @@
 // All rights reserved
 
 def_expr(sys_var, ref)
-def_expr(sys_var, deref)
+def_expr(sys_var, val)
 def_expr(sys_var, assign)
 
 def_init(sys_var, nop)

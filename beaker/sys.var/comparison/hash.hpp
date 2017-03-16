@@ -14,7 +14,7 @@ namespace beaker {
 void hash_type(hasher&, const sys_var::ref_type&);
 
 void hash_expr(hasher&, const sys_var::ref_expr&);
-void hash_expr(hasher&, const sys_var::deref_expr&);
+void hash_expr(hasher&, const sys_var::val_expr&);
 void hash_expr(hasher&, const sys_var::assign_expr&);
 void hash_expr(hasher&, const sys_var::nop_init&);
 void hash_expr(hasher&, const sys_var::zero_init&);

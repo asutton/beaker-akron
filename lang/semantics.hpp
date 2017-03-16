@@ -55,6 +55,26 @@ decl_error::decl_error(location loc, const char* msg)
 inline location decl_error::get_location() const { return loc; }
 
 
+/// A converted pair is a pair of converted expressions, which have the
+/// same type.
+struct conv_pair : expr_pair
+{
+  using expr_pair::expr_pair;
+
+  const type& get_type() const;
+  type& get_type();
+};
+
+/// Returns the type of the converted expression pair.
+inline const type& conv_pair::get_type() const { return first.get_type(); }
+
+/// Returns the type of the converted expression pair.
+inline type& conv_pair::get_type() { return first.get_type(); }
+
+
+bool is_boolean(const conv_pair&);
+bool is_integral(const conv_pair&);
+
 
 /// The semantic actions of the parser. This defines the meaning of a syntactic
 /// expression by mapping it onto an abstract syntax with precise meaning.
@@ -117,12 +137,6 @@ struct semantics
   stmt& on_return_statement(expr&, locations<2>);
   stmt& on_block_statement(stmt_seq&&, locations<2>);
 
-  void check_bool(expr&);
-  void check_bool(expr&, expr&);
-  void check_int(expr&);
-  void check_int(expr&, expr&);
-  void check_same(expr&, expr&);
-
   // Resources
   module& mod;
   sys_void::builder& build_void;
@@ -147,6 +161,21 @@ struct semantics
   // Declarations
   decl& declare(decl&);
   decl& declare(scope&, decl&);
+
+  // Typing
+  expr& check_bool(expr&);
+  void check_bool(expr&, expr&);
+  expr& check_int(expr&);
+  void check_int(expr&, expr&);
+  void check_same(expr&, expr&);
+
+  // Conversions
+  expr& standard_conversion(expr&, type&);
+  expr& boolean_conversion(expr&);
+  conv_pair boolean_conversion(expr&, expr&);
+  expr& arithmetic_conversion(expr&);
+  conv_pair arithmetic_conversion(expr&, expr&);
+  conv_pair common_conversion(expr&, expr&);
 
   // Initialization
   void copy_initialize(value_decl&, expr&);

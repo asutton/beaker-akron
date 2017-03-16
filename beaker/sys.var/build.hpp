@@ -24,7 +24,7 @@ struct builder : factory
 
   // Expressions
   ref_expr& make_ref_expr(decl&);
-  deref_expr& make_deref_expr(expr&);
+  val_expr& make_val_expr(expr&);
   assign_expr& make_assign_expr(expr&, expr&);
 
   nop_init& make_nop_init(type&);

@@ -42,17 +42,18 @@ builder::make_ref_expr(decl& d)
     assert(false && "reference to unknown type category");
 }
 
-/// Returns a new expression `deref(t)`.
-deref_expr&
-builder::make_deref_expr(expr& e)
+/// Returns a new expression `val(e)`. This will determine the type of the
+/// reference based on the expresion's category.
+val_expr&
+builder::make_val_expr(expr& e)
 {
   type& t = e.get_type();
   if (ref_type* ref = as<ref_type>(&t))
     // Dereferencing a reference yields an object type.
-    return make<deref_expr>(ref->get_object_type(), e);
+    return make<val_expr>(ref->get_object_type(), e);
   else if (is_function_type(t))
     // Dereferencing a function is a no-op.
-    return make<deref_expr>(t, e);
+    return make<val_expr>(t, e);
   else if (is_object_type(t))
     assert(false && "dereference of object type");
   else

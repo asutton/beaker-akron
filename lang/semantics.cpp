@@ -18,6 +18,23 @@
 
 namespace bpl {
 
+
+/// Returns true if the converted expressions have type bool.
+bool
+is_boolean(const conv_pair& p)
+{
+  return sys_bool::is_boolean_type(p.get_type());
+}
+
+/// Returns true if the converted expressions have integral type.
+bool
+is_integral(const conv_pair& p)
+{
+  return sys_int::is_integral_type(p.get_type());
+}
+
+
+
 semantics::semantics(module& m)
   : mod(m),
     build_void(m.get_void_builder()),
@@ -83,11 +100,12 @@ same_typed(const expr& e1, const expr& e2)
 }
 
 /// Check that `e1` has type bool.
-void
+expr&
 semantics::check_bool(expr& e1)
 {
   if (!is_boolean(e1))
     throw type_error(e1.get_location(), "operand does not have type 'bool'");
+  return e1;
 }
 
 /// Check that `e1` and `e2` both have type bool.
@@ -99,11 +117,12 @@ semantics::check_bool(expr& e1, expr& e2)
 }
 
 /// Check that `e1` has type int.
-void
+expr&
 semantics::check_int(expr& e1)
 {
   if (!is_integral(e1))
     throw type_error(e1.get_location(), "operand does not have type 'int'");
+  return e1;
 }
 
 /// Check that `e1` and `e2` both have type int.
@@ -174,4 +193,5 @@ declarative_region::~declarative_region()
 #include "sema_expr.cpp"
 #include "sema_decl.cpp"
 #include "sema_stmt.cpp"
+#include "sema_conv.cpp"
 #include "sema_init.cpp"
